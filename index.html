@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Hub — Software Developer Learning Path</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+
+    :root{
+      --blue:#3b82f6;--green:#10b981;--orange:#f97316;--red:#ef4444;
+      --purple:#8b5cf6;--amber:#f59e0b;--teal:#14b8a6;--pink:#ec4899;
+      --dark:#0f172a;--dark2:#1e293b;--dark3:#1a2744;
+      --gray:#64748b;--light:#f8fafc;--border:rgba(148,163,184,.15)
+    }
+
+    html,body{height:100%}
+
+    body{
+      font-family:'Segoe UI',system-ui,sans-serif;
+      background:var(--dark);
+      color:#e2e8f0;
+      min-height:100vh;
+      overflow-x:hidden
+    }
+
+    /* ── HEADER ── */
+    header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:18px 40px;
+      border-bottom:1px solid var(--border);
+      background:rgba(15,23,42,.85);
+      backdrop-filter:blur(12px);
+      position:sticky;top:0;z-index:100
+    }
+    .logo{
+      display:flex;align-items:center;gap:12px;
+      text-decoration:none
+    }
+    .logo-icon{
+      width:36px;height:36px;border-radius:10px;
+      background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 100%);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 0 2px rgba(59,130,246,.35),0 4px 14px rgba(59,130,246,.3);
+      flex-shrink:0
+    }
+    .logo-icon svg{display:block}
+    .logo-name{
+      font-size:19px;font-weight:800;letter-spacing:-.3px;
+      background:linear-gradient(90deg,#f1f5f9 30%,var(--blue) 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text
+    }
+    .header-tag{
+      font-size:10px;font-weight:700;letter-spacing:1.5px;
+      color:var(--gray);padding:3px 10px;
+      border:1px solid var(--border);border-radius:20px
+    }
+
+    /* ── MAIN ── */
+    main{max-width:980px;margin:0 auto;padding:50px 24px 80px}
+
+    /* ── QUOTE SECTION ── */
+    .quote-section{
+      background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f3460 100%);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:44px 48px;
+      margin-bottom:52px;
+      position:relative;
+      overflow:hidden;
+      text-align:center
+    }
+    .quote-section::before{
+      content:'';
+      position:absolute;top:-60px;right:-60px;
+      width:220px;height:220px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(59,130,246,.18) 0%,transparent 70%)
+    }
+    .quote-section::after{
+      content:'';
+      position:absolute;bottom:-40px;left:-40px;
+      width:160px;height:160px;
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(139,92,246,.14) 0%,transparent 70%)
+    }
+    .quote-eyebrow{
+      font-size:10px;font-weight:700;letter-spacing:2.5px;
+      color:var(--teal);margin-bottom:20px;
+      text-transform:uppercase
+    }
+    .quote-mark{
+      font-size:72px;line-height:0.5;
+      color:rgba(59,130,246,.25);
+      font-family:Georgia,serif;
+      display:block;margin-bottom:10px
+    }
+    #quote-text{
+      font-size:22px;font-weight:600;
+      color:#f1f5f9;line-height:1.55;
+      max-width:700px;margin:0 auto 18px;
+      min-height:80px;
+      transition:opacity .35s
+    }
+    #quote-author{
+      font-size:13px;color:#94a3b8;
+      font-style:italic;letter-spacing:.3px;
+      transition:opacity .35s
+    }
+    .quote-actions{
+      display:flex;align-items:center;justify-content:center;
+      gap:12px;margin-top:28px;position:relative;z-index:1
+    }
+    .btn-quote{
+      padding:9px 24px;border-radius:10px;
+      font-size:12px;font-weight:700;
+      cursor:pointer;border:none;
+      transition:all .18s;letter-spacing:.3px
+    }
+    .btn-refresh{background:var(--blue);color:#fff}
+    .btn-refresh:hover{background:#2563eb;transform:scale(1.04)}
+    .quote-counter{font-size:11px;color:var(--gray)}
+
+    /* ── SECTION HEADER ── */
+    .section-hdr{margin-bottom:28px}
+    .section-hdr h2{
+      font-size:26px;font-weight:800;color:#f1f5f9;margin-bottom:6px
+    }
+    .section-hdr p{font-size:14px;color:var(--gray)}
+
+    /* ── TOPIC GRID ── */
+    .topic-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:20px
+    }
+
+    /* ── TOPIC CARD ── */
+    .topic-card{
+      background:var(--dark2);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:28px 24px;
+      cursor:pointer;
+      text-decoration:none;
+      display:block;
+      position:relative;
+      overflow:hidden;
+      transition:all .2s;
+      color:inherit
+    }
+    .topic-card:hover{
+      transform:translateY(-3px);
+      border-color:rgba(59,130,246,.4);
+      box-shadow:0 12px 36px rgba(0,0,0,.4),0 0 0 1px rgba(59,130,246,.15)
+    }
+    .topic-card::before{
+      content:'';
+      position:absolute;top:0;left:0;right:0;height:3px;
+      border-radius:16px 16px 0 0;
+      background:linear-gradient(90deg,var(--blue),var(--purple))
+    }
+    .topic-card.green::before{background:linear-gradient(90deg,var(--green),var(--teal))}
+    .topic-card.orange::before{background:linear-gradient(90deg,var(--orange),var(--amber))}
+    .topic-card.red::before{background:linear-gradient(90deg,var(--red),var(--pink))}
+    .topic-card.purple::before{background:linear-gradient(90deg,var(--purple),var(--blue))}
+
+    .card-icon{
+      width:44px;height:44px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:22px;margin-bottom:16px;
+      background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2)
+    }
+    .topic-card.green .card-icon{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.2)}
+    .topic-card.orange .card-icon{background:rgba(249,115,22,.12);border-color:rgba(249,115,22,.2)}
+
+    .card-label{
+      font-size:10px;font-weight:700;letter-spacing:1.5px;
+      color:var(--blue);margin-bottom:6px;text-transform:uppercase
+    }
+    .topic-card.green .card-label{color:var(--green)}
+    .topic-card.orange .card-label{color:var(--orange)}
+
+    .card-title{font-size:17px;font-weight:700;color:#f1f5f9;margin-bottom:8px;line-height:1.3}
+
+    .card-desc{font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:16px}
+
+    .card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+    .card-tag{
+      font-size:10px;font-weight:600;padding:3px 9px;border-radius:8px;
+      border:1px solid
+    }
+    .tag-blue{color:var(--blue);border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.08)}
+    .tag-green{color:var(--green);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.08)}
+    .tag-orange{color:var(--orange);border-color:rgba(249,115,22,.3);background:rgba(249,115,22,.08)}
+    .tag-red{color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08)}
+    .tag-purple{color:var(--purple);border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.08)}
+
+    .card-footer{
+      display:flex;align-items:center;justify-content:space-between;
+      padding-top:14px;border-top:1px solid var(--border)
+    }
+    .card-stat{font-size:11px;color:var(--gray)}
+    .card-stat b{color:#cbd5e1}
+    .card-arrow{
+      width:28px;height:28px;border-radius:8px;
+      background:rgba(59,130,246,.15);
+      color:var(--blue);
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;font-weight:700;
+      transition:all .18s
+    }
+    .topic-card:hover .card-arrow{
+      background:var(--blue);color:#fff;transform:translateX(2px)
+    }
+    .topic-card.green .card-arrow{background:rgba(16,185,129,.15);color:var(--green)}
+    .topic-card.green:hover .card-arrow{background:var(--green);color:#fff}
+
+    /* COMING SOON CARD */
+    .card-soon{opacity:.45;pointer-events:none;cursor:default}
+    .soon-badge{
+      position:absolute;top:14px;right:14px;
+      font-size:9px;font-weight:700;letter-spacing:1px;
+      background:rgba(100,116,139,.2);color:#94a3b8;
+      padding:3px 8px;border-radius:6px;border:1px solid var(--border)
+    }
+
+    /* ── FOOTER ── */
+    footer{
+      text-align:center;padding:32px 24px;
+      border-top:1px solid var(--border);
+      font-size:12px;color:var(--gray)
+    }
+    footer span{color:#94a3b8;font-weight:600}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:600px){
+      header{padding:14px 20px}
+      main{padding:32px 16px 60px}
+      .quote-section{padding:28px 24px}
+      #quote-text{font-size:17px}
+      .topic-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="3" width="7" height="5" rx="1.5" fill="white" opacity=".95"/>
+        <rect x="2" y="10" width="7" height="7" rx="1.5" fill="white" opacity=".6"/>
+        <rect x="11" y="3" width="7" height="12" rx="1.5" fill="white" opacity=".8"/>
+      </svg>
+    </div>
+    <span class="logo-name">Dev Hub</span>
+  </a>
+  <span class="header-tag">SOFTWARE DEVELOPER PATH</span>
+</header>
+
+<main>
+
+  <!-- ── QUOTE SECTION ── -->
+  <div class="quote-section">
+    <div class="quote-eyebrow">Daily Motivation</div>
+    <span class="quote-mark">"</span>
+    <div id="quote-text">Loading…</div>
+    <div id="quote-author">— Author</div>
+    <div class="quote-actions">
+      <button class="btn-quote btn-refresh" onclick="nextQuote()">↻ New Quote</button>
+      <span class="quote-counter" id="quote-counter"></span>
+    </div>
+  </div>
+
+  <!-- ── TOPICS ── -->
+  <div class="section-hdr">
+    <h2>Pick a Topic</h2>
+    <p>Choose a topic below to start your slide-deck practice session.</p>
+  </div>
+
+  <div class="topic-grid">
+
+    <!-- Topic 1 — DSA: Arrays & LinkedList -->
+    <a class="topic-card" href="pages/Arrays&LL.html">
+      <div class="card-icon">🗂</div>
+      <div class="card-label">DSA · Topic 1</div>
+      <div class="card-title">Arrays, ArrayList &amp; LinkedList Family</div>
+      <div class="card-desc">Master contiguous memory, dynamic resizing, and pointer-chained data structures with 20 interview-grade questions.</div>
+      <div class="card-tags">
+        <span class="card-tag tag-blue">Array</span>
+        <span class="card-tag tag-green">ArrayList</span>
+        <span class="card-tag tag-orange">Singly LL</span>
+        <span class="card-tag tag-red">Doubly LL</span>
+        <span class="card-tag tag-purple">Circular LL</span>
+      </div>
+      <div class="card-footer">
+        <span class="card-stat"><b>20</b> Questions · Slides</span>
+        <div class="card-arrow">→</div>
+      </div>
+    </a>
+
+    <!-- Placeholder: Stack & Queue -->
+    <div class="topic-card green card-soon">
+      <div class="soon-badge">COMING SOON</div>
+      <div class="card-icon">📦</div>
+      <div class="card-label">DSA · Topic 2</div>
+      <div class="card-title">Stack &amp; Queue</div>
+      <div class="card-desc">LIFO vs FIFO, monotonic stacks, deque patterns, and real-world applications like expression parsing.</div>
+      <div class="card-tags">
+        <span class="card-tag tag-green">Stack</span>
+        <span class="card-tag tag-blue">Queue</span>
+        <span class="card-tag tag-orange">Deque</span>
+      </div>
+      <div class="card-footer">
+        <span class="card-stat">Coming soon</span>
+        <div class="card-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- Placeholder: Hashing Techniques -->
+    <div class="topic-card orange card-soon">
+      <div class="soon-badge">COMING SOON</div>
+      <div class="card-icon">🔑</div>
+      <div class="card-label">DSA · Topic 3</div>
+      <div class="card-title">Hashing Techniques</div>
+      <div class="card-desc">Hash functions, collision resolution (chaining vs open addressing), HashMap internals, and frequency-counting patterns.</div>
+      <div class="card-tags">
+        <span class="card-tag tag-orange">Hash Map</span>
+        <span class="card-tag tag-amber" style="color:#f59e0b;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08)">Hash Set</span>
+        <span class="card-tag tag-purple">Collision</span>
+        <span class="card-tag tag-blue">Load Factor</span>
+      </div>
+      <div class="card-footer">
+        <span class="card-stat">Coming soon</span>
+        <div class="card-arrow">→</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  Built for <span>Dev Hub · Software Developer Path</span> · Study smart, ship faster.
+</footer>
+
+<script>
+const QUOTES = [
+  // 1-20: On learning & growth
+  {q:"The expert in anything was once a beginner.",a:"Helen Hayes"},
+  {q:"Every master was once a disaster.",a:"T. Harv Eker"},
+  {q:"The beautiful thing about learning is that no one can take it away from you.",a:"B.B. King"},
+  {q:"An investment in knowledge pays the best interest.",a:"Benjamin Franklin"},
+  {q:"The more that you read, the more things you will know.",a:"Dr. Seuss"},
+  {q:"Education is not the filling of a pail, but the lighting of a fire.",a:"W.B. Yeats"},
+  {q:"Live as if you were to die tomorrow. Learn as if you were to live forever.",a:"Mahatma Gandhi"},
+  {q:"The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.",a:"Brian Herbert"},
+  {q:"Tell me and I forget. Teach me and I remember. Involve me and I learn.",a:"Benjamin Franklin"},
+  {q:"Anyone who stops learning is old, whether at twenty or eighty.",a:"Henry Ford"},
+  {q:"It's not that I'm so smart, it's just that I stay with problems longer.",a:"Albert Einstein"},
+  {q:"The only way to do great work is to love what you do.",a:"Steve Jobs"},
+  {q:"In learning you will teach, and in teaching you will learn.",a:"Phil Collins"},
+  {q:"Study hard what interests you the most in the most undisciplined, irreverent and original manner possible.",a:"Richard Feynman"},
+  {q:"Develop a passion for learning. If you do, you will never cease to grow.",a:"Anthony J. D'Angelo"},
+  {q:"The mind is not a vessel to be filled, but a fire to be kindled.",a:"Plutarch"},
+  {q:"Change is the end result of all true learning.",a:"Leo Buscaglia"},
+  {q:"Intellectual growth should commence at birth and cease only at death.",a:"Albert Einstein"},
+  {q:"The more I learn, the more I realize how much I don't know.",a:"Albert Einstein"},
+  {q:"Learning is not attained by chance; it must be sought for with ardor.",a:"Abigail Adams"},
+
+  // 21-40: On coding & programming
+  {q:"The best error message is the one that never shows up.",a:"Thomas Fuchs"},
+  {q:"Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",a:"Martin Fowler"},
+  {q:"First, solve the problem. Then, write the code.",a:"John Johnson"},
+  {q:"Code is like humor. When you have to explain it, it's bad.",a:"Cory House"},
+  {q:"Programming isn't about what you know; it's about what you can figure out.",a:"Chris Pine"},
+  {q:"Simplicity is the soul of efficiency.",a:"Austin Freeman"},
+  {q:"The function of good software is to make the complex appear to be simple.",a:"Grady Booch"},
+  {q:"Make it work, make it right, make it fast.",a:"Kent Beck"},
+  {q:"Software is a great combination of artistry and engineering.",a:"Bill Gates"},
+  {q:"Programs must be written for people to read, and only incidentally for machines to execute.",a:"Harold Abelson"},
+  {q:"The most important property of a program is whether it accomplishes the intention of its user.",a:"C.A.R. Hoare"},
+  {q:"Good code is its own best documentation.",a:"Steve McConnell"},
+  {q:"Clean code always looks like it was written by someone who cares.",a:"Robert C. Martin"},
+  {q:"Write code that is easy to delete, not easy to extend.",a:"Tef"},
+  {q:"Debugging is twice as hard as writing the code in the first place.",a:"Brian W. Kernighan"},
+  {q:"You don't have to be great to start, but you have to start to be great.",a:"Zig Ziglar"},
+  {q:"One of the best programming skills you can have is knowing when to walk away.",a:"Oscar Godson"},
+  {q:"It's not about ideas. It's about making ideas happen.",a:"Scott Belsky"},
+  {q:"Programming is the art of telling another human what one wants the computer to do.",a:"Donald Knuth"},
+  {q:"Every line of code is a decision.",a:"Unknown"},
+
+  // 41-60: On persistence & effort
+  {q:"Success is not final, failure is not fatal: it is the courage to continue that counts.",a:"Winston Churchill"},
+  {q:"Fall seven times, stand up eight.",a:"Japanese Proverb"},
+  {q:"The secret of getting ahead is getting started.",a:"Mark Twain"},
+  {q:"Continuous improvement is better than delayed perfection.",a:"Mark Twain"},
+  {q:"It always seems impossible until it's done.",a:"Nelson Mandela"},
+  {q:"You don't have to be perfect, you just have to be consistent.",a:"Unknown"},
+  {q:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},
+  {q:"The difference between try and triumph is a little umph.",a:"Marvin Phillips"},
+  {q:"Dream big, start small, act now.",a:"Robin Sharma"},
+  {q:"Energy and persistence conquer all things.",a:"Benjamin Franklin"},
+  {q:"Success usually comes to those who are too busy to be looking for it.",a:"Henry David Thoreau"},
+  {q:"Don't watch the clock; do what it does. Keep going.",a:"Sam Levenson"},
+  {q:"You are never too old to set another goal or to dream a new dream.",a:"C.S. Lewis"},
+  {q:"Perseverance is not a long race; it is many short races one after the other.",a:"Walter Elliot"},
+  {q:"What you get by achieving your goals is not as important as what you become.",a:"Zig Ziglar"},
+  {q:"A little progress each day adds up to big results.",a:"Satya Nani"},
+  {q:"Rome wasn't built in a day, but they were laying bricks every hour.",a:"John Heywood"},
+  {q:"The journey of a thousand miles begins with a single step.",a:"Lao Tzu"},
+  {q:"Slow progress is still progress.",a:"Unknown"},
+  {q:"Excellence is not a destination but a continuous journey that never ends.",a:"Brian Tracy"},
+
+  // 61-80: On problem solving & DSA
+  {q:"A problem well-stated is a problem half-solved.",a:"Charles Kettering"},
+  {q:"The measure of intelligence is the ability to change.",a:"Albert Einstein"},
+  {q:"For every complex problem there is an answer that is clear, simple, and wrong.",a:"H.L. Mencken"},
+  {q:"Think before you code, code before you think — know which applies.",a:"Unknown"},
+  {q:"Algorithms are the poetry of computation.",a:"Francis Sullivan"},
+  {q:"Computer science is no more about computers than astronomy is about telescopes.",a:"Edsger W. Dijkstra"},
+  {q:"Data is the new oil, but algorithms are the refinery.",a:"Unknown"},
+  {q:"The art of programming is the art of organizing complexity.",a:"Edsger W. Dijkstra"},
+  {q:"One accurate measurement is worth a thousand expert opinions.",a:"Grace Hopper"},
+  {q:"To iterate is human, to recurse divine.",a:"L. Peter Deutsch"},
+  {q:"Understanding recursion requires that you understand recursion.",a:"Unknown"},
+  {q:"The cheapest, fastest and most reliable components of a computer system are those that aren't there.",a:"Gordon Bell"},
+  {q:"Premature optimization is the root of all evil.",a:"Donald Knuth"},
+  {q:"A language that doesn't affect the way you think about programming is not worth knowing.",a:"Alan Perlis"},
+  {q:"Most good programmers do programming not because they expect to get paid, but because it is fun.",a:"Linus Torvalds"},
+  {q:"The best programmers are not marginally better than merely good ones; they are an order of magnitude better.",a:"Randall E. Stross"},
+  {q:"Everyone who's used an ArrayList has a story about why they switched.",a:"Unknown"},
+  {q:"Cache misses can make O(n log n) beat O(n) in practice.",a:"Unknown"},
+  {q:"Arrays are not boring — they're the foundation of almost everything.",a:"Unknown"},
+  {q:"Linked lists teach you that memory isn't magic — it's managed.",a:"Unknown"},
+
+  // 81-100: On mindset & confidence
+  {q:"Believe you can and you're halfway there.",a:"Theodore Roosevelt"},
+  {q:"Whether you think you can or you think you can't, you're right.",a:"Henry Ford"},
+  {q:"The only limit to our realization of tomorrow is our doubts of today.",a:"Franklin D. Roosevelt"},
+  {q:"Don't be afraid to give up the good to go for the great.",a:"John D. Rockefeller"},
+  {q:"You miss 100% of the shots you don't take.",a:"Wayne Gretzky"},
+  {q:"I have not failed. I've just found 10,000 ways that won't work.",a:"Thomas Edison"},
+  {q:"Mistakes are proof that you are trying.",a:"Unknown"},
+  {q:"Fear is not real. The only place that fear can exist is in our thoughts of the future.",a:"Will Smith"},
+  {q:"The greatest glory in living lies not in never falling, but in rising every time we fall.",a:"Nelson Mandela"},
+  {q:"You are braver than you believe, stronger than you seem, and smarter than you think.",a:"A.A. Milne"},
+  {q:"Start where you are. Use what you have. Do what you can.",a:"Arthur Ashe"},
+  {q:"Doubt kills more dreams than failure ever will.",a:"Suzy Kassem"},
+  {q:"With the right mindset, skills can always be learned.",a:"Unknown"},
+  {q:"Your current situation is not your final destination.",a:"Unknown"},
+  {q:"Success is the sum of small efforts, repeated day in and day out.",a:"Robert Collier"},
+  {q:"There is no elevator to success. You have to take the stairs.",a:"Unknown"},
+  {q:"The only way to learn a new programming language is by writing programs in it.",a:"Dennis Ritchie"},
+  {q:"Never stop learning, because life never stops teaching.",a:"Unknown"},
+  {q:"Confidence is not 'I will succeed'. It is 'I will try, whatever it takes'.",a:"Unknown"},
+  {q:"You don't need to be fearless. Just be brave enough to start.",a:"Unknown"},
+
+  // 101-120: On focus & discipline
+  {q:"The successful warrior is the average man, with laser-like focus.",a:"Bruce Lee"},
+  {q:"Where focus goes, energy flows.",a:"Tony Robbins"},
+  {q:"Discipline is the bridge between goals and accomplishment.",a:"Jim Rohn"},
+  {q:"Motivation gets you going, but discipline keeps you growing.",a:"John C. Maxwell"},
+  {q:"You can't build a reputation on what you're going to do.",a:"Henry Ford"},
+  {q:"Don't count the days, make the days count.",a:"Muhammad Ali"},
+  {q:"Deep work is the superpower of the 21st century.",a:"Cal Newport"},
+  {q:"The secret to getting ahead is getting started.",a:"Agatha Christie"},
+  {q:"Act as if what you do makes a difference. It does.",a:"William James"},
+  {q:"Focus on being productive instead of busy.",a:"Tim Ferriss"},
+  {q:"Small disciplines repeated with consistency every day lead to great achievements.",a:"John C. Maxwell"},
+  {q:"The successful person makes a habit of doing what the failing person doesn't like to do.",a:"Thomas Edison"},
+  {q:"If you spend too much time thinking about a thing, you'll never get it done.",a:"Bruce Lee"},
+  {q:"You have to fight through some bad days to earn the best days of your life.",a:"Unknown"},
+  {q:"Work hard in silence. Let your commits speak.",a:"Unknown"},
+  {q:"Shipping beats perfecting.",a:"Unknown"},
+  {q:"Open source is not about code. It's about collaboration.",a:"Unknown"},
+  {q:"A good pull request is worth a thousand meetings.",a:"Unknown"},
+  {q:"Your IDE is a tool. Your mind is the weapon.",a:"Unknown"},
+  {q:"Review other people's code. It will change how you write yours.",a:"Unknown"},
+
+  // 121-140: On failure & resilience
+  {q:"You can't go back and change the beginning, but you can start where you are and change the ending.",a:"C.S. Lewis"},
+  {q:"Failure is an event, not a person.",a:"Zig Ziglar"},
+  {q:"When you feel like quitting, think about why you started.",a:"Unknown"},
+  {q:"The comeback is always stronger than the setback.",a:"Unknown"},
+  {q:"Failure is the opportunity to begin again more intelligently.",a:"Henry Ford"},
+  {q:"Obstacles are those frightful things you see when you take your eyes off your goal.",a:"Henry Ford"},
+  {q:"It's not about perfect. It's about effort.",a:"Jillian Michaels"},
+  {q:"The pain you feel today is the strength you'll feel tomorrow.",a:"Unknown"},
+  {q:"Every expert was once a beginner who refused to give up.",a:"Unknown"},
+  {q:"Resilience is knowing that you are the only one that has the power to pick yourself up.",a:"Mary Holloway"},
+  {q:"You learn more from failure than from success. Don't let it stop you.",a:"Unknown"},
+  {q:"The darkest hour has only sixty minutes.",a:"Morris Mandel"},
+  {q:"When the going gets tough, debug harder.",a:"Unknown"},
+  {q:"One bug fixed is one lesson earned.",a:"Unknown"},
+  {q:"Every broken build is a chance to understand the system better.",a:"Unknown"},
+  {q:"Refactoring is not waste. It is wisdom.",a:"Unknown"},
+  {q:"Technical debt is real debt. Pay it off early.",a:"Unknown"},
+  {q:"Code today like your future self will be maintaining it.",a:"Unknown"},
+  {q:"The best time to refactor was yesterday. The next best time is now.",a:"Unknown"},
+  {q:"A bug is just a feature you haven't understood yet.",a:"Unknown"},
+
+  // 141-150: On purpose & career
+  {q:"Choose a job you love, and you will never have to work a day in your life.",a:"Confucius"},
+  {q:"Your work is going to fill a large part of your life. Do something great.",a:"Steve Jobs"},
+  {q:"If opportunity doesn't knock, build a door.",a:"Milton Berle"},
+  {q:"Don't find a job, build a career.",a:"Unknown"},
+  {q:"Be so good they can't ignore you.",a:"Steve Martin"},
+  {q:"The best investment you can make is in yourself.",a:"Warren Buffett"},
+  {q:"Your career is a product. Iterate on it.",a:"Unknown"},
+  {q:"Hire character. Train skill.",a:"Peter Schutz"},
+  {q:"Soft skills are the hard skills of the future.",a:"Unknown"},
+  {q:"Build things. Break things. Learn things. Repeat.",a:"Unknown"},
+];
+
+let currentQuote = -1;
+
+function nextQuote(forceIndex) {
+  const total = QUOTES.length;
+  let idx = forceIndex !== undefined ? forceIndex : Math.floor(Math.random() * total);
+  // avoid same quote twice in a row
+  while (idx === currentQuote && total > 1) {
+    idx = Math.floor(Math.random() * total);
+  }
+  currentQuote = idx;
+
+  const qt = document.getElementById('quote-text');
+  const qa = document.getElementById('quote-author');
+  const qc = document.getElementById('quote-counter');
+
+  qt.style.opacity = '0';
+  qa.style.opacity = '0';
+
+  setTimeout(() => {
+    qt.textContent = QUOTES[idx].q;
+    qa.textContent = '— ' + QUOTES[idx].a;
+    qc.textContent = `#${idx + 1} of ${total}`;
+    qt.style.opacity = '1';
+    qa.style.opacity = '1';
+  }, 180);
+}
+
+// Load a random quote on page load
+nextQuote();
+</script>
+</body>
+</html>
