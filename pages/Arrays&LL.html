@@ -881,13 +881,13 @@ class Particle{
     this.x=x; this.y=y; this.W=W; this.H=H;
     /* burst outward from origin */
     const angle=Math.random()*Math.PI*2;
-    const spd=Math.random()*16+6;
+    const spd=Math.random()*7+3;
     this.vx=Math.cos(angle)*spd;
-    this.vy=Math.sin(angle)*spd-(Math.random()*10+4); /* bias upward */
-    this.gravity=0.38;
-    this.drag=0.988;
+    this.vy=Math.sin(angle)*spd-(Math.random()*5+3); /* bias upward */
+    this.gravity=0.06;
+    this.drag=0.997;
     this.rot=Math.random()*360;
-    this.rotSpd=(Math.random()-0.5)*9;
+    this.rotSpd=(Math.random()-0.5)*2.5;
     this.col=CCOLS[Math.floor(Math.random()*CCOLS.length)];
     this.alpha=1;
     this.fadeY=H*0.72;
@@ -900,8 +900,8 @@ class Particle{
     } else if(r<0.60){
       this.kind='ribbon';
       this.w=Math.random()*3+2; this.h=Math.random()*28+14;
-      this.wAmp=Math.random()*4+1.5;
-      this.wFreq=Math.random()*0.09+0.04;
+      this.wAmp=Math.random()*2.5+1;
+      this.wFreq=Math.random()*0.04+0.02;
     } else if(r<0.78){
       this.kind='circle';
       this.r=Math.random()*5+3;
@@ -911,13 +911,13 @@ class Particle{
     }
   }
   update(){
-    this.phase+=0.055;
+    this.phase+=0.022;
     /* ribbon waves horizontally as it falls */
     if(this.kind==='ribbon') this.vx=Math.sin(this.phase*this.wFreq*18+this.phase)*this.wAmp;
     this.vx*=this.drag; this.vy+=this.gravity;
     this.x+=this.vx; this.y+=this.vy;
     this.rot+=this.rotSpd;
-    if(this.y>this.fadeY) this.alpha-=0.022;
+    if(this.y>this.fadeY) this.alpha-=0.007;
   }
   draw(ctx){
     if(this.alpha<=0) return;
