@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stack &amp; Queue — Dev Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#3b82f6;--green:#10b981;--orange:#f97316;--red:#ef4444;--purple:#8b5cf6;--amber:#f59e0b;--teal:#14b8a6;--pink:#ec4899;--dark:#0f172a;--dark2:#1e293b;--gray:#64748b;--border:rgba(148,163,184,.15)}
+html{scroll-snap-type:y mandatory;overflow-y:scroll;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0}
+
+/* ── STICKY HEADER ── */
+.sticky-hdr{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(15,23,42,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;padding:11px 28px;gap:12px}
+.hdr-home{font-size:12px;font-weight:700;color:#94a3b8;text-decoration:none;padding:6px 14px;border-radius:8px;border:1px solid var(--border);transition:all .15s;white-space:nowrap}
+.hdr-home:hover{color:#e2e8f0;border-color:rgba(148,163,184,.35);background:rgba(255,255,255,.05)}
+.hdr-title{font-size:13px;font-weight:700;color:#f1f5f9;letter-spacing:-.2px;text-align:center;flex:1}
+.hdr-pdf{font-size:12px;font-weight:700;color:#fff;background:var(--blue);border:none;padding:7px 16px;border-radius:8px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.hdr-pdf:hover{background:#2563eb;transform:scale(1.03)}
+.prog-bar{height:3px;background:rgba(148,163,184,.12)}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .1s linear}
+
+/* ── FULL-PAGE SLIDES ── */
+.s-hero,.s-card,.q-card,.s-end,.s-trans{
+  min-height:100vh;
+  scroll-snap-align:start;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:72px 24px 80px;
+  position:relative;
+  border-bottom:1px solid var(--border);
+}
+
+/* Hero */
+.s-hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f3460 100%);align-items:center;text-align:center;overflow:hidden}
+.s-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.18) 0%,transparent 70%);pointer-events:none}
+.s-hero::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.14) 0%,transparent 70%);pointer-events:none}
+
+/* Concept cards */
+.s-card{background:#fff;color:#0f172a}
+.s-card.dark{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f3460 100%);color:#e2e8f0}
+.s-card.dark2{background:linear-gradient(135deg,#064e3b 0%,#0f172a 100%);color:#e2e8f0}
+.s-card.dark3{background:linear-gradient(135deg,#4c1d95 0%,#0f172a 100%);color:#e2e8f0}
+
+/* Transition chapter slide */
+.s-trans{background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f3460 100%);align-items:center;justify-content:center;text-align:center;color:#e2e8f0}
+
+/* Q&A cards */
+.q-card{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#e2e8f0}
+
+/* End graffiti */
+.s-end{background:linear-gradient(135deg,#0f172a 0%,#1a0533 50%,#0f172a 100%);align-items:center;justify-content:center;text-align:center;overflow:hidden}
+
+/* ── INNER CONTENT ── */
+.si{max-width:860px;width:100%;margin:0 auto;position:relative;z-index:1}
+
+/* ── BOUNCING DOWN ARROW ── */
+.dn{
+  position:absolute;bottom:22px;left:50%;
+  transform:translateX(-50%);
+  width:38px;height:38px;border-radius:50%;
+  border:1.5px solid rgba(148,163,184,.3);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(148,163,184,.6);font-size:14px;
+  cursor:pointer;z-index:20;user-select:none;
+  animation:dn-bounce 1.6s ease-in-out infinite;
+  transition:border-color .2s,color .2s;
+}
+.dn:hover{border-color:rgba(148,163,184,.8);color:#e2e8f0}
+.s-card .dn{border-color:rgba(100,116,139,.28);color:rgba(100,116,139,.55)}
+.s-card .dn:hover{border-color:rgba(100,116,139,.7);color:#475569}
+@keyframes dn-bounce{
+  0%,100%{transform:translateX(-50%) translateY(0);opacity:.55}
+  50%{transform:translateX(-50%) translateY(9px);opacity:1}
+}
+
+/* ── COMPONENTS ── */
+.s-num{font-size:9px;font-weight:700;letter-spacing:1.5px;color:#94a3b8;margin-bottom:10px;text-transform:uppercase}
+.s-card:not(.dark):not(.dark2):not(.dark3) .s-num{color:#9ca3af}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 11px;border-radius:12px;color:#fff;letter-spacing:.5px}
+.tag{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
+h2{font-size:21px;font-weight:700;color:#0f172a;margin:6px 0 4px;line-height:1.3}
+.dark h2,.dark2 h2,.dark3 h2,.q-card h2,.s-hero h2,.s-trans h2{color:#f1f5f9}
+.sub{font-size:13px;color:#64748b;margin-bottom:14px}
+.dark .sub,.dark2 .sub,.dark3 .sub,.q-card .sub,.s-trans .sub{color:#94a3b8}
+.mem{display:flex;gap:2px;margin:6px 0}
+.mem-cell{flex:1;padding:10px 0;text-align:center;font-weight:700;font-size:15px;border-radius:5px;border:1.5px solid}
+.mem-empty{flex:1;padding:10px 0;text-align:center;font-size:11px;color:#aaa;border:1.5px dashed #d1d5db;border-radius:5px;background:#f9fafb}
+.node-chain{display:flex;align-items:center;flex-wrap:wrap;margin:8px 0}
+.nd{padding:6px 10px;border-radius:6px;text-align:center;min-width:48px;font-weight:700;font-size:14px;border:1.5px solid}
+.nd-sub{font-size:8px;color:#9ca3af}
+.arrow-r{font-size:14px;margin:0 2px}
+.stat{border-radius:8px;padding:7px 10px;text-align:center}
+.stat-label{font-size:10px;color:#6b7280}
+.stat-val{font-size:15px;font-weight:700}
+.q-box{background:#f0fdf4;border-radius:10px;padding:12px 16px;border-left:3px solid #10b981;margin-bottom:10px}
+.a-box{background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e5e7eb}
+.q-card .q-box,.dark .q-box{background:rgba(16,185,129,.1);border-left-color:#10b981}
+.q-card .a-box,.dark .a-box,.dark2 .a-box,.dark3 .a-box{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+.q-title{font-size:17px;font-weight:700;color:#0f172a;line-height:1.45;margin-bottom:14px}
+.dark .q-title,.dark2 .q-title,.dark3 .q-title,.q-card .q-title{color:#f1f5f9}
+.hint-label,.ans-label{font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.hint-label{color:#065f46}
+.ans-label{color:#8b5cf6}
+.dark .hint-label,.q-card .hint-label{color:#6ee7b7}
+.dark .ans-label,.dark2 .ans-label,.dark3 .ans-label,.q-card .ans-label{color:#c4b5fd}
+.text-sm{font-size:13px;line-height:1.65;color:#374151}
+.dark .text-sm,.dark2 .text-sm,.dark3 .text-sm,.q-card .text-sm{color:#cbd5e1}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
+.tbl th{background:#0f172a;color:#e2e8f0;padding:7px;font-weight:600;text-align:center}
+.tbl td{padding:6px;text-align:center;border-bottom:1px solid #f1f5f9}
+.tbl tr:nth-child(even){background:#f8fafc}
+.formula{font-family:'Courier New',monospace;background:#fff7ed;padding:6px 12px;border-radius:6px;font-size:12px;color:#92400e;display:inline-block;margin-top:6px}
+.dark .formula{background:rgba(245,158,11,.12);color:#fbbf24}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.card-sm{border-radius:8px;padding:7px 10px}
+.reveal-btn{background:none;border:1px dashed #8b5cf6;color:#8b5cf6;padding:5px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;margin-left:10px;transition:all .2s}
+.reveal-btn:hover{background:#8b5cf622}
+.hidden{display:none}
+.codebox{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 12px;border:1px solid rgba(148,163,184,.25);font-family:'Courier New',monospace;font-size:12px;line-height:1.55;white-space:pre;overflow:auto}
+.hint-btn{background:none;border:1px dashed #10b981;color:#10b981;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.hint-btn:hover{background:rgba(16,185,129,.12)}
+.dark .hint-btn,.dark2 .hint-btn,.dark3 .hint-btn,.q-card .hint-btn{border-color:#34d399;color:#34d399}
+.fw-row{display:flex;gap:10px;align-items:flex-start}
+.fw-toggle{width:26px;height:26px;border-radius:8px;border:1px solid rgba(15,23,42,.18);background:rgba(255,255,255,.72);cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900;line-height:1;transition:all .15s;flex-shrink:0}
+.fw-toggle:hover{background:#fff}
+.fw-toggle.on{transform:rotate(180deg)}
+.fw-ans{margin-top:4px;font-size:12px;color:#374151}
+.q-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+
+/* ── STACK VISUAL ── */
+.stack-vis{display:flex;flex-direction:column-reverse;align-items:center;gap:2px;margin:10px 0}
+.stack-cell{width:160px;padding:10px 0;text-align:center;font-weight:700;font-size:14px;border-radius:5px;border:1.5px solid;position:relative}
+.stack-top{position:absolute;right:-50px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:#10b981}
+.stack-base{width:168px;height:4px;border-radius:2px;margin-top:2px}
+
+/* ── QUEUE VISUAL ── */
+.queue-vis{display:flex;align-items:center;gap:2px;margin:10px 0;justify-content:center}
+.queue-cell{padding:10px 14px;text-align:center;font-weight:700;font-size:14px;border-radius:5px;border:1.5px solid}
+.queue-label{font-size:10px;font-weight:700;margin-top:4px;text-align:center}
+
+/* END section */
+#gCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.wish-main{font-size:48px;font-weight:900;line-height:1.15;background:linear-gradient(135deg,#10b981 0%,#3b82f6 40%,#8b5cf6 70%,#f97316 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;z-index:2;margin-bottom:10px;letter-spacing:-1px}
+.wish-sub{font-size:16px;font-weight:500;color:#94a3b8;position:relative;z-index:2;margin-bottom:40px;line-height:1.6;max-width:520px;margin-left:auto;margin-right:auto}
+.pdf-dl-btn{position:relative;z-index:2;background:linear-gradient(135deg,#10b981,#3b82f6);color:#fff;border:none;padding:15px 44px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(16,185,129,.4);transition:all .22s;letter-spacing:.3px}
+.pdf-dl-btn:hover{transform:translateY(-3px);box-shadow:0 14px 44px rgba(59,130,246,.5)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .s-hero,.s-card,.q-card,.s-end,.s-trans{padding:68px 16px 72px}
+  .wish-main{font-size:32px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr}
+  .hdr-title{display:none}
+  .stack-cell{width:120px}
+  .stack-base{width:128px}
+}
+
+/* ── PRINT ── */
+@media print{
+  html{scroll-snap-type:none}
+  .sticky-hdr,.dn,.pdf-dl-btn{display:none!important}
+  body{background:#fff;color:#000}
+  .s-hero,.s-card,.q-card,.s-end,.s-trans{min-height:0;page-break-inside:avoid;padding:20px;margin:0 0 12px}
+  .s-card.dark,.q-card,.s-hero,.s-trans{background:#0f172a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hidden{display:block!important}
+  .reveal-btn,.hint-btn{display:none!important}
+  #gCanvas{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="sticky-hdr">
+  <div class="hdr-row">
+    <a class="hdr-home" href="../index.html">&larr; Home</a>
+    <span class="hdr-title">Stack &middot; Queue &middot; Deque</span>
+    <button class="hdr-pdf" onclick="downloadPDF()">&#9118; PDF</button>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 0 · HERO
+══════════════════════════════════════════════════════ -->
+<section class="s-hero">
+  <div class="si">
+    <div style="font-size:11px;letter-spacing:3px;color:#7ec8e3;margin-bottom:18px">DATA STRUCTURE &nbsp;&nbsp; ALGORITHM</div>
+    <h2 style="font-size:34px;color:#f1f5f9;margin-bottom:8px;font-weight:800">Stack &amp; Queue</h2>
+    <p class="sub" style="color:#94a3b8;font-size:14px;margin-bottom:0">Built on Arrays &amp; LinkedList fundamentals</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px">
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #10b981;font-size:11px;color:#10b981">Stack</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #3b82f6;font-size:11px;color:#3b82f6">Queue</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #f97316;font-size:11px;color:#f97316">Deque</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #8b5cf6;font-size:11px;color:#8b5cf6">Priority Queue</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #ef4444;font-size:11px;color:#ef4444">Circular Queue</span>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+      <span style="padding:3px 10px;border-radius:12px;background:rgba(16,185,129,.12);font-size:10px;color:#10b981;font-weight:600">Prereq: Arrays &amp; LinkedList</span>
+    </div>
+    <div style="margin-top:24px;font-size:12px;color:#475569">12 Concept Slides &middot; 20 Interview &amp; Real-World Questions</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 1 · STACK — LIFO CONCEPT
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">01 &middot; Stack</div>
+    <span class="badge" style="background:#10b981">STACK</span>
+    <h2>LIFO &mdash; Last In, First Out</h2>
+    <p class="sub">Like a stack of plates: you can only add/remove from the top</p>
+    <div class="grid-2" style="margin-bottom:14px">
+      <div>
+        <div style="font-size:10px;color:#9ca3af;margin-bottom:6px;letter-spacing:1px">VISUAL MODEL</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb;text-align:center">
+          <div style="font-size:10px;color:#10b981;font-weight:700;margin-bottom:6px">push(40) &darr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&uarr; pop() = 40</div>
+          <div class="stack-vis">
+            <div class="stack-cell" style="background:#d1fae5;color:#065f46;border-color:#10b981">10</div>
+            <div class="stack-cell" style="background:#d1fae5;color:#065f46;border-color:#10b981">20</div>
+            <div class="stack-cell" style="background:#d1fae5;color:#065f46;border-color:#10b981">30</div>
+            <div class="stack-cell" style="background:#10b981;color:#fff;border-color:#10b981">40<span class="stack-top">&larr; TOP</span></div>
+          </div>
+          <div class="stack-base" style="background:#10b981"></div>
+          <div style="font-size:9px;color:#6b7280;margin-top:4px">Bottom &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash; Top</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#9ca3af;margin-bottom:6px;letter-spacing:1px">ARRAY IMPLEMENTATION</div>
+        <div class="codebox" style="font-size:11px">class Stack {
+  int[] arr;
+  int top = -1;
+
+  void push(int x) {
+    arr[++top] = x;
+  }
+  int pop() {
+    return arr[top--];
+  }
+  int peek() {
+    return arr[top];
+  }
+}</div>
+      </div>
+    </div>
+    <div class="grid-4">
+      <div class="stat" style="background:#10b98112"><div class="stat-label">Push</div><div class="stat-val" style="color:#10b981">O(1)</div></div>
+      <div class="stat" style="background:#10b98112"><div class="stat-label">Pop</div><div class="stat-val" style="color:#10b981">O(1)</div></div>
+      <div class="stat" style="background:#10b98112"><div class="stat-label">Peek</div><div class="stat-val" style="color:#10b981">O(1)</div></div>
+      <div class="stat" style="background:#ef444412"><div class="stat-label">Search</div><div class="stat-val" style="color:#ef4444">O(n)</div></div>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:#6b7280;line-height:1.6"><b>Key traits:</b> Only top element accessible &middot; No random access &middot; Can be built on Array or LinkedList &middot; Overflow (array-based) / Underflow (empty pop)</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 2 · STACK — REAL-WORLD USES
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">02 &middot; Stack</div>
+    <span class="badge" style="background:#10b981">STACK</span>
+    <h2>Real-World Applications</h2>
+    <p class="sub">Where stacks power the systems you use every day</p>
+    <div class="grid-2" style="margin-bottom:12px">
+      <div style="background:rgba(16,185,129,.08);border-radius:10px;padding:14px;border:1px solid rgba(16,185,129,.2)">
+        <div style="font-size:16px;margin-bottom:6px">&#128187;</div>
+        <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:4px">OS — Function Call Stack</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">Every function call pushes a <b>stack frame</b> (return address, local vars, params). On return, frame is popped. Stack overflow = too deep recursion exceeds stack memory.</div>
+      </div>
+      <div style="background:rgba(59,130,246,.08);border-radius:10px;padding:14px;border:1px solid rgba(59,130,246,.2)">
+        <div style="font-size:16px;margin-bottom:6px">&#127760;</div>
+        <div style="font-size:12px;font-weight:700;color:#3b82f6;margin-bottom:4px">Browser — Back/Forward Navigation</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">Two stacks: <b>Back Stack</b> (pages visited) and <b>Forward Stack</b> (pages after pressing back). Navigate back = pop from back, push to forward.</div>
+      </div>
+      <div style="background:rgba(249,115,22,.08);border-radius:10px;padding:14px;border:1px solid rgba(249,115,22,.2)">
+        <div style="font-size:16px;margin-bottom:6px">&#9000;</div>
+        <div style="font-size:12px;font-weight:700;color:#f97316;margin-bottom:4px">Editor — Undo/Redo System</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">Each action pushed to <b>undo stack</b>. Ctrl+Z pops undo, pushes to <b>redo stack</b>. New edit clears redo stack. Used in VS Code, Photoshop, etc.</div>
+      </div>
+      <div style="background:rgba(139,92,246,.08);border-radius:10px;padding:14px;border:1px solid rgba(139,92,246,.2)">
+        <div style="font-size:16px;margin-bottom:6px">&#128290;</div>
+        <div style="font-size:12px;font-weight:700;color:#8b5cf6;margin-bottom:4px">Compiler — Expression Parsing</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">Infix to postfix conversion, parenthesis matching, syntax tree building — all use stacks. Shunting-yard algorithm relies entirely on an operator stack.</div>
+      </div>
+    </div>
+    <div style="background:rgba(239,68,68,.08);border-radius:10px;padding:12px;border:1px solid rgba(239,68,68,.2)">
+      <div style="font-size:16px;display:inline;margin-right:6px">&#128241;</div>
+      <span style="font-size:12px;font-weight:700;color:#ef4444">Android / iOS Activity Stack:</span>
+      <span style="font-size:11px;color:#94a3b8"> Each screen pushed onto the activity back stack. Press back = pop current, reveal previous. Task kill = clear entire stack.</span>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 3 · STACK — CALL STACK VISUALIZATION
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">03 &middot; Stack</div>
+    <span class="badge" style="background:#10b981">STACK</span>
+    <h2>OS Call Stack — Frame by Frame</h2>
+    <p class="sub">Visualizing what happens when functions call each other</p>
+    <div class="grid-2" style="margin-bottom:14px">
+      <div>
+        <div class="codebox" style="font-size:11px;margin-bottom:8px">void main() {
+  int x = 5;
+  foo(x);       // push foo frame
+}
+void foo(int a) {
+  int y = a + 1;
+  bar(y);       // push bar frame
+}
+void bar(int b) {
+  print(b);     // returns, pop bar
+}</div>
+      </div>
+      <div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb">
+        <div style="font-size:10px;color:#9ca3af;margin-bottom:8px;letter-spacing:1px">CALL STACK STATE (at bar)</div>
+        <div class="stack-vis">
+          <div class="stack-cell" style="background:#dbeafe;color:#1e40af;border-color:#3b82f6;font-size:11px">main()<br><span style="font-size:9px;color:#6b7280">x=5, ret=OS</span></div>
+          <div class="stack-cell" style="background:#d1fae5;color:#065f46;border-color:#10b981;font-size:11px">foo(5)<br><span style="font-size:9px;color:#6b7280">a=5, y=6, ret=main</span></div>
+          <div class="stack-cell" style="background:#fef3c7;color:#92400e;border-color:#f59e0b;font-size:11px">bar(6)<br><span style="font-size:9px;color:#6b7280">b=6, ret=foo</span><span class="stack-top" style="color:#f59e0b">&larr; TOP</span></div>
+        </div>
+        <div class="stack-base" style="background:#64748b"></div>
+        <div style="font-size:9px;color:#6b7280;margin-top:6px;text-align:center">Stack grows &uarr; with each call, shrinks &darr; on return</div>
+      </div>
+    </div>
+    <div style="background:#fef2f2;border-radius:8px;padding:10px 14px;border-left:3px solid #ef4444">
+      <div style="font-size:11px;font-weight:700;color:#991b1b;margin-bottom:4px">Stack Overflow</div>
+      <div style="font-size:12px;color:#374151">Infinite recursion (no base case) &rarr; frames keep piling up &rarr; exceeds stack memory limit (typically 1-8 MB) &rarr; <b>StackOverflowError</b>. Default thread stack: Linux ~8MB, JVM ~512KB-1MB.</div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 4 · QUEUE — FIFO CONCEPT
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">04 &middot; Queue</div>
+    <span class="badge" style="background:#3b82f6">QUEUE</span>
+    <h2>FIFO &mdash; First In, First Out</h2>
+    <p class="sub">Like a real queue: first person in line gets served first</p>
+    <div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb;margin-bottom:14px">
+      <div style="font-size:10px;color:#9ca3af;margin-bottom:8px;letter-spacing:1px">VISUAL MODEL</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap">
+        <div style="font-size:10px;font-weight:700;color:#3b82f6;margin-right:6px">enqueue &rarr;</div>
+        <div style="display:flex;align-items:center;gap:2px">
+          <div style="font-size:9px;color:#6b7280;margin-right:2px">REAR</div>
+          <div class="queue-cell" style="background:#93c5fd;color:#1e40af;border-color:#3b82f6">40</div>
+          <div class="queue-cell" style="background:#dbeafe;color:#1e40af;border-color:#3b82f6">30</div>
+          <div class="queue-cell" style="background:#dbeafe;color:#1e40af;border-color:#3b82f6">20</div>
+          <div class="queue-cell" style="background:#3b82f6;color:#fff;border-color:#3b82f6">10</div>
+          <div style="font-size:9px;color:#6b7280;margin-left:2px">FRONT</div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:#3b82f6;margin-left:6px">&rarr; dequeue</div>
+      </div>
+      <div style="font-size:10px;color:#6b7280;text-align:center;margin-top:8px">enqueue(40) adds at rear &middot; dequeue() removes 10 from front</div>
+    </div>
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="codebox" style="font-size:11px">// Array-based (circular)
+class Queue {
+  int[] arr; int front=0, rear=-1, size=0;
+
+  void enqueue(int x) {
+    rear = (rear+1) % capacity;
+    arr[rear] = x; size++;
+  }
+  int dequeue() {
+    int val = arr[front];
+    front = (front+1) % capacity;
+    size--; return val;
+  }
+}</div>
+      <div class="codebox" style="font-size:11px">// LinkedList-based
+class Queue {
+  Node front, rear;
+
+  void enqueue(int x) {
+    Node n = new Node(x);
+    if(rear != null) rear.next = n;
+    rear = n;
+    if(front == null) front = n;
+  }
+  int dequeue() {
+    int val = front.data;
+    front = front.next;
+    if(front == null) rear = null;
+    return val;
+  }
+}</div>
+    </div>
+    <div class="grid-4">
+      <div class="stat" style="background:#3b82f612"><div class="stat-label">Enqueue</div><div class="stat-val" style="color:#3b82f6">O(1)</div></div>
+      <div class="stat" style="background:#3b82f612"><div class="stat-label">Dequeue</div><div class="stat-val" style="color:#3b82f6">O(1)</div></div>
+      <div class="stat" style="background:#3b82f612"><div class="stat-label">Peek</div><div class="stat-val" style="color:#3b82f6">O(1)</div></div>
+      <div class="stat" style="background:#ef444412"><div class="stat-label">Search</div><div class="stat-val" style="color:#ef4444">O(n)</div></div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 5 · QUEUE — REAL-WORLD USES
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">05 &middot; Queue</div>
+    <span class="badge" style="background:#3b82f6">QUEUE</span>
+    <h2>Real-World Applications</h2>
+    <p class="sub">Queues are the backbone of asynchronous and distributed systems</p>
+    <div class="grid-2" style="margin-bottom:12px">
+      <div style="background:rgba(59,130,246,.08);border-radius:10px;padding:14px;border:1px solid rgba(59,130,246,.2)">
+        <div style="font-size:16px;margin-bottom:6px">&#128187;</div>
+        <div style="font-size:12px;font-weight:700;color:#3b82f6;margin-bottom:4px">OS — Process Scheduling</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5"><b>Ready Queue:</b> processes waiting for CPU time. Scheduler dequeues next process, runs it, re-enqueues if time slice expires (Round Robin). Multiple priority queues in modern OS.</div>
+      </div>
+      <div style="background:rgba(16,185,129,.08);border-radius:10px;padding:14px;border:1px solid rgba(16,185,129,.2)">
+        <div style="font-size:16px;margin-bottom:6px">&#128232;</div>
+        <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:4px">Message Queues — Kafka, RabbitMQ</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">Producers enqueue messages, consumers dequeue them. Decouples services, handles traffic spikes, enables retry logic. <b>At-least-once</b> vs <b>exactly-once</b> delivery guarantees.</div>
+      </div>
+      <div style="background:rgba(249,115,22,.08);border-radius:10px;padding:14px;border:1px solid rgba(249,115,22,.2)">
+        <div style="font-size:16px;margin-bottom:6px">&#127912;</div>
+        <div style="font-size:12px;font-weight:700;color:#f97316;margin-bottom:4px">Print Spooler &amp; I/O Buffers</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">Print jobs queued in FIFO order. Keyboard buffer stores keystrokes faster than CPU processes them. Network packet buffers use circular queues to prevent data loss.</div>
+      </div>
+      <div style="background:rgba(139,92,246,.08);border-radius:10px;padding:14px;border:1px solid rgba(139,92,246,.2)">
+        <div style="font-size:16px;margin-bottom:6px">&#128200;</div>
+        <div style="font-size:12px;font-weight:700;color:#8b5cf6;margin-bottom:4px">BFS &amp; Level-Order Traversal</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">Breadth-First Search uses a queue to explore nodes level by level. Tree level-order traversal, shortest path in unweighted graphs, web crawlers — all queue-based.</div>
+      </div>
+    </div>
+    <div style="background:rgba(239,68,68,.08);border-radius:10px;padding:12px;border:1px solid rgba(239,68,68,.2)">
+      <div style="font-size:16px;display:inline;margin-right:6px">&#128241;</div>
+      <span style="font-size:12px;font-weight:700;color:#ef4444">Android Handler/Looper:</span>
+      <span style="font-size:11px;color:#94a3b8"> UI thread has a MessageQueue. Handler posts Runnables to the queue. Looper dequeues and executes them one at a time on the main thread &mdash; this is how Android UI updates work.</span>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 6 · CIRCULAR QUEUE
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">06 &middot; Circular Queue</div>
+    <span class="badge" style="background:#ef4444">CIRCULAR QUEUE</span>
+    <h2>Ring Buffer &mdash; No Wasted Space</h2>
+    <p class="sub">Front and rear wrap around using modulo arithmetic</p>
+    <div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb;margin-bottom:14px">
+      <div style="font-size:10px;color:#9ca3af;margin-bottom:8px;letter-spacing:1px">CIRCULAR BUFFER (capacity=6)</div>
+      <div style="display:flex;justify-content:center;margin-bottom:8px">
+        <div style="position:relative;width:200px;height:200px">
+          <svg viewBox="0 0 200 200" width="200" height="200">
+            <!-- Ring segments -->
+            <circle cx="100" cy="100" r="70" fill="none" stroke="#e5e7eb" stroke-width="28"/>
+            <!-- Filled slots -->
+            <path d="M100,30 A70,70 0 0,1 160.6,60" fill="none" stroke="#dbeafe" stroke-width="28" stroke-linecap="butt"/>
+            <path d="M160.6,60 A70,70 0 0,1 170,100" fill="none" stroke="#dbeafe" stroke-width="28" stroke-linecap="butt"/>
+            <path d="M170,100 A70,70 0 0,1 160.6,140" fill="none" stroke="#93c5fd" stroke-width="28" stroke-linecap="butt"/>
+            <!-- Labels -->
+            <text x="100" y="24" text-anchor="middle" font-size="10" font-weight="700" fill="#3b82f6">F=0</text>
+            <text x="176" y="62" text-anchor="start" font-size="10" font-weight="700" fill="#6b7280">[1]</text>
+            <text x="180" y="104" text-anchor="start" font-size="10" font-weight="700" fill="#3b82f6">R=2</text>
+            <text x="176" y="148" text-anchor="start" font-size="10" font-weight="700" fill="#6b7280">[3]</text>
+            <text x="100" y="188" text-anchor="middle" font-size="10" fill="#9ca3af">[4]</text>
+            <text x="18" y="104" text-anchor="end" font-size="10" fill="#9ca3af">[5]</text>
+            <!-- Center label -->
+            <text x="100" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">size: 3</text>
+            <text x="100" y="112" text-anchor="middle" font-size="9" fill="#6b7280">cap: 6</text>
+          </svg>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#6b7280">Rear wraps to index 0 after reaching end &mdash; no shifting needed</div>
+    </div>
+    <div class="formula">next = (current + 1) % capacity</div>
+    <div class="formula" style="margin-left:8px">isEmpty: size == 0 &nbsp;&middot;&nbsp; isFull: size == capacity</div>
+    <div class="grid-2" style="margin-top:12px">
+      <div style="background:#ecfdf5;border-radius:8px;padding:10px 14px;border-left:3px solid #10b981">
+        <div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:4px">Used In</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6">Network packet buffers &middot; Audio streaming buffers &middot; OS keyboard input buffer &middot; Producer-consumer with bounded buffer</div>
+      </div>
+      <div style="background:#fef2f2;border-radius:8px;padding:10px 14px;border-left:3px solid #ef4444">
+        <div style="font-size:11px;font-weight:700;color:#991b1b;margin-bottom:4px">Why not plain array queue?</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6">Linear queue wastes space: dequeued slots at front become unusable. Shifting costs O(n). Circular queue reuses slots &mdash; O(1) always.</div>
+      </div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 7 · DEQUE
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark2">
+  <div class="si">
+    <div class="s-num">07 &middot; Deque</div>
+    <span class="badge" style="background:#f97316">DEQUE</span>
+    <h2>Double-Ended Queue</h2>
+    <p class="sub">Insert and remove from both ends in O(1)</p>
+    <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,.1);margin-bottom:14px;text-align:center">
+      <div style="display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap">
+        <div style="font-size:10px;font-weight:700;color:#f97316">&larr; addFirst / removeFirst</div>
+        <div style="display:flex;align-items:center;gap:2px;margin:0 8px">
+          <div class="queue-cell" style="background:#fff7ed;color:#c2410c;border-color:#f97316">A</div>
+          <div class="queue-cell" style="background:#fff7ed;color:#c2410c;border-color:#f97316">B</div>
+          <div class="queue-cell" style="background:#fff7ed;color:#c2410c;border-color:#f97316">C</div>
+          <div class="queue-cell" style="background:#fff7ed;color:#c2410c;border-color:#f97316">D</div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:#f97316">addLast / removeLast &rarr;</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;line-height:1.6">Java: <code style="color:#f97316">ArrayDeque</code> (preferred) or <code style="color:#f97316">LinkedList</code>. ArrayDeque is faster than Stack and LinkedList for both stack and queue operations due to cache locality.</div>
+    <table class="tbl" style="margin-bottom:12px">
+      <tr><th>Operation</th><th>ArrayDeque</th><th>LinkedList</th><th>Use Case</th></tr>
+      <tr><td style="font-weight:600">addFirst / addLast</td><td><span style="color:#10b981;font-weight:700">O(1)*</span></td><td><span style="color:#10b981;font-weight:700">O(1)</span></td><td>Both ends insert</td></tr>
+      <tr><td style="font-weight:600">removeFirst / removeLast</td><td><span style="color:#10b981;font-weight:700">O(1)</span></td><td><span style="color:#10b981;font-weight:700">O(1)</span></td><td>Both ends delete</td></tr>
+      <tr><td style="font-weight:600">Random access</td><td><span style="color:#ef4444;font-weight:700">O(n)</span></td><td><span style="color:#ef4444;font-weight:700">O(n)</span></td><td>Not designed for this</td></tr>
+      <tr><td style="font-weight:600">Memory overhead</td><td><span style="color:#10b981;font-weight:700">Low</span></td><td><span style="color:#ef4444;font-weight:700">High</span></td><td>Node object per element</td></tr>
+    </table>
+    <div style="background:rgba(245,158,11,.1);border-radius:8px;padding:10px 14px;border-left:3px solid #f59e0b">
+      <div style="font-size:11px;font-weight:700;color:#fbbf24">Real-world: Sliding Window Maximum</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:2px">Monotonic deque pattern — maintain a decreasing deque of indices. Used in stock price analysis, network throughput monitoring, and image processing filters.</div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 8 · PRIORITY QUEUE
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">08 &middot; Priority Queue</div>
+    <span class="badge" style="background:#8b5cf6">PRIORITY QUEUE</span>
+    <h2>Highest Priority Out First</h2>
+    <p class="sub">Not FIFO — element with highest (or lowest) priority dequeues first</p>
+    <div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb;margin-bottom:14px">
+      <div style="font-size:10px;color:#9ca3af;margin-bottom:8px;letter-spacing:1px">MIN-HEAP BACKED PRIORITY QUEUE</div>
+      <div style="text-align:center;font-size:12px;color:#374151">
+        <div style="margin-bottom:8px">
+          <span style="display:inline-block;padding:8px 16px;background:#8b5cf6;color:#fff;border-radius:8px;font-weight:700">1</span>
+        </div>
+        <div style="display:flex;justify-content:center;gap:40px;margin-bottom:8px">
+          <span style="display:inline-block;padding:8px 16px;background:#c4b5fd;color:#3b0764;border-radius:8px;font-weight:700">3</span>
+          <span style="display:inline-block;padding:8px 16px;background:#c4b5fd;color:#3b0764;border-radius:8px;font-weight:700">5</span>
+        </div>
+        <div style="display:flex;justify-content:center;gap:20px">
+          <span style="display:inline-block;padding:6px 12px;background:#ede9fe;color:#5b21b6;border-radius:8px;font-weight:700;font-size:11px">7</span>
+          <span style="display:inline-block;padding:6px 12px;background:#ede9fe;color:#5b21b6;border-radius:8px;font-weight:700;font-size:11px">9</span>
+          <span style="display:inline-block;padding:6px 12px;background:#ede9fe;color:#5b21b6;border-radius:8px;font-weight:700;font-size:11px">8</span>
+          <span style="display:inline-block;padding:6px 12px;background:#ede9fe;color:#5b21b6;border-radius:8px;font-weight:700;font-size:11px">10</span>
+        </div>
+        <div style="font-size:10px;color:#6b7280;margin-top:8px">poll() always returns root (min=1) &middot; Heap rebalances in O(log n)</div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="stat" style="background:#8b5cf612"><div class="stat-label">Insert</div><div class="stat-val" style="color:#8b5cf6">O(log n)</div></div>
+      <div class="stat" style="background:#8b5cf612"><div class="stat-label">Poll (min/max)</div><div class="stat-val" style="color:#8b5cf6">O(log n)</div></div>
+      <div class="stat" style="background:#10b98112"><div class="stat-label">Peek</div><div class="stat-val" style="color:#10b981">O(1)</div></div>
+    </div>
+    <div class="grid-2" style="margin-top:10px">
+      <div style="background:#f5f3ff;border-radius:8px;padding:10px 14px;border-left:3px solid #8b5cf6">
+        <div style="font-size:11px;font-weight:700;color:#5b21b6;margin-bottom:4px">OS: Process Scheduling</div>
+        <div style="font-size:11px;color:#374151">High-priority processes (kernel tasks, I/O) dequeue before low-priority (background jobs). Linux CFS uses a red-black tree variant.</div>
+      </div>
+      <div style="background:#f5f3ff;border-radius:8px;padding:10px 14px;border-left:3px solid #8b5cf6">
+        <div style="font-size:11px;font-weight:700;color:#5b21b6;margin-bottom:4px">Algorithms: Dijkstra, A*, Huffman</div>
+        <div style="font-size:11px;color:#374151">Shortest path picks min-cost node from PQ. Huffman coding builds optimal prefix codes. Event-driven simulation.</div>
+      </div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 9 · STACK vs QUEUE vs DEQUE COMPARISON
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark3">
+  <div class="si">
+    <div class="s-num">09 &middot; Comparison</div>
+    <span class="badge" style="background:#f59e0b">COMPARISON</span>
+    <h2>Stack vs Queue vs Deque — Side by Side</h2>
+    <p class="sub">Choose the right ADT for your problem</p>
+    <table class="tbl" style="margin-bottom:14px">
+      <tr><th>Feature</th><th style="color:#10b981">Stack</th><th style="color:#3b82f6">Queue</th><th style="color:#f97316">Deque</th></tr>
+      <tr><td style="font-weight:600">Order</td><td>LIFO</td><td>FIFO</td><td>Both</td></tr>
+      <tr><td style="font-weight:600">Insert end(s)</td><td>Top only</td><td>Rear only</td><td>Both ends</td></tr>
+      <tr><td style="font-weight:600">Remove end(s)</td><td>Top only</td><td>Front only</td><td>Both ends</td></tr>
+      <tr><td style="font-weight:600">Java class</td><td>ArrayDeque</td><td>ArrayDeque / LinkedList</td><td>ArrayDeque</td></tr>
+      <tr><td style="font-weight:600">Insert/Remove</td><td style="color:#10b981;font-weight:700">O(1)</td><td style="color:#10b981;font-weight:700">O(1)</td><td style="color:#10b981;font-weight:700">O(1)</td></tr>
+      <tr><td style="font-weight:600">Search</td><td style="color:#ef4444;font-weight:700">O(n)</td><td style="color:#ef4444;font-weight:700">O(n)</td><td style="color:#ef4444;font-weight:700">O(n)</td></tr>
+      <tr><td style="font-weight:600">Random access</td><td>No</td><td>No</td><td>No</td></tr>
+    </table>
+    <div style="background:rgba(245,158,11,.1);border-radius:8px;padding:10px 14px;border-left:3px solid #f59e0b">
+      <div style="font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:4px">Why ArrayDeque over java.util.Stack?</div>
+      <div style="font-size:11px;color:#94a3b8">Stack extends Vector (synchronized on every op = slow). ArrayDeque has no synchronization overhead, better cache locality, and no legacy baggage. <b>Always prefer ArrayDeque</b> for stack/queue in Java.</div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 10 · IMPLEMENTATION BACKING — ARRAY vs LL
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">10 &middot; Backing Structures</div>
+    <span class="badge" style="background:#f59e0b">IMPLEMENTATION</span>
+    <h2>Array-Backed vs LinkedList-Backed</h2>
+    <p class="sub">Same ADT, different trade-offs — connecting back to Arrays &amp; LinkedList</p>
+    <table class="tbl" style="margin-bottom:14px">
+      <tr><th>Aspect</th><th style="color:#3b82f6">Array-Backed</th><th style="color:#f97316">LinkedList-Backed</th></tr>
+      <tr><td style="font-weight:600">Memory layout</td><td>Contiguous (cache-friendly)</td><td>Scattered nodes (cache-unfriendly)</td></tr>
+      <tr><td style="font-weight:600">Capacity</td><td>Fixed or dynamic (resize)</td><td>Grows/shrinks per element</td></tr>
+      <tr><td style="font-weight:600">Overhead per element</td><td>~4 bytes (just data)</td><td>~24 bytes (data + 2 pointers + header)</td></tr>
+      <tr><td style="font-weight:600">Resize cost</td><td>O(n) when full</td><td>None (O(1) always)</td></tr>
+      <tr><td style="font-weight:600">Best for</td><td>Known max size, speed-critical</td><td>Unbounded, no resize spikes</td></tr>
+    </table>
+    <div style="background:#f0fdf4;border-radius:8px;padding:10px 14px;border-left:3px solid #10b981;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:4px">From Arrays topic (Slide 1-2)</div>
+      <div style="font-size:11px;color:#374151">Array = contiguous memory, O(1) access by index, O(n) insert/delete middle. Stack/Queue restrict operations to ends only, making array-backed versions very efficient.</div>
+    </div>
+    <div style="background:#fff7ed;border-radius:8px;padding:10px 14px;border-left:3px solid #f97316">
+      <div style="font-size:11px;font-weight:700;color:#c2410c;margin-bottom:4px">From LinkedList topic (Slide 5-8)</div>
+      <div style="font-size:11px;color:#374151">LinkedList = O(1) insert/delete at head/tail (with tail pointer), no capacity limit. Perfect when you need guaranteed O(1) without amortization (real-time systems).</div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 11 · OS SCHEDULING — MULTILEVEL QUEUE
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">11 &middot; OS Scenario</div>
+    <span class="badge" style="background:#ef4444">OS / REAL-TIME</span>
+    <h2>Multilevel Queue Scheduling</h2>
+    <p class="sub">How operating systems use multiple queues for process management</p>
+    <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,.1);margin-bottom:14px">
+      <div style="font-size:10px;color:#94a3b8;margin-bottom:10px;letter-spacing:1px">MULTILEVEL FEEDBACK QUEUE</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="min-width:80px;font-size:10px;font-weight:700;color:#ef4444">Q0 (High)</div>
+          <div style="flex:1;display:flex;gap:2px">
+            <div style="padding:6px 12px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:4px;font-size:10px;color:#fca5a5;font-weight:600">Kernel</div>
+            <div style="padding:6px 12px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:4px;font-size:10px;color:#fca5a5;font-weight:600">I/O Int</div>
+          </div>
+          <div style="font-size:9px;color:#6b7280">quantum: 8ms</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="min-width:80px;font-size:10px;font-weight:700;color:#f59e0b">Q1 (Med)</div>
+          <div style="flex:1;display:flex;gap:2px">
+            <div style="padding:6px 12px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:4px;font-size:10px;color:#fcd34d;font-weight:600">UI App</div>
+            <div style="padding:6px 12px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:4px;font-size:10px;color:#fcd34d;font-weight:600">IDE</div>
+            <div style="padding:6px 12px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:4px;font-size:10px;color:#fcd34d;font-weight:600">Chrome</div>
+          </div>
+          <div style="font-size:9px;color:#6b7280">quantum: 16ms</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="min-width:80px;font-size:10px;font-weight:700;color:#3b82f6">Q2 (Low)</div>
+          <div style="flex:1;display:flex;gap:2px">
+            <div style="padding:6px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd;font-weight:600">Backup</div>
+            <div style="padding:6px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd;font-weight:600">Cron</div>
+            <div style="padding:6px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd;font-weight:600">Indexer</div>
+          </div>
+          <div style="font-size:9px;color:#6b7280">quantum: 32ms</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#6b7280;margin-top:10px;text-align:center">Process demoted to lower queue if it uses full quantum &middot; I/O-bound processes stay in higher queues</div>
+    </div>
+    <div style="font-size:12px;color:#94a3b8;line-height:1.6"><b>Key insight:</b> A single FIFO queue can't handle mixed workloads. Interactive apps need quick response (short quantum). Batch jobs can tolerate longer waits. MLFQ adapts by observing behavior.</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 12 · DECISION FRAMEWORK
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">12 &middot; Decision Framework</div>
+    <span class="badge" style="background:#f59e0b">FRAMEWORK</span>
+    <h2>Which ADT Should You Use?</h2>
+    <p class="sub">Follow this decision tree for any scenario</p>
+    <div id="fwSteps">
+      <div style="margin-bottom:7px;padding:10px 12px;border-radius:10px;background:#10b98108;border-left:3px solid #10b981">
+        <div class="fw-row"><span style="font-weight:800;color:#10b981;font-size:14px;min-width:20px">1.</span><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><div style="font-size:12px;font-weight:700;color:#0f172a">Need LIFO (undo, backtracking, recursion)?</div><button class="fw-toggle" onclick="toggleFW(this)">&#9662;</button></div><div class="fw-ans hidden" style="font-size:12px;color:#374151;margin-top:4px">&rarr; <b>Stack</b> (use ArrayDeque in Java)</div></div></div>
+      </div>
+      <div style="margin-bottom:7px;padding:10px 12px;border-radius:10px;background:#3b82f608;border-left:3px solid #3b82f6">
+        <div class="fw-row"><span style="font-weight:800;color:#3b82f6;font-size:14px;min-width:20px">2.</span><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><div style="font-size:12px;font-weight:700;color:#0f172a">Need FIFO (scheduling, BFS, buffering)?</div><button class="fw-toggle" onclick="toggleFW(this)">&#9662;</button></div><div class="fw-ans hidden" style="font-size:12px;color:#374151;margin-top:4px">&rarr; <b>Queue</b> (ArrayDeque or LinkedList)</div></div></div>
+      </div>
+      <div style="margin-bottom:7px;padding:10px 12px;border-radius:10px;background:#f9731608;border-left:3px solid #f97316">
+        <div class="fw-row"><span style="font-weight:800;color:#f97316;font-size:14px;min-width:20px">3.</span><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><div style="font-size:12px;font-weight:700;color:#0f172a">Need insert/remove from both ends?</div><button class="fw-toggle" onclick="toggleFW(this)">&#9662;</button></div><div class="fw-ans hidden" style="font-size:12px;color:#374151;margin-top:4px">&rarr; <b>Deque</b> (sliding window, palindrome check)</div></div></div>
+      </div>
+      <div style="margin-bottom:7px;padding:10px 12px;border-radius:10px;background:#8b5cf608;border-left:3px solid #8b5cf6">
+        <div class="fw-row"><span style="font-weight:800;color:#8b5cf6;font-size:14px;min-width:20px">4.</span><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><div style="font-size:12px;font-weight:700;color:#0f172a">Need ordering by priority, not insertion order?</div><button class="fw-toggle" onclick="toggleFW(this)">&#9662;</button></div><div class="fw-ans hidden" style="font-size:12px;color:#374151;margin-top:4px">&rarr; <b>Priority Queue</b> (Dijkstra, task scheduling, top-K)</div></div></div>
+      </div>
+      <div style="margin-bottom:7px;padding:10px 12px;border-radius:10px;background:#ef444408;border-left:3px solid #ef4444">
+        <div class="fw-row"><span style="font-weight:800;color:#ef4444;font-size:14px;min-width:20px">5.</span><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><div style="font-size:12px;font-weight:700;color:#0f172a">Fixed-size buffer with wrap-around?</div><button class="fw-toggle" onclick="toggleFW(this)">&#9662;</button></div><div class="fw-ans hidden" style="font-size:12px;color:#374151;margin-top:4px">&rarr; <b>Circular Queue / Ring Buffer</b> (I/O, streaming)</div></div></div>
+      </div>
+      <div style="padding:10px 12px;border-radius:10px;background:#f59e0b08;border-left:3px solid #f59e0b">
+        <div class="fw-row"><span style="font-weight:800;color:#f59e0b;font-size:14px;min-width:20px">6.</span><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;justify-content:space-between"><div style="font-size:12px;font-weight:700;color:#0f172a">Need thread-safe queue?</div><button class="fw-toggle" onclick="toggleFW(this)">&#9662;</button></div><div class="fw-ans hidden" style="font-size:12px;color:#374151;margin-top:4px">&rarr; <b>ConcurrentLinkedQueue</b> (non-blocking) or <b>BlockingQueue</b> (producer-consumer)</div></div></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;text-align:center;font-size:13px;color:#f59e0b;font-weight:700;padding:10px;background:#f59e0b10;border-radius:8px">"Restrict access patterns, and simple structures become powerful."</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     TRANSITION · Q&A CHAPTER
+══════════════════════════════════════════════════════ -->
+<section class="s-trans">
+  <div class="si">
+    <div style="font-size:10px;letter-spacing:3px;color:#7ec8e3;margin-bottom:14px">CHAPTER 2</div>
+    <h2 style="font-size:38px;font-weight:800;margin-bottom:8px">20 Interview &amp; Real-World Questions</h2>
+    <p class="sub" style="font-size:14px">OS Scenarios &middot; Application Design &middot; Algorithm Patterns &middot; Scroll to begin</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #10b981;font-size:11px;color:#10b981">Stack</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #3b82f6;font-size:11px;color:#3b82f6">Queue</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #f97316;font-size:11px;color:#f97316">Deque</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #8b5cf6;font-size:11px;color:#8b5cf6">Priority Queue</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #ef4444;font-size:11px;color:#ef4444">OS / Real-time</span>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     Q1
+══════════════════════════════════════════════════════ -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
+    <div class="q-title">Q1: How does the OS handle nested function calls using the call stack? What happens during a stack overflow?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Think about stack frames, return addresses, and memory limits per thread.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Each function call pushes a <b>stack frame</b> containing: return address, parameters, local variables, saved registers. Nested calls stack frames on top.<br><br>On return, the frame is popped and execution resumes at the return address. If recursion has no base case or nesting is too deep, frames exceed the stack memory limit (typically 1-8 MB per thread) &rarr; <b>StackOverflowError</b>.<br><br><b>Real scenario:</b> A recursive JSON parser processing deeply nested objects (10,000+ levels) will overflow. Solution: convert to iterative with an explicit stack on the heap (no size limit).</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q2 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
+    <div class="q-title">Q2: Design an Undo/Redo system for a text editor. Which data structures and why?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Two stacks. What happens to the redo stack when a new action is performed?</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> undoStack and redoStack.<br><br>&bull; <b>New action</b>: push to undoStack, <b>clear</b> redoStack (forward history invalidated)<br>&bull; <b>Undo (Ctrl+Z)</b>: pop from undoStack, push to redoStack, reverse the action<br>&bull; <b>Redo (Ctrl+Y)</b>: pop from redoStack, push to undoStack, re-apply the action<br><br>Each entry stores the <b>command object</b> (Command Pattern): action type, position, old text, new text. This allows both undo and redo to be O(1).<br><br><b>Optimization:</b> Group rapid keystrokes into batches (e.g., undo a whole word, not letter-by-letter). Cap stack size to limit memory.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q3 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
+    <div class="q-title">Q3: How would you validate balanced parentheses including {}, [], ()? What is the time and space complexity?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Push opening brackets, pop on closing brackets, check if they match.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Use a <b>stack</b>. For each character:<br>&bull; Opening bracket &rarr; push to stack<br>&bull; Closing bracket &rarr; pop from stack, check it matches<br>&bull; If stack empty when closing or mismatch &rarr; invalid<br>&bull; After all chars, stack must be empty<br><br><b>Time: O(n)</b> — single pass. <b>Space: O(n)</b> — worst case all opening brackets.<br><br><b>Real-world:</b> Every compiler uses this for syntax validation. JSON parsers validate nested braces. HTML validators check tag matching. IDEs highlight mismatched brackets in real-time.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q4 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
+    <div class="q-title">Q4: Explain how the OS Round Robin scheduler uses a queue. What happens when a process exceeds its time quantum?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Think about dequeue from front, execute for quantum, re-enqueue if not finished.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Round Robin:</b> All runnable processes sit in a FIFO <b>ready queue</b>.<br><br>1. Dequeue front process, assign CPU for <b>time quantum</b> (e.g., 10ms)<br>2. If process completes before quantum &rarr; remove from system<br>3. If process exceeds quantum &rarr; <b>preempt</b>, save context, enqueue at rear<br>4. Repeat<br><br><b>Trade-off:</b> Small quantum = fairer but more context switches (overhead). Large quantum = fewer switches but poor response time. Typical: 10-100ms.<br><br><b>Real OS:</b> Linux CFS doesn't use pure RR but a weighted fair-share queue using a red-black tree. Android uses CFS + priority boosting for foreground apps.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q5 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
+    <div class="q-title">Q5: Implement a Queue using two Stacks. What is the amortized time complexity of enqueue and dequeue?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">One stack for input, one for output. Transfer only when output stack is empty.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> inStack and outStack.<br><br>&bull; <b>enqueue(x)</b>: push x to inStack &rarr; <b>O(1)</b><br>&bull; <b>dequeue()</b>: if outStack empty, pop ALL from inStack and push to outStack. Then pop from outStack.<br><br>Worst-case dequeue is O(n) (when transfer happens). But each element is transferred at most once, so <b>amortized O(1)</b> for both operations.<br><br><b>Real-world:</b> This pattern appears in functional programming (persistent queues) and in systems where you batch-process accumulated items (e.g., log aggregation: write to buffer stack, flush to processing stack).</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q6 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
+    <div class="q-title">Q6: How does the Android Activity back stack work? What happens when you press the back button?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Think about task, back stack, and activity lifecycle.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Android manages activities in a <b>back stack</b> within each task:<br><br>&bull; <b>Start activity</b>: pushed onto the stack (onCreate &rarr; onResume)<br>&bull; <b>Press back</b>: current activity popped (onPause &rarr; onStop &rarr; onDestroy), previous activity resumes<br>&bull; <b>Stack empty</b>: task finishes, returns to home/launcher<br><br><b>Launch modes</b> modify stack behavior:<br>- singleTop: reuses top if same activity<br>- singleTask: clears everything above it<br>- singleInstance: own task with single activity<br><br><b>Fragment back stack</b> works similarly within an activity. Navigation component manages a fragment back stack internally using the same LIFO pattern.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q7 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
+    <div class="q-title">Q7: How does Android's Handler/Looper/MessageQueue work? Why is it a queue?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">One thread, one Looper, one MessageQueue. Handler posts messages.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Architecture:</b><br>&bull; <b>MessageQueue</b>: FIFO queue of Message objects (sorted by timestamp)<br>&bull; <b>Looper</b>: infinite loop that dequeues from MessageQueue and dispatches<br>&bull; <b>Handler</b>: posts Messages or Runnables to the queue<br><br>Main thread Looper runs forever. UI updates, touch events, lifecycle callbacks &mdash; all posted as messages. This is why you can't do network calls on the main thread (blocks the queue).<br><br><b>Why queue?</b> Serializes access to the UI thread &mdash; no locks needed. All updates happen in order. postDelayed() inserts at the right position by timestamp. This is a <b>priority queue by scheduled time</b> under the hood.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q8 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#ef4444">CIRCULAR QUEUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
+    <div class="q-title">Q8: Design a circular buffer for a real-time audio streaming application. What happens when the producer is faster than the consumer?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Ring buffer with read/write pointers. Consider overflow policy: drop oldest or block producer.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Circular buffer</b> with fixed capacity (e.g., 4096 audio frames):<br><br>&bull; <b>Write pointer</b> (producer) advances on new data<br>&bull; <b>Read pointer</b> (consumer) advances on consumption<br>&bull; Both wrap around via modulo<br><br><b>Overflow policies:</b><br>1. <b>Overwrite oldest</b> (lossy): write pointer overwrites unread data &mdash; used in audio/video where stale frames are useless<br>2. <b>Block producer</b> (lossless): producer waits until consumer catches up &mdash; used in file I/O<br>3. <b>Drop new data</b>: reject incoming data if full &mdash; used in network rate limiting<br><br><b>Lock-free variant:</b> Single producer, single consumer can use atomic read/write pointers with no locks (SPSC queue). Used in Linux kernel's kfifo.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q9 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#8b5cf6">PRIORITY QUEUE</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
+    <div class="q-title">Q9: How does Dijkstra's algorithm use a priority queue? What happens if you use a regular queue instead?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Greedy: always expand the closest unvisited node. Regular queue gives BFS (unweighted shortest path only).</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Dijkstra's:</b> Min-heap priority queue keyed by tentative distance.<br><br>1. PQ starts with source node (dist=0)<br>2. Poll min-distance node, relax all its edges<br>3. If shorter path found, insert/update neighbor in PQ<br>4. Repeat until PQ empty or target reached<br><br><b>Time: O((V+E) log V)</b> with binary heap.<br><br><b>Regular queue gives BFS:</b> works for unweighted graphs only (all edges weight=1). For weighted graphs, BFS may explore a longer-distance node before a shorter one, giving <b>wrong answers</b>.<br><br><b>Real-world:</b> Google Maps, network routing (OSPF protocol), game pathfinding (A* is Dijkstra + heuristic).</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q10 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#f97316">DEQUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
+    <div class="q-title">Q10: Solve "Sliding Window Maximum" using a deque. Why is a naive approach O(n*k) but deque gives O(n)?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Maintain a monotonically decreasing deque of indices. Remove from front if out of window, from back if smaller than current.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Naive:</b> For each window position, scan k elements for max &rarr; O(n*k).<br><br><b>Monotonic Deque (O(n)):</b><br>1. Deque stores <b>indices</b> in decreasing order of values<br>2. For each new element i:<br>&nbsp;&nbsp;&bull; Remove from <b>back</b> all indices whose values &le; arr[i] (they'll never be max)<br>&nbsp;&nbsp;&bull; Add i to back<br>&nbsp;&nbsp;&bull; Remove from <b>front</b> if index is outside window (i - front &ge; k)<br>&nbsp;&nbsp;&bull; Front of deque is the max for current window<br><br>Each element enters and leaves the deque at most once &rarr; <b>O(n) total</b>.<br><br><b>Real-world:</b> Rolling max/min in stock analysis, network throughput monitoring, image processing (max-pooling in CNNs).</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q11 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
+    <div class="q-title">Q11: Convert infix expression "3 + 4 * 2 / (1 - 5)" to postfix using Shunting-Yard algorithm. Explain each step.</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Use an operator stack. Pop operators with higher or equal precedence. Parentheses act as barriers.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Shunting-Yard (Dijkstra's algorithm):</b><br><br>Token: 3 &rarr; output: [3]<br>Token: + &rarr; stack: [+]<br>Token: 4 &rarr; output: [3,4]<br>Token: * &rarr; stack: [+,*] (* &gt; + so push)<br>Token: 2 &rarr; output: [3,4,2]<br>Token: / &rarr; pop * (same prec), push /. stack: [+,/]. output: [3,4,2,*]<br>Token: ( &rarr; stack: [+,/,(]<br>Token: 1 &rarr; output: [3,4,2,*,1]<br>Token: - &rarr; stack: [+,/,(,-]<br>Token: 5 &rarr; output: [3,4,2,*,1,5]<br>Token: ) &rarr; pop until (: pop -. output: [3,4,2,*,1,5,-]<br>End: pop remaining. output: <b>3 4 2 * 1 5 - / +</b><br><br><b>Used by:</b> Compilers, calculators, spreadsheet formula engines.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q12 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
+    <div class="q-title">Q12: Design a rate limiter using a queue. How does the sliding window approach work?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Queue stores timestamps of requests. Dequeue expired ones, check size against limit.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Sliding Window Log (Queue-based):</b><br><br>1. Queue stores <b>timestamps</b> of each request<br>2. On new request at time T:<br>&nbsp;&nbsp;&bull; Dequeue all entries older than T - windowSize<br>&nbsp;&nbsp;&bull; If queue.size() &lt; maxRequests: allow, enqueue T<br>&nbsp;&nbsp;&bull; Else: reject (429 Too Many Requests)<br><br><b>Time: O(1)</b> amortized. <b>Space: O(maxRequests)</b>.<br><br><b>Real-world:</b> API gateways (Nginx, Kong), Twitter API limits, Discord bot rate limits. For distributed systems, use Redis sorted sets (timestamp as score) &mdash; essentially a distributed queue.<br><br><b>Trade-off:</b> Fixed window counter is simpler but has boundary burst issue. Sliding window log is precise but uses more memory.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q13 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
+    <div class="q-title">Q13: Design a Min Stack that supports push, pop, top, and getMin — all in O(1) time.</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Use an auxiliary stack that tracks the minimum at each level.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> mainStack and minStack.<br><br>&bull; <b>push(x)</b>: push to mainStack. Push min(x, minStack.peek()) to minStack<br>&bull; <b>pop()</b>: pop from both stacks<br>&bull; <b>top()</b>: mainStack.peek()<br>&bull; <b>getMin()</b>: minStack.peek() &rarr; <b>O(1)</b><br><br><b>Space optimization:</b> Only push to minStack when x &le; current min. On pop, only pop minStack if value equals current min. Saves space when min changes rarely.<br><br><b>Real-world:</b> Monitoring systems tracking minimum latency over a sliding window. Stock trading: track minimum price seen so far for maximum profit calculation.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q14 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
+    <div class="q-title">Q14: How do message queues (Kafka, RabbitMQ) handle the producer-consumer problem? What guarantees do they provide?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Think about decoupling, buffering, delivery guarantees (at-most-once, at-least-once, exactly-once).</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Message Queue pattern:</b><br>&bull; <b>Producer</b> enqueues messages (fire-and-forget or with ack)<br>&bull; <b>Consumer</b> dequeues and processes<br>&bull; Queue decouples them: producer doesn't wait for consumer<br><br><b>Delivery guarantees:</b><br>1. <b>At-most-once:</b> message may be lost (fastest, no retry)<br>2. <b>At-least-once:</b> message may be duplicated (consumer must be idempotent)<br>3. <b>Exactly-once:</b> hardest, requires transactional writes (Kafka supports this)<br><br><b>Kafka specifics:</b> Partitioned queue (topic). Consumer groups for parallel processing. Offset tracking for replay. Messages persisted to disk &mdash; not deleted on consume.<br><br><b>Real-world:</b> Order processing (e-commerce), event sourcing, log aggregation, microservice communication.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q15 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#8b5cf6">PRIORITY QUEUE</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
+    <div class="q-title">Q15: Design a task scheduler for an OS where processes have different priorities. How do you prevent starvation?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Priority queue for scheduling. Starvation happens when low-priority tasks never execute. Think aging.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Priority Queue Scheduler:</b> Always dequeue highest-priority process.<br><br><b>Starvation problem:</b> Low-priority process waits forever if high-priority processes keep arriving.<br><br><b>Solutions:</b><br>1. <b>Aging:</b> Gradually increase priority of waiting processes. After enough time, even lowest priority becomes highest &rarr; guaranteed execution<br>2. <b>Multilevel Feedback Queue:</b> Process starts at high priority. If it uses full quantum, demote to lower queue. I/O-bound processes stay high.<br>3. <b>Fair-share scheduling:</b> Guarantee minimum CPU % per group (Linux CFS)<br><br><b>Real OS example:</b> Linux nice values (-20 to 19). Real-time priorities (0-99) preempt all normal processes. SCHED_FIFO for hard real-time (robots, medical devices).</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q16 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
+    <div class="q-title">Q16: Given a histogram (array of bar heights), find the largest rectangle area. What data structure makes this O(n)?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Monotonic increasing stack of indices. Pop when current bar is shorter than stack top.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Monotonic Stack approach (O(n)):</b><br><br>Maintain a stack of indices with increasing heights:<br>1. For each bar i: while stack top height &gt; heights[i], pop index p<br>2. Width = i - stack.peek() - 1 (or i if stack empty)<br>3. Area = heights[p] * width. Track max area.<br>4. Push i to stack<br><br>After loop, process remaining stack entries (treat end as height=0).<br><br><b>Why O(n)?</b> Each index pushed and popped at most once &rarr; 2n operations total.<br><br><b>Naive:</b> For each bar, expand left/right to find max rectangle &rarr; O(n&sup2;).<br><br><b>Extends to:</b> Maximal rectangle in a binary matrix (apply per row as histogram). Used in image processing and layout optimization.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q17 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
+    <div class="q-title">Q17: How does BFS use a queue to find the shortest path in an unweighted graph? Why won't DFS (stack) work?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">BFS explores level by level. DFS dives deep first — may find a longer path before the shortest one.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>BFS guarantees shortest path in unweighted graphs:</b><br><br>1. Enqueue source with distance 0<br>2. Dequeue node, enqueue all unvisited neighbors with distance+1<br>3. First time a node is visited = shortest distance (FIFO ensures level-order)<br><br><b>DFS fails because:</b> It follows one path deeply. May reach the target via a long detour first. Would need to explore ALL paths and compare &mdash; exponential.<br><br><b>Key insight:</b> Queue's FIFO property guarantees nodes at distance d are all processed before distance d+1. Stack's LIFO doesn't preserve this ordering.<br><br><b>Real-world:</b> Social network "degrees of separation", maze solving, web crawlers (breadth-first crawling for important pages), network broadcast (flooding).</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q18 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#ef4444">CIRCULAR QUEUE</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
+    <div class="q-title">Q18: How does a network router use circular buffers for packet queuing? What happens during congestion?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Ingress/egress queues. Tail drop vs RED (Random Early Detection). Buffer bloat.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Router packet queuing:</b><br>&bull; Incoming packets enqueued in circular buffers (per-port or per-flow)<br>&bull; Scheduler dequeues and forwards based on routing table<br><br><b>Congestion handling:</b><br>1. <b>Tail Drop:</b> buffer full &rarr; drop new packets. Simple but causes TCP synchronization (many flows back off simultaneously)<br>2. <b>RED (Random Early Detection):</b> start randomly dropping packets BEFORE buffer is full. Signals TCP to slow down gradually<br>3. <b>WRED (Weighted RED):</b> different drop probabilities per traffic class (QoS)<br><br><b>Buffer bloat:</b> Too-large buffers cause excessive latency without dropping packets. Modern fix: CoDel (Controlled Delay) algorithm monitors per-packet sojourn time in the queue.<br><br>All implemented as circular queues for O(1) enqueue/dequeue with zero allocation overhead.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q19 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
+    <div class="q-title">Q19: Explain how DFS uses a stack (explicit or call stack) for graph traversal. When would you prefer explicit stack over recursion?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Recursive DFS uses call stack implicitly. Deep graphs risk stack overflow. Explicit stack uses heap memory.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>DFS with explicit stack:</b><br>1. Push source node<br>2. Pop top, mark visited<br>3. Push all unvisited neighbors<br>4. Repeat until stack empty<br><br><b>Recursive DFS:</b> Same logic, but function call stack handles push/pop automatically.<br><br><b>Prefer explicit stack when:</b><br>&bull; Graph depth may exceed call stack limit (10,000+ nodes) &rarr; StackOverflow risk<br>&bull; Need to control traversal order precisely<br>&bull; Need to convert to iterative for performance (no function call overhead)<br>&bull; Language lacks tail-call optimization (Java, Python)<br><br><b>Real-world:</b> Topological sort (build systems like Make/Gradle), cycle detection, solving puzzles (Sudoku backtracking), compiler register allocation.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- Q20 -->
+<div class="q-card">
+  <div class="si">
+    <div class="q-hdr"><span class="badge" style="background:#8b5cf6">PRIORITY QUEUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
+    <div class="q-title">Q20: You have a stream of events arriving in real-time. Design a system to always know the top-K most frequent events. Which data structures?</div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">HashMap for frequency counting + min-heap of size K. Why min-heap and not max-heap?</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>HashMap + Min-Heap (size K):</b><br><br>1. <b>HashMap</b>: event &rarr; frequency count (O(1) update per event)<br>2. <b>Min-Heap of size K</b>: stores the top-K elements by frequency<br><br>For each event:<br>&bull; Update frequency in HashMap<br>&bull; If element already in heap: update its frequency (sift up/down)<br>&bull; If heap.size() &lt; K: insert<br>&bull; Else if frequency &gt; heap.peek(): poll min, insert current<br><br><b>Why min-heap?</b> The root is the <b>smallest</b> of top-K. Easy to check if new element belongs (compare with min). Max-heap of size K would require finding the min to evict &mdash; O(K).<br><br><b>Time:</b> O(n log K) for n events. <b>Space:</b> O(n) for HashMap + O(K) for heap.<br><br><b>Real-world:</b> Trending hashtags (Twitter), top search queries (Google), most active users, network anomaly detection.</div></div></div>
+  </div>
+  <div class="dn">&darr;</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     END SECTION
+══════════════════════════════════════════════════════ -->
+<section class="s-end">
+  <canvas id="gCanvas"></canvas>
+  <div class="si" style="text-align:center">
+    <div class="wish-main" id="wishMain">Loading...</div>
+    <div class="wish-sub" id="wishSub">Loading...</div>
+    <button class="pdf-dl-btn" onclick="downloadPDF()">&#11015; Download as PDF</button>
+  </div>
+</section>
+
+<script>
+/* ── PROGRESS BAR ── */
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  const pct=h>0?(window.scrollY/h)*100:0;
+  document.getElementById('pf').style.width=Math.min(pct,100)+'%';
+},{passive:true});
+
+/* ── ARROW CLICK → SCROLL TO NEXT SLIDE ── */
+document.querySelectorAll('.dn').forEach(arrow=>{
+  arrow.addEventListener('click',()=>{
+    const parent=arrow.parentElement;
+    const next=parent.nextElementSibling;
+    if(next) next.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+/* ── HINT TOGGLE ── */
+function toggleHint(btn){
+  const txt=btn.closest('.q-box').querySelector('.text-sm');
+  const vis=!txt.classList.contains('hidden');
+  txt.classList.toggle('hidden',vis);
+  btn.textContent=vis?'Show':'Hide';
+}
+
+/* ── ANSWER REVEAL ── */
+function toggleReveal(btn){
+  const hidden=btn.closest('.a-box').querySelector('.hidden');
+  if(hidden){
+    hidden.classList.remove('hidden');
+    btn.textContent='Hide';
+    btn.onclick=()=>{hidden.classList.add('hidden');btn.textContent='Reveal';btn.onclick=()=>toggleReveal(btn)};
+  }
+}
+
+/* ── FRAMEWORK TOGGLES ── */
+function toggleFW(btn){
+  const ans=btn.closest('.fw-row').querySelector('.fw-ans');
+  if(ans){ans.classList.toggle('hidden');btn.classList.toggle('on');}
+}
+
+/* ── DYNAMIC CRACKER / CONFETTI SYSTEM ── */
+const CCOLS=['#10b981','#3b82f6','#8b5cf6','#f97316','#ef4444','#f59e0b','#14b8a6','#ec4899','#f1f5f9','#fbbf24','#a78bfa','#34d399'];
+
+function drawStar(ctx,cx,cy,pts,ro,ri){
+  ctx.beginPath();
+  for(let i=0;i<pts*2;i++){
+    const r=i%2===0?ro:ri;
+    const a=(i*Math.PI)/pts-Math.PI/2;
+    i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+  }
+  ctx.closePath();
+}
+
+class Particle{
+  constructor(x,y,W,H){
+    this.x=x; this.y=y; this.W=W; this.H=H;
+    const angle=Math.random()*Math.PI*2;
+    const spd=Math.random()*7+3;
+    this.vx=Math.cos(angle)*spd;
+    this.vy=Math.sin(angle)*spd-(Math.random()*5+3);
+    this.gravity=0.06;
+    this.drag=0.997;
+    this.rot=Math.random()*360;
+    this.rotSpd=(Math.random()-0.5)*2.5;
+    this.col=CCOLS[Math.floor(Math.random()*CCOLS.length)];
+    this.alpha=1;
+    this.fadeY=H*0.72;
+    this.phase=Math.random()*Math.PI*2;
+    const r=Math.random();
+    if(r<0.35){
+      this.kind='rect';
+      this.w=Math.random()*12+6; this.h=Math.random()*6+3;
+    } else if(r<0.60){
+      this.kind='ribbon';
+      this.w=Math.random()*3+2; this.h=Math.random()*28+14;
+      this.wAmp=Math.random()*2.5+1;
+      this.wFreq=Math.random()*0.04+0.02;
+    } else if(r<0.78){
+      this.kind='circle';
+      this.r=Math.random()*5+3;
+    } else {
+      this.kind='star';
+      this.r=Math.random()*7+4;
+    }
+  }
+  update(){
+    this.phase+=0.022;
+    if(this.kind==='ribbon') this.vx=Math.sin(this.phase*this.wFreq*18+this.phase)*this.wAmp;
+    this.vx*=this.drag; this.vy+=this.gravity;
+    this.x+=this.vx; this.y+=this.vy;
+    this.rot+=this.rotSpd;
+    if(this.y>this.fadeY) this.alpha-=0.007;
+  }
+  draw(ctx){
+    if(this.alpha<=0) return;
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,this.alpha);
+    ctx.translate(this.x,this.y);
+    ctx.rotate(this.rot*Math.PI/180);
+    ctx.fillStyle=this.col;
+    ctx.shadowColor=this.col; ctx.shadowBlur=6;
+    if(this.kind==='rect'){
+      ctx.fillRect(-this.w/2,-this.h/2,this.w,this.h);
+    } else if(this.kind==='ribbon'){
+      ctx.beginPath();
+      const steps=Math.ceil(this.h/3);
+      for(let i=0;i<=steps;i++){
+        const t=i/steps;
+        const wx=Math.sin(t*Math.PI*3+this.phase)*this.wAmp;
+        i===0?ctx.moveTo(wx,-this.h/2+i*3):ctx.lineTo(wx,-this.h/2+i*3);
+      }
+      ctx.lineWidth=this.w; ctx.strokeStyle=this.col;
+      ctx.globalAlpha=Math.max(0,this.alpha)*0.88;
+      ctx.stroke();
+    } else if(this.kind==='circle'){
+      ctx.beginPath(); ctx.arc(0,0,this.r,0,Math.PI*2); ctx.fill();
+    } else {
+      drawStar(ctx,0,0,5,this.r,this.r*0.42); ctx.fill();
+    }
+    ctx.restore();
+  }
+  dead(){ return this.alpha<=0||this.y>this.H+80; }
+}
+
+let particles=[];
+let rafId=null;
+let canvasReady=false;
+
+function resizeCanvas(){
+  const c=document.getElementById('gCanvas');
+  c.width=c.offsetWidth||900;
+  c.height=c.offsetHeight||540;
+  canvasReady=true;
+}
+
+function launchCrackers(){
+  resizeCanvas();
+  const c=document.getElementById('gCanvas');
+  const W=c.width, H=c.height;
+  const origins=[
+    {x:W*0.15,y:H*0.25,n:55,delay:0},
+    {x:W*0.5, y:H*0.15,n:70,delay:120},
+    {x:W*0.85,y:H*0.25,n:55,delay:240},
+    {x:W*0.3, y:H*0.38,n:45,delay:380},
+    {x:W*0.7, y:H*0.38,n:45,delay:500},
+    {x:W*0.5, y:H*0.5, n:40,delay:650},
+  ];
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  particles=[];
+  origins.forEach(o=>{
+    setTimeout(()=>{
+      const ctx=c.getContext('2d');
+      ctx.save();
+      ctx.beginPath();ctx.arc(o.x,o.y,22,0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,255,255,0.85)';ctx.lineWidth=2;
+      ctx.stroke();ctx.restore();
+      for(let i=0;i<o.n;i++) particles.push(new Particle(o.x,o.y,W,H));
+      if(!rafId) startLoop(c);
+    },o.delay);
+  });
+}
+
+function startLoop(c){
+  const ctx=c.getContext('2d');
+  function frame(){
+    ctx.clearRect(0,0,c.width,c.height);
+    particles=particles.filter(p=>!p.dead());
+    particles.forEach(p=>{p.update();p.draw(ctx);});
+    if(particles.length>0) rafId=requestAnimationFrame(frame);
+    else rafId=null;
+  }
+  rafId=requestAnimationFrame(frame);
+}
+
+/* ── RANDOM WISH ── */
+const WISHES=[
+  {m:'All the best!',s:'Stacks, Queues, Deques — every pattern is loaded and ready.'},
+  {m:'You\'ve got this!',s:'LIFO, FIFO, and everything in between. You\'re prepared.'},
+  {m:'Go crush it!',s:'From call stacks to message queues — you own it all now.'},
+  {m:'Dream big, code sharp!',s:'OS scheduling, BFS, monotonic stacks — all second nature.'},
+  {m:'The offer is coming!',s:'You studied the right things. Trust your preparation.'},
+  {m:'Own the interview!',s:'The hard work is done. Time to shine with confidence.'},
+  {m:'Rise & shine, coder!',s:'Every queue you designed, every stack you traced, made you stronger.'},
+  {m:'Go write history!',s:'One interview at a time. You are absolutely ready.'},
+  {m:'You\'re built different!',s:'Min stacks, sliding windows, Dijkstra — all yours.'},
+  {m:'Believe the process!',s:'From arrays to stacks to system design — you know it all cold.'},
+];
+
+/* ── INTERSECTION OBSERVER ── */
+window.addEventListener('load',()=>{
+  const w=WISHES[Math.floor(Math.random()*WISHES.length)];
+  document.getElementById('wishMain').textContent=w.m;
+  document.getElementById('wishSub').textContent=w.s;
+  const endEl=document.querySelector('.s-end');
+  let inside=false;
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting&&!inside){
+        inside=true;
+        launchCrackers();
+      } else if(!e.isIntersecting){
+        inside=false;
+        if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+        particles=[];
+        const c=document.getElementById('gCanvas');
+        if(canvasReady) c.getContext('2d').clearRect(0,0,c.width,c.height);
+      }
+    });
+  },{threshold:0.35});
+  obs.observe(endEl);
+});
+
+window.addEventListener('resize',()=>{
+  if(document.querySelector('.s-end').getBoundingClientRect().top<window.innerHeight)
+    resizeCanvas();
+});
+
+/* ── PDF DOWNLOAD ── */
+function downloadPDF(){
+  document.querySelectorAll('.a-box .hidden').forEach(el=>{
+    el.classList.remove('hidden');el.dataset.wasHidden='1';
+  });
+  document.querySelectorAll('.q-box .text-sm').forEach(el=>{
+    el.classList.remove('hidden');
+  });
+  window.print();
+  setTimeout(()=>{
+    document.querySelectorAll('[data-was-hidden]').forEach(el=>{
+      el.classList.add('hidden');delete el.dataset.wasHidden;
+    });
+  },600);
+}
+</script>
+</body>
+</html>
