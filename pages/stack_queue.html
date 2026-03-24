@@ -94,6 +94,7 @@ h2{font-size:21px;font-weight:700;color:#0f172a;margin:6px 0 4px;line-height:1.3
 .arrow-r{font-size:14px;margin:0 2px}
 .stat{border-radius:8px;padding:7px 10px;text-align:center}
 .stat-label{font-size:10px;color:#6b7280}
+.dark .stat-label,.dark2 .stat-label,.dark3 .stat-label{color:#94a3b8}
 .stat-val{font-size:15px;font-weight:700}
 .q-box{background:#f0fdf4;border-radius:10px;padding:12px 16px;border-left:3px solid #10b981;margin-bottom:10px}
 .a-box{background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e5e7eb}
@@ -110,8 +111,11 @@ h2{font-size:21px;font-weight:700;color:#0f172a;margin:6px 0 4px;line-height:1.3
 .dark .text-sm,.dark2 .text-sm,.dark3 .text-sm,.q-card .text-sm{color:#cbd5e1}
 .tbl{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
 .tbl th{background:#0f172a;color:#e2e8f0;padding:7px;font-weight:600;text-align:center}
-.tbl td{padding:6px;text-align:center;border-bottom:1px solid #f1f5f9}
-.tbl tr:nth-child(even){background:#f8fafc}
+.tbl td{padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;color:#1e293b}
+.tbl tr:nth-child(even){background:#f1f5f9}
+.dark .tbl td,.dark2 .tbl td,.dark3 .tbl td{border-bottom-color:rgba(148,163,184,.2);color:#cbd5e1}
+.dark .tbl tr:nth-child(even),.dark2 .tbl tr:nth-child(even),.dark3 .tbl tr:nth-child(even){background:rgba(255,255,255,.06)}
+.dark .tbl tr:nth-child(odd),.dark2 .tbl tr:nth-child(odd),.dark3 .tbl tr:nth-child(odd){background:rgba(255,255,255,.02)}
 .formula{font-family:'Courier New',monospace;background:#fff7ed;padding:6px 12px;border-radius:6px;font-size:12px;color:#92400e;display:inline-block;margin-top:6px}
 .dark .formula{background:rgba(245,158,11,.12);color:#fbbf24}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -202,7 +206,7 @@ h2{font-size:21px;font-weight:700;color:#0f172a;margin:6px 0 4px;line-height:1.3
     <div style="margin-top:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
       <span style="padding:3px 10px;border-radius:12px;background:rgba(16,185,129,.12);font-size:10px;color:#10b981;font-weight:600">Prereq: Arrays &amp; LinkedList</span>
     </div>
-    <div style="margin-top:24px;font-size:12px;color:#475569">12 Concept Slides &middot; 20 Interview &amp; Real-World Questions</div>
+    <div style="margin-top:24px;font-size:12px;color:#475569">14 Concept Slides &middot; 20 Interview &amp; Real-World Questions</div>
   </div>
   <div class="dn">&darr;</div>
 </section>
@@ -451,11 +455,160 @@ class Queue {
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     SLIDE 6 · CIRCULAR QUEUE
+     SLIDE 6 · KAFKA QUEUE — ORDER SERVICE
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark2">
+  <div class="si">
+    <div class="s-num">06 &middot; Kafka &amp; Order Service</div>
+    <span class="badge" style="background:#10b981">KAFKA QUEUE</span>
+    <h2>E-Commerce Order Pipeline with Kafka</h2>
+    <p class="sub">How queues power real-world order processing at scale</p>
+
+    <!-- ── ARCHITECTURE DIAGRAM ── -->
+    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,.1);margin-bottom:14px">
+      <div style="font-size:10px;color:#94a3b8;margin-bottom:12px;letter-spacing:1px">END-TO-END ORDER FLOW</div>
+
+      <!-- Row 1: Producers -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <div style="padding:8px 14px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:8px;text-align:center">
+          <div style="font-size:14px">&#128241;</div>
+          <div style="font-size:9px;font-weight:700;color:#93c5fd">Mobile App</div>
+        </div>
+        <div style="padding:8px 14px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:8px;text-align:center">
+          <div style="font-size:14px">&#127760;</div>
+          <div style="font-size:9px;font-weight:700;color:#93c5fd">Web App</div>
+        </div>
+        <div style="padding:8px 14px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:8px;text-align:center">
+          <div style="font-size:14px">&#128279;</div>
+          <div style="font-size:9px;font-weight:700;color:#93c5fd">API Partner</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:#94a3b8;margin-bottom:6px">&darr; produce &darr;</div>
+
+      <!-- Row 2: Kafka Topics -->
+      <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:#10b981;letter-spacing:1px;margin-bottom:8px">KAFKA CLUSTER</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div style="flex:1;min-width:120px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:8px">
+            <div style="font-size:10px;font-weight:700;color:#34d399;margin-bottom:4px">Topic: orders</div>
+            <div style="display:flex;gap:2px">
+              <div style="flex:1;padding:4px;background:rgba(16,185,129,.2);border-radius:3px;text-align:center;font-size:8px;color:#6ee7b7;font-weight:600">P0</div>
+              <div style="flex:1;padding:4px;background:rgba(16,185,129,.2);border-radius:3px;text-align:center;font-size:8px;color:#6ee7b7;font-weight:600">P1</div>
+              <div style="flex:1;padding:4px;background:rgba(16,185,129,.2);border-radius:3px;text-align:center;font-size:8px;color:#6ee7b7;font-weight:600">P2</div>
+            </div>
+            <div style="font-size:8px;color:#94a3b8;margin-top:3px">key = orderId</div>
+          </div>
+          <div style="flex:1;min-width:120px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:8px">
+            <div style="font-size:10px;font-weight:700;color:#fbbf24;margin-bottom:4px">Topic: payments</div>
+            <div style="display:flex;gap:2px">
+              <div style="flex:1;padding:4px;background:rgba(245,158,11,.15);border-radius:3px;text-align:center;font-size:8px;color:#fcd34d;font-weight:600">P0</div>
+              <div style="flex:1;padding:4px;background:rgba(245,158,11,.15);border-radius:3px;text-align:center;font-size:8px;color:#fcd34d;font-weight:600">P1</div>
+            </div>
+            <div style="font-size:8px;color:#94a3b8;margin-top:3px">key = orderId</div>
+          </div>
+          <div style="flex:1;min-width:120px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:8px;padding:8px">
+            <div style="font-size:10px;font-weight:700;color:#c4b5fd;margin-bottom:4px">Topic: notifications</div>
+            <div style="display:flex;gap:2px">
+              <div style="flex:1;padding:4px;background:rgba(139,92,246,.15);border-radius:3px;text-align:center;font-size:8px;color:#c4b5fd;font-weight:600">P0</div>
+            </div>
+            <div style="font-size:8px;color:#94a3b8;margin-top:3px">key = userId</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:#94a3b8;margin-bottom:6px">&darr; consume &darr;</div>
+
+      <!-- Row 3: Consumer Services -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
+        <div style="padding:8px 12px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3);border-radius:8px;text-align:center;min-width:90px">
+          <div style="font-size:14px">&#9881;</div>
+          <div style="font-size:9px;font-weight:700;color:#fb923c">Order Service</div>
+          <div style="font-size:8px;color:#94a3b8">validates, saves</div>
+        </div>
+        <div style="padding:8px 12px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:8px;text-align:center;min-width:90px">
+          <div style="font-size:14px">&#128179;</div>
+          <div style="font-size:9px;font-weight:700;color:#fbbf24">Payment Service</div>
+          <div style="font-size:8px;color:#94a3b8">charges card</div>
+        </div>
+        <div style="padding:8px 12px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:8px;text-align:center;min-width:90px">
+          <div style="font-size:14px">&#128230;</div>
+          <div style="font-size:9px;font-weight:700;color:#34d399">Inventory Service</div>
+          <div style="font-size:8px;color:#94a3b8">reserves stock</div>
+        </div>
+        <div style="padding:8px 12px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);border-radius:8px;text-align:center;min-width:90px">
+          <div style="font-size:14px">&#128276;</div>
+          <div style="font-size:9px;font-weight:700;color:#c4b5fd">Notification Svc</div>
+          <div style="font-size:8px;color:#94a3b8">email, push</div>
+        </div>
+        <div style="padding:8px 12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;text-align:center;min-width:90px">
+          <div style="font-size:14px">&#128666;</div>
+          <div style="font-size:9px;font-weight:700;color:#fca5a5">Shipping Service</div>
+          <div style="font-size:8px;color:#94a3b8">dispatch</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PARTITION DETAIL ── -->
+    <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,.1);margin-bottom:12px">
+      <div style="font-size:10px;color:#94a3b8;margin-bottom:8px;letter-spacing:1px">PARTITION 0 — OFFSET LOG (FIFO within partition)</div>
+      <div style="display:flex;align-items:center;gap:2px;overflow-x:auto;padding-bottom:4px">
+        <div style="padding:6px 10px;background:rgba(100,116,139,.15);border:1px solid rgba(100,116,139,.3);border-radius:4px;font-size:9px;color:#94a3b8;text-align:center;min-width:60px;flex-shrink:0">
+          <div style="font-weight:700">offset 0</div>
+          <div>ORD-101</div>
+          <div style="font-size:8px">created</div>
+        </div>
+        <div style="font-size:10px;color:#475569">&rarr;</div>
+        <div style="padding:6px 10px;background:rgba(100,116,139,.15);border:1px solid rgba(100,116,139,.3);border-radius:4px;font-size:9px;color:#94a3b8;text-align:center;min-width:60px;flex-shrink:0">
+          <div style="font-weight:700">offset 1</div>
+          <div>ORD-101</div>
+          <div style="font-size:8px">paid</div>
+        </div>
+        <div style="font-size:10px;color:#475569">&rarr;</div>
+        <div style="padding:6px 10px;background:rgba(100,116,139,.15);border:1px solid rgba(100,116,139,.3);border-radius:4px;font-size:9px;color:#94a3b8;text-align:center;min-width:60px;flex-shrink:0">
+          <div style="font-weight:700">offset 2</div>
+          <div>ORD-101</div>
+          <div style="font-size:8px">shipped</div>
+        </div>
+        <div style="font-size:10px;color:#475569">&rarr;</div>
+        <div style="padding:6px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.35);border-radius:4px;font-size:9px;color:#34d399;text-align:center;min-width:60px;flex-shrink:0">
+          <div style="font-weight:700">offset 3</div>
+          <div>ORD-204</div>
+          <div style="font-size:8px">created</div>
+        </div>
+        <div style="font-size:10px;color:#475569">&rarr;</div>
+        <div style="padding:6px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:4px;font-size:9px;color:#93c5fd;text-align:center;min-width:60px;flex-shrink:0">
+          <div style="font-weight:700">offset 4</div>
+          <div>ORD-307</div>
+          <div style="font-size:8px">created</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:#6b7280;margin-top:6px">Same orderId always lands in same partition (hash partitioning) &rarr; <b>ordering guaranteed per order</b></div>
+    </div>
+
+    <!-- ── KEY CONCEPTS ── -->
+    <div class="grid-2">
+      <div style="background:rgba(16,185,129,.08);border-radius:8px;padding:10px 14px;border-left:3px solid #10b981">
+        <div style="font-size:11px;font-weight:700;color:#34d399;margin-bottom:4px">Why Kafka here?</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">&bull; <b>Decoupling:</b> Order Service doesn't call Payment Service directly &mdash; publishes event, moves on<br>&bull; <b>Replay:</b> consumer offset lets services reprocess past orders<br>&bull; <b>Spike handling:</b> Black Friday traffic buffered in Kafka, consumed at safe rate</div>
+      </div>
+      <div style="background:rgba(239,68,68,.08);border-radius:8px;padding:10px 14px;border-left:3px solid #ef4444">
+        <div style="font-size:11px;font-weight:700;color:#fca5a5;margin-bottom:4px">Failure Scenarios</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.5">&bull; <b>Payment fails:</b> publishes "payment_failed" &rarr; Order Service reverts status<br>&bull; <b>Consumer crashes:</b> offset not committed &rarr; rebalance, another consumer picks up<br>&bull; <b>Dead Letter Queue:</b> after N retries, poison messages go to DLQ for manual review</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;background:rgba(245,158,11,.1);border-radius:8px;padding:10px 14px;border-left:3px solid #f59e0b">
+      <div style="font-size:11px;font-weight:700;color:#fbbf24">Consumer Groups &amp; Scaling</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:2px">3 partitions + 3 consumers in a group = each consumer handles 1 partition. Add a 4th consumer? It sits idle. <b>Max parallelism = number of partitions.</b> This is why partition count is a critical design decision.</div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 7 · CIRCULAR QUEUE
 ══════════════════════════════════════════════════════ -->
 <section class="s-card">
   <div class="si">
-    <div class="s-num">06 &middot; Circular Queue</div>
+    <div class="s-num">07 &middot; Circular Queue</div>
     <span class="badge" style="background:#ef4444">CIRCULAR QUEUE</span>
     <h2>Ring Buffer &mdash; No Wasted Space</h2>
     <p class="sub">Front and rear wrap around using modulo arithmetic</p>
@@ -502,11 +655,156 @@ class Queue {
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     SLIDE 7 · DEQUE
+     SLIDE 8 · CIRCULAR QUEUE — REAL-TIME EXAMPLE
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">08 &middot; Circular Queue Example</div>
+    <span class="badge" style="background:#ef4444">CIRCULAR QUEUE</span>
+    <h2>Live Chat App — Message Buffer</h2>
+    <p class="sub">A chat app keeps only the last 5 messages visible. New messages overwrite the oldest.</p>
+
+    <!-- ── STEP-BY-STEP WALKTHROUGH ── -->
+    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,.1);margin-bottom:14px">
+      <div style="font-size:10px;color:#94a3b8;margin-bottom:10px;letter-spacing:1px">STEP-BY-STEP: RING BUFFER (capacity = 5)</div>
+
+      <!-- Step 1: Initial fill -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;color:#10b981;margin-bottom:6px">STEP 1 &mdash; Buffer fills up (5 messages arrive)</div>
+        <div style="display:flex;gap:3px;margin-bottom:4px">
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Hi!</div>
+            <div style="font-size:8px;color:#64748b">[0] F</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Hello</div>
+            <div style="font-size:8px;color:#64748b">[1]</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">How?</div>
+            <div style="font-size:8px;color:#64748b">[2]</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Good</div>
+            <div style="font-size:8px;color:#64748b">[3]</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Nice</div>
+            <div style="font-size:8px;color:#64748b">[4] R</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:#6b7280">front=0, rear=4, size=5 &mdash; <span style="color:#f59e0b;font-weight:600">FULL</span></div>
+      </div>
+
+      <!-- Step 2: New message wraps around -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;color:#f59e0b;margin-bottom:6px">STEP 2 &mdash; "Bye!" arrives &rarr; overwrites oldest, front advances</div>
+        <div style="display:flex;gap:3px;margin-bottom:4px">
+          <div style="flex:1;padding:8px 4px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.45);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#fbbf24">Bye!</div>
+            <div style="font-size:8px;color:#fbbf24">[0] R &#9733;</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Hello</div>
+            <div style="font-size:8px;color:#64748b">[1] F</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">How?</div>
+            <div style="font-size:8px;color:#64748b">[2]</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Good</div>
+            <div style="font-size:8px;color:#64748b">[3]</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Nice</div>
+            <div style="font-size:8px;color:#64748b">[4]</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:#6b7280">rear wraps: (4+1) % 5 = <b>0</b> &middot; front advances: (0+1) % 5 = <b>1</b> &middot; "Hi!" overwritten</div>
+      </div>
+
+      <!-- Step 3: Another message -->
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#8b5cf6;margin-bottom:6px">STEP 3 &mdash; "Sure!" arrives &rarr; wraps again</div>
+        <div style="display:flex;gap:3px;margin-bottom:4px">
+          <div style="flex:1;padding:8px 4px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#fbbf24">Bye!</div>
+            <div style="font-size:8px;color:#64748b">[0]</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.45);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#c4b5fd">Sure!</div>
+            <div style="font-size:8px;color:#c4b5fd">[1] R &#9733;</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">How?</div>
+            <div style="font-size:8px;color:#64748b">[2] F</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Good</div>
+            <div style="font-size:8px;color:#64748b">[3]</div>
+          </div>
+          <div style="flex:1;padding:8px 4px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);border-radius:6px;text-align:center;font-size:10px">
+            <div style="font-weight:700;color:#93c5fd">Nice</div>
+            <div style="font-size:8px;color:#64748b">[4]</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:#6b7280">rear = 1, front = 2 &middot; "Hello" overwritten &middot; reading order: How? &rarr; Good &rarr; Nice &rarr; Bye! &rarr; Sure!</div>
+      </div>
+    </div>
+
+    <!-- ── CODE ── -->
+    <div class="codebox" style="font-size:11px;margin-bottom:12px">class ChatBuffer {
+  String[] msgs;  int front=0, count=0, cap;
+
+  ChatBuffer(int cap) { this.cap = cap; msgs = new String[cap]; }
+
+  void newMessage(String msg) {
+    int rear = (front + count) % cap;
+    msgs[rear] = msg;                // overwrite oldest if full
+    if (count == cap) front = (front + 1) % cap;  // advance front
+    else count++;
+  }
+
+  List&lt;String&gt; getVisible() {       // read in correct order
+    List&lt;String&gt; result = new ArrayList&lt;&gt;();
+    for (int i = 0; i &lt; count; i++)
+      result.add(msgs[(front + i) % cap]);
+    return result;  // [How?, Good, Nice, Bye!, Sure!]
+  }
+}</div>
+
+    <!-- ── MORE EXAMPLES ── -->
+    <div class="grid-2">
+      <div style="background:rgba(16,185,129,.08);border-radius:8px;padding:10px 14px;border-left:3px solid #10b981">
+        <div style="font-size:11px;font-weight:700;color:#34d399;margin-bottom:4px">Same Pattern Everywhere</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.6">
+          &bull; <b>Terminal scrollback:</b> keeps last 10,000 lines<br>
+          &bull; <b>Game replay:</b> last 30s of gameplay (kill cam)<br>
+          &bull; <b>Log rotation:</b> keep last N log entries in memory<br>
+          &bull; <b>GPS tracker:</b> last 100 location pings
+        </div>
+      </div>
+      <div style="background:rgba(239,68,68,.08);border-radius:8px;padding:10px 14px;border-left:3px solid #ef4444">
+        <div style="font-size:11px;font-weight:700;color:#fca5a5;margin-bottom:4px">Why Not ArrayList?</div>
+        <div style="font-size:11px;color:#94a3b8;line-height:1.6">
+          &bull; ArrayList.remove(0) = <b>O(n)</b> shift every time<br>
+          &bull; Circular buffer overwrite = <b>O(1)</b> always<br>
+          &bull; Fixed memory &mdash; no GC pressure<br>
+          &bull; Cache-friendly contiguous array
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 9 · DEQUE
 ══════════════════════════════════════════════════════ -->
 <section class="s-card dark2">
   <div class="si">
-    <div class="s-num">07 &middot; Deque</div>
+    <div class="s-num">09 &middot; Deque</div>
     <span class="badge" style="background:#f97316">DEQUE</span>
     <h2>Double-Ended Queue</h2>
     <p class="sub">Insert and remove from both ends in O(1)</p>
@@ -539,11 +837,11 @@ class Queue {
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     SLIDE 8 · PRIORITY QUEUE
+     SLIDE 10 · PRIORITY QUEUE
 ══════════════════════════════════════════════════════ -->
 <section class="s-card">
   <div class="si">
-    <div class="s-num">08 &middot; Priority Queue</div>
+    <div class="s-num">10 &middot; Priority Queue</div>
     <span class="badge" style="background:#8b5cf6">PRIORITY QUEUE</span>
     <h2>Highest Priority Out First</h2>
     <p class="sub">Not FIFO — element with highest (or lowest) priority dequeues first</p>
@@ -586,11 +884,11 @@ class Queue {
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     SLIDE 9 · STACK vs QUEUE vs DEQUE COMPARISON
+     SLIDE 11 · STACK vs QUEUE vs DEQUE COMPARISON
 ══════════════════════════════════════════════════════ -->
 <section class="s-card dark3">
   <div class="si">
-    <div class="s-num">09 &middot; Comparison</div>
+    <div class="s-num">11 &middot; Comparison</div>
     <span class="badge" style="background:#f59e0b">COMPARISON</span>
     <h2>Stack vs Queue vs Deque — Side by Side</h2>
     <p class="sub">Choose the right ADT for your problem</p>
@@ -613,11 +911,11 @@ class Queue {
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     SLIDE 10 · IMPLEMENTATION BACKING — ARRAY vs LL
+     SLIDE 12 · IMPLEMENTATION BACKING — ARRAY vs LL
 ══════════════════════════════════════════════════════ -->
 <section class="s-card">
   <div class="si">
-    <div class="s-num">10 &middot; Backing Structures</div>
+    <div class="s-num">12 &middot; Backing Structures</div>
     <span class="badge" style="background:#f59e0b">IMPLEMENTATION</span>
     <h2>Array-Backed vs LinkedList-Backed</h2>
     <p class="sub">Same ADT, different trade-offs — connecting back to Arrays &amp; LinkedList</p>
@@ -642,11 +940,11 @@ class Queue {
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     SLIDE 11 · OS SCHEDULING — MULTILEVEL QUEUE
+     SLIDE 13 · OS SCHEDULING — MULTILEVEL QUEUE
 ══════════════════════════════════════════════════════ -->
 <section class="s-card dark">
   <div class="si">
-    <div class="s-num">11 &middot; OS Scenario</div>
+    <div class="s-num">13 &middot; OS Scenario</div>
     <span class="badge" style="background:#ef4444">OS / REAL-TIME</span>
     <h2>Multilevel Queue Scheduling</h2>
     <p class="sub">How operating systems use multiple queues for process management</p>
@@ -688,11 +986,11 @@ class Queue {
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     SLIDE 12 · DECISION FRAMEWORK
+     SLIDE 14 · DECISION FRAMEWORK
 ══════════════════════════════════════════════════════ -->
 <section class="s-card">
   <div class="si">
-    <div class="s-num">12 &middot; Decision Framework</div>
+    <div class="s-num">14 &middot; Decision Framework</div>
     <span class="badge" style="background:#f59e0b">FRAMEWORK</span>
     <h2>Which ADT Should You Use?</h2>
     <p class="sub">Follow this decision tree for any scenario</p>
@@ -747,8 +1045,43 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
     <div class="q-title">Q1: How does the OS handle nested function calls using the call stack? What happens during a stack overflow?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Think about stack frames, return addresses, and memory limits per thread.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Each function call pushes a <b>stack frame</b> containing: return address, parameters, local variables, saved registers. Nested calls stack frames on top.<br><br>On return, the frame is popped and execution resumes at the return address. If recursion has no base case or nesting is too deep, frames exceed the stack memory limit (typically 1-8 MB per thread) &rarr; <b>StackOverflowError</b>.<br><br><b>Real scenario:</b> A recursive JSON parser processing deeply nested objects (10,000+ levels) will overflow. Solution: convert to iterative with an explicit stack on the heap (no size limit).</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Think about stack frames, return addresses, and memory limits per thread.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Each function call pushes a <b>stack frame</b> containing: return address, parameters, local variables, saved registers. Nested calls stack frames on top.<br><br>
+<!-- Visual: Call Stack Growth -->
+<div style="display:flex;gap:16px;align-items:flex-end;margin:10px 0;flex-wrap:wrap">
+  <div style="text-align:center">
+    <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">call main()</div>
+    <div style="display:flex;flex-direction:column-reverse;align-items:center;gap:2px">
+      <div style="width:110px;padding:6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:600">main()</div>
+    </div>
+  </div>
+  <div style="font-size:14px;color:#475569">&rarr;</div>
+  <div style="text-align:center">
+    <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">call foo()</div>
+    <div style="display:flex;flex-direction:column-reverse;align-items:center;gap:2px">
+      <div style="width:110px;padding:6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:600">main()</div>
+      <div style="width:110px;padding:6px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:4px;font-size:9px;color:#34d399;font-weight:600">foo()</div>
+    </div>
+  </div>
+  <div style="font-size:14px;color:#475569">&rarr;</div>
+  <div style="text-align:center">
+    <div style="font-size:9px;color:#94a3b8;margin-bottom:4px">call bar()</div>
+    <div style="display:flex;flex-direction:column-reverse;align-items:center;gap:2px">
+      <div style="width:110px;padding:6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:600">main()</div>
+      <div style="width:110px;padding:6px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:4px;font-size:9px;color:#34d399;font-weight:600">foo()</div>
+      <div style="width:110px;padding:6px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:4px;font-size:9px;color:#fbbf24;font-weight:600">bar() &larr; TOP</div>
+    </div>
+  </div>
+  <div style="font-size:14px;color:#475569">&rarr;</div>
+  <div style="text-align:center">
+    <div style="font-size:9px;color:#ef4444;margin-bottom:4px">bar returns</div>
+    <div style="display:flex;flex-direction:column-reverse;align-items:center;gap:2px">
+      <div style="width:110px;padding:6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:600">main()</div>
+      <div style="width:110px;padding:6px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:4px;font-size:9px;color:#34d399;font-weight:600">foo() &larr; TOP</div>
+    </div>
+  </div>
+</div>
+On return, the frame is popped and execution resumes at the return address. If recursion has no base case or nesting is too deep, frames exceed the stack memory limit (typically 1-8 MB per thread) &rarr; <b>StackOverflowError</b>.<br><br><b>Real scenario:</b> A recursive JSON parser processing deeply nested objects (10,000+ levels) will overflow. Solution: convert to iterative with an explicit stack on the heap (no size limit).</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -758,8 +1091,69 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
     <div class="q-title">Q2: Design an Undo/Redo system for a text editor. Which data structures and why?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Two stacks. What happens to the redo stack when a new action is performed?</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> undoStack and redoStack.<br><br>&bull; <b>New action</b>: push to undoStack, <b>clear</b> redoStack (forward history invalidated)<br>&bull; <b>Undo (Ctrl+Z)</b>: pop from undoStack, push to redoStack, reverse the action<br>&bull; <b>Redo (Ctrl+Y)</b>: pop from redoStack, push to undoStack, re-apply the action<br><br>Each entry stores the <b>command object</b> (Command Pattern): action type, position, old text, new text. This allows both undo and redo to be O(1).<br><br><b>Optimization:</b> Group rapid keystrokes into batches (e.g., undo a whole word, not letter-by-letter). Cap stack size to limit memory.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Two stacks. What happens to the redo stack when a new action is performed?</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> undoStack and redoStack.<br><br>
+<!-- Visual: Undo/Redo Flow -->
+<div style="display:flex;gap:12px;align-items:flex-start;margin:10px 0;flex-wrap:wrap">
+  <!-- State 1: After 3 actions -->
+  <div style="flex:1;min-width:140px;background:rgba(255,255,255,.06);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,.1)">
+    <div style="font-size:9px;color:#10b981;font-weight:700;margin-bottom:6px">After 3 edits</div>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <div style="text-align:center">
+        <div style="font-size:8px;color:#94a3b8;margin-bottom:3px">UNDO STACK</div>
+        <div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center">
+          <div style="padding:4px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:8px;color:#34d399;font-weight:600">Type "H"</div>
+          <div style="padding:4px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:8px;color:#34d399;font-weight:600">Type "i"</div>
+          <div style="padding:4px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.35);border-radius:3px;font-size:8px;color:#34d399;font-weight:600">Bold &larr;</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:8px;color:#94a3b8;margin-bottom:3px">REDO STACK</div>
+        <div style="padding:8px 10px;border:1px dashed rgba(148,163,184,.2);border-radius:3px;font-size:8px;color:#475569">empty</div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:14px;color:#475569;align-self:center">&rarr;</div>
+  <!-- State 2: After Ctrl+Z -->
+  <div style="flex:1;min-width:140px;background:rgba(255,255,255,.06);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,.1)">
+    <div style="font-size:9px;color:#f59e0b;font-weight:700;margin-bottom:6px">After Ctrl+Z</div>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <div style="text-align:center">
+        <div style="font-size:8px;color:#94a3b8;margin-bottom:3px">UNDO STACK</div>
+        <div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center">
+          <div style="padding:4px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:8px;color:#34d399;font-weight:600">Type "H"</div>
+          <div style="padding:4px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.35);border-radius:3px;font-size:8px;color:#34d399;font-weight:600">Type "i" &larr;</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:8px;color:#94a3b8;margin-bottom:3px">REDO STACK</div>
+        <div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center">
+          <div style="padding:4px 10px;background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);border-radius:3px;font-size:8px;color:#c4b5fd;font-weight:600">Bold</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:14px;color:#475569;align-self:center">&rarr;</div>
+  <!-- State 3: New action clears redo -->
+  <div style="flex:1;min-width:140px;background:rgba(255,255,255,.06);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,.1)">
+    <div style="font-size:9px;color:#ef4444;font-weight:700;margin-bottom:6px">New edit &rarr; redo cleared</div>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <div style="text-align:center">
+        <div style="font-size:8px;color:#94a3b8;margin-bottom:3px">UNDO STACK</div>
+        <div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center">
+          <div style="padding:4px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:8px;color:#34d399;font-weight:600">Type "H"</div>
+          <div style="padding:4px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:8px;color:#34d399;font-weight:600">Type "i"</div>
+          <div style="padding:4px 10px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:3px;font-size:8px;color:#fbbf24;font-weight:600">Delete &larr;</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:8px;color:#94a3b8;margin-bottom:3px">REDO STACK</div>
+        <div style="padding:8px 10px;border:1px dashed rgba(239,68,68,.3);border-radius:3px;font-size:8px;color:#ef4444">cleared!</div>
+      </div>
+    </div>
+  </div>
+</div>
+&bull; <b>New action</b>: push to undoStack, <b>clear</b> redoStack (forward history invalidated)<br>&bull; <b>Undo (Ctrl+Z)</b>: pop from undoStack, push to redoStack, reverse the action<br>&bull; <b>Redo (Ctrl+Y)</b>: pop from redoStack, push to undoStack, re-apply the action<br><br>Each entry stores the <b>command object</b> (Command Pattern): action type, position, old text, new text. This allows both undo and redo to be O(1).<br><br><b>Optimization:</b> Group rapid keystrokes into batches (e.g., undo a whole word, not letter-by-letter). Cap stack size to limit memory.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -769,8 +1163,21 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
     <div class="q-title">Q3: How would you validate balanced parentheses including {}, [], ()? What is the time and space complexity?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Push opening brackets, pop on closing brackets, check if they match.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Use a <b>stack</b>. For each character:<br>&bull; Opening bracket &rarr; push to stack<br>&bull; Closing bracket &rarr; pop from stack, check it matches<br>&bull; If stack empty when closing or mismatch &rarr; invalid<br>&bull; After all chars, stack must be empty<br><br><b>Time: O(n)</b> — single pass. <b>Space: O(n)</b> — worst case all opening brackets.<br><br><b>Real-world:</b> Every compiler uses this for syntax validation. JSON parsers validate nested braces. HTML validators check tag matching. IDEs highlight mismatched brackets in real-time.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Push opening brackets, pop on closing brackets, check if they match.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Use a <b>stack</b>. For each character:<br>&bull; Opening bracket &rarr; push to stack<br>&bull; Closing bracket &rarr; pop from stack, check it matches<br><br>
+<!-- Visual: Parentheses validation step-by-step -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:6px;letter-spacing:1px">INPUT: <span style="color:#f1f5f9;font-weight:700;font-family:monospace">{ [ ( ) ] }</span></div>
+<div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">
+  <div style="text-align:center"><div style="font-size:10px;color:#f1f5f9;font-weight:700;font-family:monospace;margin-bottom:3px">{</div><div style="display:flex;flex-direction:column-reverse;gap:1px;align-items:center"><div style="padding:3px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:9px;color:#93c5fd;font-weight:700">{</div></div><div style="font-size:7px;color:#475569;margin-top:2px">push</div></div>
+  <div style="text-align:center"><div style="font-size:10px;color:#f1f5f9;font-weight:700;font-family:monospace;margin-bottom:3px">[</div><div style="display:flex;flex-direction:column-reverse;gap:1px;align-items:center"><div style="padding:3px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:9px;color:#93c5fd;font-weight:700">{</div><div style="padding:3px 8px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:9px;color:#34d399;font-weight:700">[</div></div><div style="font-size:7px;color:#475569;margin-top:2px">push</div></div>
+  <div style="text-align:center"><div style="font-size:10px;color:#f1f5f9;font-weight:700;font-family:monospace;margin-bottom:3px">(</div><div style="display:flex;flex-direction:column-reverse;gap:1px;align-items:center"><div style="padding:3px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:9px;color:#93c5fd;font-weight:700">{</div><div style="padding:3px 8px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:9px;color:#34d399;font-weight:700">[</div><div style="padding:3px 8px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:3px;font-size:9px;color:#fbbf24;font-weight:700">(</div></div><div style="font-size:7px;color:#475569;margin-top:2px">push</div></div>
+  <div style="text-align:center"><div style="font-size:10px;color:#10b981;font-weight:700;font-family:monospace;margin-bottom:3px">)</div><div style="display:flex;flex-direction:column-reverse;gap:1px;align-items:center"><div style="padding:3px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:9px;color:#93c5fd;font-weight:700">{</div><div style="padding:3px 8px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:9px;color:#34d399;font-weight:700">[</div></div><div style="font-size:7px;color:#10b981;margin-top:2px">pop (</div></div>
+  <div style="text-align:center"><div style="font-size:10px;color:#10b981;font-weight:700;font-family:monospace;margin-bottom:3px">]</div><div style="display:flex;flex-direction:column-reverse;gap:1px;align-items:center"><div style="padding:3px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:9px;color:#93c5fd;font-weight:700">{</div></div><div style="font-size:7px;color:#10b981;margin-top:2px">pop [</div></div>
+  <div style="text-align:center"><div style="font-size:10px;color:#10b981;font-weight:700;font-family:monospace;margin-bottom:3px">}</div><div style="display:flex;flex-direction:column-reverse;gap:1px;align-items:center"><div style="padding:3px 8px;border:1px dashed rgba(148,163,184,.2);border-radius:3px;font-size:8px;color:#475569">empty</div></div><div style="font-size:7px;color:#10b981;margin-top:2px">pop { &#10003;</div></div>
+</div>
+</div>
+&bull; If stack empty when closing or mismatch &rarr; invalid<br>&bull; After all chars, stack must be empty<br><br><b>Time: O(n)</b> — single pass. <b>Space: O(n)</b> — worst case all opening brackets.<br><br><b>Real-world:</b> Every compiler uses this for syntax validation. JSON parsers validate nested braces. HTML validators check tag matching. IDEs highlight mismatched brackets in real-time.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -780,8 +1187,28 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
     <div class="q-title">Q4: Explain how the OS Round Robin scheduler uses a queue. What happens when a process exceeds its time quantum?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Think about dequeue from front, execute for quantum, re-enqueue if not finished.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Round Robin:</b> All runnable processes sit in a FIFO <b>ready queue</b>.<br><br>1. Dequeue front process, assign CPU for <b>time quantum</b> (e.g., 10ms)<br>2. If process completes before quantum &rarr; remove from system<br>3. If process exceeds quantum &rarr; <b>preempt</b>, save context, enqueue at rear<br>4. Repeat<br><br><b>Trade-off:</b> Small quantum = fairer but more context switches (overhead). Large quantum = fewer switches but poor response time. Typical: 10-100ms.<br><br><b>Real OS:</b> Linux CFS doesn't use pure RR but a weighted fair-share queue using a red-black tree. Android uses CFS + priority boosting for foreground apps.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Think about dequeue from front, execute for quantum, re-enqueue if not finished.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Round Robin:</b> All runnable processes sit in a FIFO <b>ready queue</b>.<br><br>
+<!-- Visual: Round Robin cycle -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:8px;letter-spacing:1px">ROUND ROBIN (quantum = 10ms)</div>
+<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+  <div style="font-size:8px;color:#94a3b8">READY QUEUE:</div>
+  <div style="padding:5px 10px;background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.5);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:700">P1</div>
+  <div style="padding:5px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:4px;font-size:9px;color:#34d399;font-weight:700">P2</div>
+  <div style="padding:5px 10px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:4px;font-size:9px;color:#fbbf24;font-weight:700">P3</div>
+  <div style="font-size:10px;color:#475569">&rarr;</div>
+  <div style="padding:5px 10px;background:rgba(59,130,246,.4);border:1px solid rgba(59,130,246,.7);border-radius:4px;font-size:9px;color:#fff;font-weight:700">CPU: P1 (10ms)</div>
+</div>
+<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:4px">
+  <div style="font-size:8px;color:#f59e0b">P1 not done:</div>
+  <div style="padding:5px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:4px;font-size:9px;color:#34d399;font-weight:700">P2</div>
+  <div style="padding:5px 10px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:4px;font-size:9px;color:#fbbf24;font-weight:700">P3</div>
+  <div style="padding:5px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:700">P1</div>
+  <div style="font-size:8px;color:#94a3b8">&larr; re-enqueued at rear</div>
+</div>
+</div>
+1. Dequeue front process, assign CPU for <b>time quantum</b> (e.g., 10ms)<br>2. If process completes before quantum &rarr; remove from system<br>3. If process exceeds quantum &rarr; <b>preempt</b>, save context, enqueue at rear<br><br><b>Trade-off:</b> Small quantum = fairer but more context switches (overhead). Large quantum = fewer switches but poor response time. Typical: 10-100ms.<br><br><b>Real OS:</b> Linux CFS doesn't use pure RR but a weighted fair-share queue using a red-black tree. Android uses CFS + priority boosting for foreground apps.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -791,8 +1218,31 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
     <div class="q-title">Q5: Implement a Queue using two Stacks. What is the amortized time complexity of enqueue and dequeue?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">One stack for input, one for output. Transfer only when output stack is empty.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> inStack and outStack.<br><br>&bull; <b>enqueue(x)</b>: push x to inStack &rarr; <b>O(1)</b><br>&bull; <b>dequeue()</b>: if outStack empty, pop ALL from inStack and push to outStack. Then pop from outStack.<br><br>Worst-case dequeue is O(n) (when transfer happens). But each element is transferred at most once, so <b>amortized O(1)</b> for both operations.<br><br><b>Real-world:</b> This pattern appears in functional programming (persistent queues) and in systems where you batch-process accumulated items (e.g., log aggregation: write to buffer stack, flush to processing stack).</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">One stack for input, one for output. Transfer only when output stack is empty.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> inStack and outStack.<br><br>
+<!-- Visual: Queue from two stacks -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+  <!-- State 1: enqueue 1,2,3 -->
+  <div style="flex:1;min-width:130px;text-align:center">
+    <div style="font-size:9px;color:#10b981;font-weight:700;margin-bottom:6px">enqueue(1,2,3)</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <div><div style="font-size:8px;color:#94a3b8;margin-bottom:3px">IN STACK</div><div style="display:flex;flex-direction:column-reverse;gap:1px;align-items:center"><div style="padding:3px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:9px;color:#34d399;font-weight:700">1</div><div style="padding:3px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:9px;color:#34d399;font-weight:700">2</div><div style="padding:3px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.35);border-radius:3px;font-size:9px;color:#34d399;font-weight:700">3</div></div></div>
+      <div><div style="font-size:8px;color:#94a3b8;margin-bottom:3px">OUT STACK</div><div style="padding:8px 10px;border:1px dashed rgba(148,163,184,.2);border-radius:3px;font-size:8px;color:#475569">empty</div></div>
+    </div>
+  </div>
+  <!-- State 2: dequeue → transfer -->
+  <div style="flex:1;min-width:130px;text-align:center">
+    <div style="font-size:9px;color:#f59e0b;font-weight:700;margin-bottom:6px">dequeue() &rarr; transfer</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <div><div style="font-size:8px;color:#94a3b8;margin-bottom:3px">IN STACK</div><div style="padding:8px 10px;border:1px dashed rgba(148,163,184,.2);border-radius:3px;font-size:8px;color:#475569">empty</div></div>
+      <div><div style="font-size:8px;color:#94a3b8;margin-bottom:3px">OUT STACK</div><div style="display:flex;flex-direction:column-reverse;gap:1px;align-items:center"><div style="padding:3px 10px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:9px;color:#93c5fd;font-weight:700">3</div><div style="padding:3px 10px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:9px;color:#93c5fd;font-weight:700">2</div><div style="padding:3px 10px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:3px;font-size:9px;color:#fca5a5;font-weight:700">1 &larr; pop</div></div></div>
+    </div>
+    <div style="font-size:8px;color:#10b981;margin-top:4px">returns 1 (FIFO!)</div>
+  </div>
+</div>
+</div>
+&bull; <b>enqueue(x)</b>: push x to inStack &rarr; <b>O(1)</b><br>&bull; <b>dequeue()</b>: if outStack empty, pop ALL from inStack and push to outStack. Then pop from outStack.<br><br>Worst-case dequeue is O(n) (when transfer happens). But each element is transferred at most once, so <b>amortized O(1)</b> for both operations.<br><br><b>Real-world:</b> This pattern appears in functional programming (persistent queues) and in systems where you batch-process accumulated items (e.g., log aggregation: write to buffer stack, flush to processing stack).</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -802,8 +1252,22 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
     <div class="q-title">Q6: How does the Android Activity back stack work? What happens when you press the back button?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Think about task, back stack, and activity lifecycle.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Android manages activities in a <b>back stack</b> within each task:<br><br>&bull; <b>Start activity</b>: pushed onto the stack (onCreate &rarr; onResume)<br>&bull; <b>Press back</b>: current activity popped (onPause &rarr; onStop &rarr; onDestroy), previous activity resumes<br>&bull; <b>Stack empty</b>: task finishes, returns to home/launcher<br><br><b>Launch modes</b> modify stack behavior:<br>- singleTop: reuses top if same activity<br>- singleTask: clears everything above it<br>- singleInstance: own task with single activity<br><br><b>Fragment back stack</b> works similarly within an activity. Navigation component manages a fragment back stack internally using the same LIFO pattern.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Think about task, back stack, and activity lifecycle.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">Android manages activities in a <b>back stack</b> within each task:<br><br>
+<!-- Visual: Android Activity Back Stack -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:8px;letter-spacing:1px">ANDROID ACTIVITY BACK STACK</div>
+<div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+  <div style="text-align:center"><div style="font-size:8px;color:#10b981;margin-bottom:4px">Launch app</div><div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center"><div style="padding:5px 12px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:600">HomeActivity</div></div></div>
+  <div style="font-size:12px;color:#475569">&rarr;</div>
+  <div style="text-align:center"><div style="font-size:8px;color:#10b981;margin-bottom:4px">Open list</div><div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center"><div style="padding:5px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:600">HomeActivity</div><div style="padding:5px 12px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:4px;font-size:9px;color:#34d399;font-weight:600">ListActivity</div></div></div>
+  <div style="font-size:12px;color:#475569">&rarr;</div>
+  <div style="text-align:center"><div style="font-size:8px;color:#10b981;margin-bottom:4px">Open detail</div><div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center"><div style="padding:5px 12px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:600">HomeActivity</div><div style="padding:5px 12px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:4px;font-size:9px;color:#34d399;font-weight:600">ListActivity</div><div style="padding:5px 12px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:4px;font-size:9px;color:#fbbf24;font-weight:600">DetailActivity</div></div></div>
+  <div style="font-size:12px;color:#ef4444">&larr;</div>
+  <div style="text-align:center"><div style="font-size:8px;color:#ef4444;margin-bottom:4px">Press BACK</div><div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center"><div style="padding:5px 12px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:9px;color:#93c5fd;font-weight:600">HomeActivity</div><div style="padding:5px 12px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:4px;font-size:9px;color:#34d399;font-weight:600">ListActivity</div></div><div style="font-size:8px;color:#ef4444;margin-top:2px">Detail destroyed</div></div>
+</div>
+</div>
+&bull; <b>Start activity</b>: pushed onto the stack (onCreate &rarr; onResume)<br>&bull; <b>Press back</b>: current activity popped (onPause &rarr; onStop &rarr; onDestroy), previous activity resumes<br>&bull; <b>Stack empty</b>: task finishes, returns to home/launcher<br><br><b>Launch modes</b> modify stack behavior:<br>- singleTop: reuses top if same activity<br>- singleTask: clears everything above it<br>- singleInstance: own task with single activity<br><br><b>Fragment back stack</b> works similarly within an activity. Navigation component manages a fragment back stack internally using the same LIFO pattern.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -813,8 +1277,45 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
     <div class="q-title">Q7: How does Android's Handler/Looper/MessageQueue work? Why is it a queue?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">One thread, one Looper, one MessageQueue. Handler posts messages.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Architecture:</b><br>&bull; <b>MessageQueue</b>: FIFO queue of Message objects (sorted by timestamp)<br>&bull; <b>Looper</b>: infinite loop that dequeues from MessageQueue and dispatches<br>&bull; <b>Handler</b>: posts Messages or Runnables to the queue<br><br>Main thread Looper runs forever. UI updates, touch events, lifecycle callbacks &mdash; all posted as messages. This is why you can't do network calls on the main thread (blocks the queue).<br><br><b>Why queue?</b> Serializes access to the UI thread &mdash; no locks needed. All updates happen in order. postDelayed() inserts at the right position by timestamp. This is a <b>priority queue by scheduled time</b> under the hood.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">One thread, one Looper, one MessageQueue. Handler posts messages.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">
+<!-- Visual: Handler/Looper/MessageQueue -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:0 0 10px">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:8px;letter-spacing:1px">ANDROID MAIN THREAD ARCHITECTURE</div>
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center">
+  <!-- Handlers posting -->
+  <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+    <div style="padding:5px 10px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35);border-radius:6px;font-size:8px;color:#c4b5fd;font-weight:600;text-align:center">Handler<br>(UI update)</div>
+    <div style="padding:5px 10px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35);border-radius:6px;font-size:8px;color:#c4b5fd;font-weight:600;text-align:center">Handler<br>(Touch event)</div>
+    <div style="padding:5px 10px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35);border-radius:6px;font-size:8px;color:#c4b5fd;font-weight:600;text-align:center">Handler<br>(Network CB)</div>
+  </div>
+  <div style="font-size:10px;color:#475569">post &rarr;</div>
+  <!-- MessageQueue -->
+  <div style="background:rgba(59,130,246,.1);border:1.5px solid rgba(59,130,246,.35);border-radius:8px;padding:8px">
+    <div style="font-size:8px;color:#3b82f6;font-weight:700;margin-bottom:4px;text-align:center">MessageQueue</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:4px 6px;background:rgba(59,130,246,.2);border-radius:3px;font-size:7px;color:#93c5fd;font-weight:600">Msg1</div>
+      <div style="padding:4px 6px;background:rgba(59,130,246,.2);border-radius:3px;font-size:7px;color:#93c5fd;font-weight:600">Msg2</div>
+      <div style="padding:4px 6px;background:rgba(59,130,246,.2);border-radius:3px;font-size:7px;color:#93c5fd;font-weight:600">Msg3</div>
+      <div style="padding:4px 6px;background:rgba(59,130,246,.15);border-radius:3px;font-size:7px;color:#93c5fd;font-weight:600">...</div>
+    </div>
+  </div>
+  <div style="font-size:10px;color:#475569">dequeue &rarr;</div>
+  <!-- Looper -->
+  <div style="background:rgba(16,185,129,.12);border:1.5px solid rgba(16,185,129,.35);border-radius:50%;width:70px;height:70px;display:flex;align-items:center;justify-content:center;flex-direction:column">
+    <div style="font-size:8px;color:#10b981;font-weight:700">Looper</div>
+    <div style="font-size:7px;color:#6b7280">while(true)</div>
+    <div style="font-size:10px;color:#10b981">&#8635;</div>
+  </div>
+  <div style="font-size:10px;color:#475569">dispatch &rarr;</div>
+  <!-- Main Thread -->
+  <div style="padding:8px 12px;background:rgba(245,158,11,.15);border:1.5px solid rgba(245,158,11,.35);border-radius:8px;text-align:center">
+    <div style="font-size:8px;color:#fbbf24;font-weight:700">Main Thread</div>
+    <div style="font-size:7px;color:#94a3b8">handles one<br>msg at a time</div>
+  </div>
+</div>
+</div>
+<b>Architecture:</b><br>&bull; <b>MessageQueue</b>: FIFO queue of Message objects (sorted by timestamp)<br>&bull; <b>Looper</b>: infinite loop that dequeues from MessageQueue and dispatches<br>&bull; <b>Handler</b>: posts Messages or Runnables to the queue<br><br>Main thread Looper runs forever. UI updates, touch events, lifecycle callbacks &mdash; all posted as messages. This is why you can't do network calls on the main thread (blocks the queue).<br><br><b>Why queue?</b> Serializes access to the UI thread &mdash; no locks needed. All updates happen in order. postDelayed() inserts at the right position by timestamp. This is a <b>priority queue by scheduled time</b> under the hood.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -824,8 +1325,40 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#ef4444">CIRCULAR QUEUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
     <div class="q-title">Q8: Design a circular buffer for a real-time audio streaming application. What happens when the producer is faster than the consumer?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Ring buffer with read/write pointers. Consider overflow policy: drop oldest or block producer.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Circular buffer</b> with fixed capacity (e.g., 4096 audio frames):<br><br>&bull; <b>Write pointer</b> (producer) advances on new data<br>&bull; <b>Read pointer</b> (consumer) advances on consumption<br>&bull; Both wrap around via modulo<br><br><b>Overflow policies:</b><br>1. <b>Overwrite oldest</b> (lossy): write pointer overwrites unread data &mdash; used in audio/video where stale frames are useless<br>2. <b>Block producer</b> (lossless): producer waits until consumer catches up &mdash; used in file I/O<br>3. <b>Drop new data</b>: reject incoming data if full &mdash; used in network rate limiting<br><br><b>Lock-free variant:</b> Single producer, single consumer can use atomic read/write pointers with no locks (SPSC queue). Used in Linux kernel's kfifo.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Ring buffer with read/write pointers. Consider overflow policy: drop oldest or block producer.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Circular buffer</b> with fixed capacity (e.g., 4096 audio frames):<br><br>
+<!-- Visual: Producer/Consumer Ring Buffer -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:6px;letter-spacing:1px">AUDIO RING BUFFER (cap=8)</div>
+<div style="display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap">
+  <div style="text-align:center"><div style="font-size:9px;color:#10b981;font-weight:700;margin-bottom:2px">Producer</div><div style="font-size:7px;color:#6b7280">(mic input)</div></div>
+  <div style="font-size:10px;color:#10b981">&rarr; W</div>
+  <div style="display:flex;gap:2px">
+    <div style="padding:5px 6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:8px;color:#93c5fd;font-weight:700">&#9835;</div>
+    <div style="padding:5px 6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:8px;color:#93c5fd;font-weight:700">&#9835;</div>
+    <div style="padding:5px 6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;font-size:8px;color:#93c5fd;font-weight:700">&#9835;</div>
+    <div style="padding:5px 6px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:8px;color:#34d399;font-weight:700">&#9835;</div>
+    <div style="padding:5px 6px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:8px;color:#34d399;font-weight:700">&#9835;</div>
+    <div style="padding:5px 6px;border:1px dashed rgba(148,163,184,.2);border-radius:3px;font-size:8px;color:#475569">&mdash;</div>
+    <div style="padding:5px 6px;border:1px dashed rgba(148,163,184,.2);border-radius:3px;font-size:8px;color:#475569">&mdash;</div>
+    <div style="padding:5px 6px;border:1px dashed rgba(148,163,184,.2);border-radius:3px;font-size:8px;color:#475569">&mdash;</div>
+  </div>
+  <div style="font-size:10px;color:#3b82f6">R &rarr;</div>
+  <div style="text-align:center"><div style="font-size:9px;color:#3b82f6;font-weight:700;margin-bottom:2px">Consumer</div><div style="font-size:7px;color:#6b7280">(speaker)</div></div>
+</div>
+<div style="display:flex;gap:2px;padding:2px 0 0;justify-content:center">
+  <div style="width:28px;font-size:7px;color:#64748b;text-align:center">[0]</div>
+  <div style="width:28px;font-size:7px;color:#64748b;text-align:center">[1]</div>
+  <div style="width:28px;font-size:7px;color:#64748b;text-align:center">[2]</div>
+  <div style="width:28px;font-size:7px;color:#10b981;text-align:center;font-weight:700">W=3</div>
+  <div style="width:28px;font-size:7px;color:#64748b;text-align:center">[4]</div>
+  <div style="width:28px;font-size:7px;color:#3b82f6;text-align:center;font-weight:700">R=5</div>
+  <div style="width:28px;font-size:7px;color:#64748b;text-align:center">[6]</div>
+  <div style="width:28px;font-size:7px;color:#64748b;text-align:center">[7]</div>
+</div>
+<div style="font-size:8px;color:#6b7280;text-align:center;margin-top:4px">Blue = unread data &middot; Green = freshly written &middot; Dashed = empty slots</div>
+</div>
+&bull; <b>Write pointer</b> (producer) advances on new data<br>&bull; <b>Read pointer</b> (consumer) advances on consumption<br>&bull; Both wrap around via modulo<br><br><b>Overflow policies:</b><br>1. <b>Overwrite oldest</b> (lossy): write pointer overwrites unread data &mdash; used in audio/video where stale frames are useless<br>2. <b>Block producer</b> (lossless): producer waits until consumer catches up &mdash; used in file I/O<br>3. <b>Drop new data</b>: reject incoming data if full &mdash; used in network rate limiting<br><br><b>Lock-free variant:</b> Single producer, single consumer can use atomic read/write pointers with no locks (SPSC queue). Used in Linux kernel's kfifo.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -835,8 +1368,67 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#8b5cf6">PRIORITY QUEUE</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
     <div class="q-title">Q9: How does Dijkstra's algorithm use a priority queue? What happens if you use a regular queue instead?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Greedy: always expand the closest unvisited node. Regular queue gives BFS (unweighted shortest path only).</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Dijkstra's:</b> Min-heap priority queue keyed by tentative distance.<br><br>1. PQ starts with source node (dist=0)<br>2. Poll min-distance node, relax all its edges<br>3. If shorter path found, insert/update neighbor in PQ<br>4. Repeat until PQ empty or target reached<br><br><b>Time: O((V+E) log V)</b> with binary heap.<br><br><b>Regular queue gives BFS:</b> works for unweighted graphs only (all edges weight=1). For weighted graphs, BFS may explore a longer-distance node before a shorter one, giving <b>wrong answers</b>.<br><br><b>Real-world:</b> Google Maps, network routing (OSPF protocol), game pathfinding (A* is Dijkstra + heuristic).</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Greedy: always expand the closest unvisited node. Regular queue gives BFS (unweighted shortest path only).</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">
+<b>Think of it like Google Maps finding the shortest route:</b><br><br>
+
+You're at city <b>A</b> and want to reach <b>D</b>. There are multiple roads with different distances. Which city should you visit next? <b>Always pick the closest unvisited city</b> &mdash; that's what the priority queue does.<br><br>
+
+<!-- Visual: Dijkstra step-by-step -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:14px;border:1px solid rgba(255,255,255,.1);margin:10px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:10px;letter-spacing:1px">EXAMPLE: FIND SHORTEST PATH FROM A TO D</div>
+
+<!-- Graph -->
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap">
+  <div style="display:inline-block;padding:8px 12px;background:rgba(16,185,129,.3);border:1.5px solid rgba(16,185,129,.6);border-radius:50%;font-size:10px;color:#34d399;font-weight:700;text-align:center">A<div style="font-size:8px">start</div></div>
+  <div style="font-size:9px;color:#94a3b8">--4km--</div>
+  <div style="display:inline-block;padding:8px 12px;background:rgba(59,130,246,.2);border:1.5px solid rgba(59,130,246,.4);border-radius:50%;font-size:10px;color:#93c5fd;font-weight:700;text-align:center">B<div style="font-size:8px">4km</div></div>
+  <div style="font-size:9px;color:#94a3b8">--1km--</div>
+  <div style="display:inline-block;padding:8px 12px;background:rgba(245,158,11,.2);border:1.5px solid rgba(245,158,11,.4);border-radius:50%;font-size:10px;color:#fbbf24;font-weight:700;text-align:center">D<div style="font-size:8px">5km</div></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;flex-wrap:wrap">
+  <div style="width:50px"></div>
+  <div style="font-size:9px;color:#94a3b8">--2km--</div>
+  <div style="display:inline-block;padding:8px 12px;background:rgba(16,185,129,.2);border:1.5px solid rgba(16,185,129,.4);border-radius:50%;font-size:10px;color:#34d399;font-weight:700;text-align:center">C<div style="font-size:8px">2km</div></div>
+</div>
+
+<!-- Step-by-step explanation -->
+<div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+  <div style="display:flex;align-items:center;gap:6px">
+    <div style="min-width:18px;height:18px;border-radius:50%;background:rgba(16,185,129,.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#34d399;font-weight:700">1</div>
+    <div style="font-size:11px;color:#cbd5e1">Start at <b>A</b>. Add neighbors to PQ: <span style="padding:2px 6px;background:rgba(59,130,246,.15);border-radius:3px;font-size:10px;color:#93c5fd">C=2km</span> <span style="padding:2px 6px;background:rgba(59,130,246,.15);border-radius:3px;font-size:10px;color:#93c5fd">B=4km</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <div style="min-width:18px;height:18px;border-radius:50%;background:rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#93c5fd;font-weight:700">2</div>
+    <div style="font-size:11px;color:#cbd5e1">PQ picks <b>C (2km)</b> &mdash; it's closest! Check C's neighbors. No shorter paths found.</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <div style="min-width:18px;height:18px;border-radius:50%;background:rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#93c5fd;font-weight:700">3</div>
+    <div style="font-size:11px;color:#cbd5e1">PQ picks <b>B (4km)</b> next. B connects to D (4+1=5km). Add <span style="padding:2px 6px;background:rgba(245,158,11,.15);border-radius:3px;font-size:10px;color:#fbbf24">D=5km</span> to PQ.</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <div style="min-width:18px;height:18px;border-radius:50%;background:rgba(245,158,11,.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fbbf24;font-weight:700">4</div>
+    <div style="font-size:11px;color:#cbd5e1">PQ picks <b>D (5km)</b>. That's our target! Shortest path: <b>A &rarr; B &rarr; D = 5km</b></div>
+  </div>
+</div>
+</div>
+
+<b>Key idea:</b> The priority queue always gives you the <b>closest unvisited city</b>. This greedy choice guarantees the shortest path.<br><br>
+
+<b>What if you used a regular queue (BFS) instead?</b><br>BFS visits cities in the order they were discovered, <b>ignoring distances</b>. It might visit B (4km) before C (2km) just because B was discovered first. This works only when all roads are equal length. With different distances, BFS gives <b>wrong answers</b>.<br><br>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+<div style="flex:1;min-width:140px;padding:8px 12px;background:rgba(16,185,129,.08);border-radius:8px;border:1px solid rgba(16,185,129,.2)">
+  <div style="font-size:10px;font-weight:700;color:#34d399;margin-bottom:2px">Priority Queue (Dijkstra)</div>
+  <div style="font-size:10px;color:#94a3b8">Always picks closest &rarr; correct shortest path</div>
+</div>
+<div style="flex:1;min-width:140px;padding:8px 12px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2)">
+  <div style="font-size:10px;font-weight:700;color:#fca5a5;margin-bottom:2px">Regular Queue (BFS)</div>
+  <div style="font-size:10px;color:#94a3b8">Ignores distances &rarr; wrong for weighted graphs</div>
+</div>
+</div>
+
+<b>Time: O((V+E) log V)</b> with binary heap.<br><br><b>Real-world:</b> Google Maps, Uber ride routing, network routing (OSPF protocol), game pathfinding (A* = Dijkstra + heuristic to guide direction).</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -846,8 +1438,233 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#f97316">DEQUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
     <div class="q-title">Q10: Solve "Sliding Window Maximum" using a deque. Why is a naive approach O(n*k) but deque gives O(n)?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Maintain a monotonically decreasing deque of indices. Remove from front if out of window, from back if smaller than current.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Naive:</b> For each window position, scan k elements for max &rarr; O(n*k).<br><br><b>Monotonic Deque (O(n)):</b><br>1. Deque stores <b>indices</b> in decreasing order of values<br>2. For each new element i:<br>&nbsp;&nbsp;&bull; Remove from <b>back</b> all indices whose values &le; arr[i] (they'll never be max)<br>&nbsp;&nbsp;&bull; Add i to back<br>&nbsp;&nbsp;&bull; Remove from <b>front</b> if index is outside window (i - front &ge; k)<br>&nbsp;&nbsp;&bull; Front of deque is the max for current window<br><br>Each element enters and leaves the deque at most once &rarr; <b>O(n) total</b>.<br><br><b>Real-world:</b> Rolling max/min in stock analysis, network throughput monitoring, image processing (max-pooling in CNNs).</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Maintain a monotonically decreasing deque of indices. Remove from front if out of window, from back if smaller than current.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">
+<b>Think of it like this:</b> You have a row of numbers. A window of size k slides across them, one step at a time. For each position, you need the <b>maximum value inside the window</b>.<br><br>
+
+<!-- Visual: The problem -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:14px;border:1px solid rgba(255,255,255,.1);margin:10px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:8px;letter-spacing:1px">PROBLEM: arr = [1, 3, -1, -3, 5, 3], window size k = 3</div>
+
+<div style="display:flex;flex-direction:column;gap:8px">
+  <!-- Window 1 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="font-size:9px;color:#94a3b8;min-width:55px">Window 1:</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">1</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">3</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">-1</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">-3</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">5</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">3</div>
+    </div>
+    <div style="font-size:10px;color:#10b981;font-weight:700">&rarr; max = 3</div>
+  </div>
+  <!-- Window 2 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="font-size:9px;color:#94a3b8;min-width:55px">Window 2:</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">1</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">3</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">-1</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">-3</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">5</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">3</div>
+    </div>
+    <div style="font-size:10px;color:#10b981;font-weight:700">&rarr; max = 3</div>
+  </div>
+  <!-- Window 3 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="font-size:9px;color:#94a3b8;min-width:55px">Window 3:</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">1</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">3</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">-1</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">-3</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">5</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">3</div>
+    </div>
+    <div style="font-size:10px;color:#10b981;font-weight:700">&rarr; max = 5</div>
+  </div>
+  <!-- Window 4 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="font-size:9px;color:#94a3b8;min-width:55px">Window 4:</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">1</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">3</div>
+      <div style="padding:5px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.15);border-radius:4px;font-size:11px;color:#475569">-1</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">-3</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">5</div>
+      <div style="padding:5px 10px;background:rgba(249,115,22,.25);border:1.5px solid rgba(249,115,22,.5);border-radius:4px;font-size:11px;color:#fb923c;font-weight:700">3</div>
+    </div>
+    <div style="font-size:10px;color:#10b981;font-weight:700">&rarr; max = 5</div>
+  </div>
+</div>
+<div style="font-size:9px;color:#10b981;margin-top:8px;text-align:center;font-weight:600">Output: [3, 3, 5, 5]</div>
+</div>
+
+<b>Naive approach (slow &mdash; O(n &times; k)):</b> For each window, scan all k elements to find the max. 4 windows &times; 3 elements = 12 comparisons. Imagine n = 1 million, k = 1000 &mdash; that's 1 billion comparisons!<br><br>
+
+<b>Deque trick (fast &mdash; O(n)):</b> Keep a "shortlist" of candidates that <i>could</i> be the max. Let's walk through every step:<br><br>
+
+<!-- Visual: Step-by-step deque walkthrough -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:14px;border:1px solid rgba(255,255,255,.1);margin:10px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:10px;letter-spacing:1px">STEP-BY-STEP: arr = [1, 3, -1, -3, 5, 3], k = 3</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+
+  <!-- Step 1: Process 1 -->
+  <div style="padding:8px 10px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid rgba(255,255,255,.06)">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="min-width:44px;font-size:9px;font-weight:700;color:#3b82f6">i = 0</div>
+      <div style="font-size:10px;color:#cbd5e1">Process <b>1</b>. Deque is empty, just add it.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div style="font-size:9px;color:#94a3b8">arr:</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.25);border:1px solid rgba(249,115,22,.5);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">1</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">3</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">-1</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">-3</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">5</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">3</div>
+      <div style="margin-left:8px;font-size:9px;color:#94a3b8">deque: [</div>
+      <div style="padding:2px 8px;background:rgba(249,115,22,.2);border:1px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">1</div>
+      <div style="font-size:9px;color:#94a3b8">]</div>
+    </div>
+    <div style="font-size:9px;color:#475569;margin-top:3px">Window not full yet (need 3 elements)</div>
+  </div>
+
+  <!-- Step 2: Process 3 -->
+  <div style="padding:8px 10px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid rgba(255,255,255,.06)">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="min-width:44px;font-size:9px;font-weight:700;color:#3b82f6">i = 1</div>
+      <div style="font-size:10px;color:#cbd5e1">Process <b>3</b>. It's bigger than 1 &rarr; <span style="color:#ef4444">kick 1 out from back</span>. Add 3.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div style="font-size:9px;color:#94a3b8">arr:</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">1</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.25);border:1px solid rgba(249,115,22,.5);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">3</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">-1</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">-3</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">5</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">3</div>
+      <div style="margin-left:8px;font-size:9px;color:#94a3b8">deque: [</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">3</div>
+      <div style="font-size:9px;color:#94a3b8">]</div>
+      <div style="font-size:9px;color:#ef4444;text-decoration:line-through;margin-left:4px">1 kicked</div>
+    </div>
+    <div style="font-size:9px;color:#475569;margin-top:3px">Why kick 1? Because 3 is bigger AND newer &mdash; 1 can never be max again</div>
+  </div>
+
+  <!-- Step 3: Process -1 → FIRST WINDOW -->
+  <div style="padding:8px 10px;background:rgba(16,185,129,.06);border-radius:6px;border:1px solid rgba(16,185,129,.15)">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="min-width:44px;font-size:9px;font-weight:700;color:#10b981">i = 2</div>
+      <div style="font-size:10px;color:#cbd5e1">Process <b>-1</b>. It's smaller than 3 &rarr; just add to back. <span style="color:#10b981;font-weight:700">Window full! Read front.</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div style="font-size:9px;color:#94a3b8">arr:</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">1</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">3</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">-1</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">-3</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">5</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">3</div>
+      <div style="margin-left:8px;font-size:9px;color:#94a3b8">deque: [</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.5);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">3</div>
+      <div style="padding:2px 8px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:3px;font-size:10px;color:#c4b5fd">-1</div>
+      <div style="font-size:9px;color:#94a3b8">]</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#10b981;font-weight:700;margin-left:4px">max = 3</div>
+    </div>
+  </div>
+
+  <!-- Step 4: Process -3 -->
+  <div style="padding:8px 10px;background:rgba(16,185,129,.06);border-radius:6px;border:1px solid rgba(16,185,129,.15)">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="min-width:44px;font-size:9px;font-weight:700;color:#10b981">i = 3</div>
+      <div style="font-size:10px;color:#cbd5e1">Process <b>-3</b>. Smaller than -1 &rarr; add to back. Window [1,2,3]. Front still valid.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div style="font-size:9px;color:#94a3b8">arr:</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">1</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">3</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">-1</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">-3</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">5</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">3</div>
+      <div style="margin-left:8px;font-size:9px;color:#94a3b8">deque: [</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.5);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">3</div>
+      <div style="padding:2px 8px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:3px;font-size:10px;color:#c4b5fd">-1</div>
+      <div style="padding:2px 8px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:3px;font-size:10px;color:#c4b5fd">-3</div>
+      <div style="font-size:9px;color:#94a3b8">]</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#10b981;font-weight:700;margin-left:4px">max = 3</div>
+    </div>
+  </div>
+
+  <!-- Step 5: Process 5 → BIG CHANGE -->
+  <div style="padding:8px 10px;background:rgba(245,158,11,.06);border-radius:6px;border:1px solid rgba(245,158,11,.15)">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="min-width:44px;font-size:9px;font-weight:700;color:#f59e0b">i = 4</div>
+      <div style="font-size:10px;color:#cbd5e1">Process <b>5</b>. It's bigger than everything! <span style="color:#ef4444">Kick -3, -1, and 3 from back</span>. Add 5.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div style="font-size:9px;color:#94a3b8">arr:</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">1</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">3</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">-1</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">-3</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">5</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">3</div>
+      <div style="margin-left:8px;font-size:9px;color:#94a3b8">deque: [</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.5);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">5</div>
+      <div style="font-size:9px;color:#94a3b8">]</div>
+      <div style="font-size:9px;color:#ef4444;text-decoration:line-through;margin-left:4px">3, -1, -3 all kicked</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#10b981;font-weight:700;margin-left:4px">max = 5</div>
+    </div>
+  </div>
+
+  <!-- Step 6: Process 3 -->
+  <div style="padding:8px 10px;background:rgba(16,185,129,.06);border-radius:6px;border:1px solid rgba(16,185,129,.15)">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="min-width:44px;font-size:9px;font-weight:700;color:#10b981">i = 5</div>
+      <div style="font-size:10px;color:#cbd5e1">Process <b>3</b>. Smaller than 5 &rarr; add to back. 5 is still the front &amp; max.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <div style="font-size:9px;color:#94a3b8">arr:</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">1</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">3</div>
+      <div style="padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);border-radius:3px;font-size:10px;color:#475569">-1</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">-3</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">5</div>
+      <div style="padding:3px 8px;background:rgba(249,115,22,.15);border:1.5px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">3</div>
+      <div style="margin-left:8px;font-size:9px;color:#94a3b8">deque: [</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.5);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">5</div>
+      <div style="padding:2px 8px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:3px;font-size:10px;color:#c4b5fd">3</div>
+      <div style="font-size:9px;color:#94a3b8">]</div>
+      <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#10b981;font-weight:700;margin-left:4px">max = 5</div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:10px;padding:8px 12px;background:rgba(16,185,129,.08);border-radius:6px;border:1px solid rgba(16,185,129,.2);text-align:center">
+  <div style="font-size:10px;color:#34d399;font-weight:700">Output: [3, 3, 5, 5]</div>
+  <div style="font-size:9px;color:#94a3b8;margin-top:2px">Each element entered deque once, left once = total 2n operations &rarr; <b>O(n)</b></div>
+</div>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+<div style="flex:1;min-width:140px;padding:8px 12px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2)">
+  <div style="font-size:10px;font-weight:700;color:#fca5a5;margin-bottom:2px">Naive: O(n &times; k)</div>
+  <div style="font-size:10px;color:#94a3b8">Re-scan entire window each time</div>
+</div>
+<div style="flex:1;min-width:140px;padding:8px 12px;background:rgba(16,185,129,.08);border-radius:8px;border:1px solid rgba(16,185,129,.2)">
+  <div style="font-size:10px;font-weight:700;color:#34d399;margin-bottom:2px">Deque: O(n)</div>
+  <div style="font-size:10px;color:#94a3b8">Each element enters &amp; leaves once</div>
+</div>
+</div>
+
+<b>Real-world:</b> Stock price rolling max, network throughput monitoring, image processing (max-pooling in CNNs), temperature sensors (max reading over last N samples).</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -857,8 +1674,135 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
     <div class="q-title">Q11: Convert infix expression "3 + 4 * 2 / (1 - 5)" to postfix using Shunting-Yard algorithm. Explain each step.</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Use an operator stack. Pop operators with higher or equal precedence. Parentheses act as barriers.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Shunting-Yard (Dijkstra's algorithm):</b><br><br>Token: 3 &rarr; output: [3]<br>Token: + &rarr; stack: [+]<br>Token: 4 &rarr; output: [3,4]<br>Token: * &rarr; stack: [+,*] (* &gt; + so push)<br>Token: 2 &rarr; output: [3,4,2]<br>Token: / &rarr; pop * (same prec), push /. stack: [+,/]. output: [3,4,2,*]<br>Token: ( &rarr; stack: [+,/,(]<br>Token: 1 &rarr; output: [3,4,2,*,1]<br>Token: - &rarr; stack: [+,/,(,-]<br>Token: 5 &rarr; output: [3,4,2,*,1,5]<br>Token: ) &rarr; pop until (: pop -. output: [3,4,2,*,1,5,-]<br>End: pop remaining. output: <b>3 4 2 * 1 5 - / +</b><br><br><b>Used by:</b> Compilers, calculators, spreadsheet formula engines.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Use an operator stack. Pop operators with higher or equal precedence. Parentheses act as barriers.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">
+<b>The idea:</b> We read the expression left-to-right. Numbers go straight to <b>output</b>. Operators go onto a <b>stack</b>, but before pushing, we pop any operator that has higher or equal precedence (because it should execute first). Parentheses act as barriers.<br><br>
+
+<!-- Visual: Step-by-step Shunting Yard -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:14px;border:1px solid rgba(255,255,255,.1);margin:10px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:4px;letter-spacing:1px">INPUT: 3 + 4 * 2 / ( 1 - 5 )</div>
+<div style="font-size:8px;color:#64748b;margin-bottom:10px">Precedence: * / = 2 (high) &middot; + - = 1 (low) &middot; ( = barrier</div>
+
+<div style="display:flex;flex-direction:column;gap:6px">
+
+  <!-- Step: 3 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;color:#93c5fd;font-weight:700">3</span> <span style="font-size:8px;color:#475569">number</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 6px;border:1px dashed rgba(148,163,184,.15);border-radius:3px;font-size:9px;color:#475569;min-width:50px;text-align:center">empty</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">3</div>
+  </div>
+
+  <!-- Step: + -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:3px;color:#fbbf24;font-weight:700">+</span> <span style="font-size:8px;color:#475569">push</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:3px;font-size:10px;color:#fbbf24;font-weight:700">+</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">3</div>
+  </div>
+
+  <!-- Step: 4 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;color:#93c5fd;font-weight:700">4</span> <span style="font-size:8px;color:#475569">number</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:3px;font-size:10px;color:#fbbf24;font-weight:700">+</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">3</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">4</div>
+  </div>
+
+  <!-- Step: * -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:3px;color:#fbbf24;font-weight:700">*</span> <span style="font-size:8px;color:#475569">* &gt; + push</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:3px;font-size:10px;color:#fbbf24;font-weight:700">+</div>
+    <div style="padding:2px 8px;background:rgba(249,115,22,.2);border:1px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">*</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">3</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">4</div>
+  </div>
+
+  <!-- Step: 2 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;color:#93c5fd;font-weight:700">2</span> <span style="font-size:8px;color:#475569">number</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:3px;font-size:10px;color:#fbbf24;font-weight:700">+</div>
+    <div style="padding:2px 8px;background:rgba(249,115,22,.2);border:1px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">*</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">3</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">4</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:3px;font-size:10px;color:#34d399;font-weight:700">2</div>
+  </div>
+
+  <!-- Step: / → pop * first -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;border-top:1px solid rgba(255,255,255,.06)">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:3px;color:#fbbf24;font-weight:700">/</span> <span style="font-size:8px;color:#ef4444">pop * first</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:3px;font-size:10px;color:#fbbf24;font-weight:700">+</div>
+    <div style="padding:2px 8px;background:rgba(249,115,22,.2);border:1px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">/</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:3px;font-size:10px;color:#6ee7b7">3</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:3px;font-size:10px;color:#6ee7b7">4</div>
+    <div style="padding:2px 8px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:3px;font-size:10px;color:#6ee7b7">2</div>
+    <div style="padding:2px 8px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:3px;font-size:10px;color:#fca5a5;font-weight:700">*</div>
+  </div>
+
+  <!-- Step: ( → push barrier -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);border-radius:3px;color:#c4b5fd;font-weight:700">(</span> <span style="font-size:8px;color:#475569">barrier</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:3px;font-size:10px;color:#fbbf24;font-weight:700">+</div>
+    <div style="padding:2px 8px;background:rgba(249,115,22,.2);border:1px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">/</div>
+    <div style="padding:2px 8px;background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);border-radius:3px;font-size:10px;color:#c4b5fd;font-weight:700">(</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="font-size:9px;color:#6ee7b7">3 4 2 *</div>
+  </div>
+
+  <!-- Step: 1, -, 5 compressed -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:3px;color:#93c5fd;font-weight:700">1 - 5</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 6px;background:rgba(245,158,11,.15);border-radius:3px;font-size:9px;color:#fbbf24;font-weight:700">+</div>
+    <div style="padding:2px 6px;background:rgba(249,115,22,.15);border-radius:3px;font-size:9px;color:#fb923c;font-weight:700">/</div>
+    <div style="padding:2px 6px;background:rgba(139,92,246,.15);border-radius:3px;font-size:9px;color:#c4b5fd;font-weight:700">(</div>
+    <div style="padding:2px 6px;background:rgba(245,158,11,.15);border-radius:3px;font-size:9px;color:#fbbf24;font-weight:700">-</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="font-size:9px;color:#6ee7b7">3 4 2 * 1 5</div>
+  </div>
+
+  <!-- Step: ) → pop until ( -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;border-top:1px solid rgba(255,255,255,.06)">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(139,92,246,.2);border:1px solid rgba(139,92,246,.4);border-radius:3px;color:#c4b5fd;font-weight:700">)</span> <span style="font-size:8px;color:#ef4444">pop to (</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:3px;font-size:10px;color:#fbbf24;font-weight:700">+</div>
+    <div style="padding:2px 8px;background:rgba(249,115,22,.2);border:1px solid rgba(249,115,22,.4);border-radius:3px;font-size:10px;color:#fb923c;font-weight:700">/</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="font-size:9px;color:#6ee7b7">3 4 2 * 1 5</div>
+    <div style="padding:2px 8px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:3px;font-size:10px;color:#fca5a5;font-weight:700">-</div>
+  </div>
+
+  <!-- Step: END → pop all remaining -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;border-top:1px solid rgba(255,255,255,.06)">
+    <div style="min-width:70px;font-size:10px"><span style="padding:2px 8px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:3px;color:#fca5a5;font-weight:700">END</span> <span style="font-size:8px;color:#ef4444">pop all</span></div>
+    <div style="font-size:9px;color:#94a3b8;min-width:40px">stack:</div>
+    <div style="padding:2px 6px;border:1px dashed rgba(148,163,184,.15);border-radius:3px;font-size:9px;color:#475569;min-width:50px;text-align:center">empty</div>
+    <div style="font-size:9px;color:#94a3b8;min-width:45px">output:</div>
+    <div style="font-size:9px;color:#6ee7b7">3 4 2 * 1 5 -</div>
+    <div style="padding:2px 8px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:3px;font-size:10px;color:#fca5a5;font-weight:700">/</div>
+    <div style="padding:2px 8px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:3px;font-size:10px;color:#fca5a5;font-weight:700">+</div>
+  </div>
+
+</div>
+
+<div style="margin-top:10px;padding:8px 12px;background:rgba(16,185,129,.1);border-radius:6px;border:1px solid rgba(16,185,129,.25);text-align:center">
+  <div style="font-size:11px;color:#34d399;font-weight:700;font-family:monospace">3 4 2 * 1 5 - / +</div>
+  <div style="font-size:9px;color:#94a3b8;margin-top:2px">This is postfix &mdash; can be evaluated with a simple stack (push numbers, pop two when operator appears)</div>
+</div>
+</div>
+
+<b>Rules summary:</b><br>&bull; <b>Number</b> &rarr; straight to output<br>&bull; <b>Operator</b> &rarr; pop higher/equal precedence ops first, then push<br>&bull; <b>(</b> &rarr; push (acts as barrier)<br>&bull; <b>)</b> &rarr; pop everything until <b>(</b><br>&bull; <b>End</b> &rarr; pop all remaining operators<br><br><b>Used by:</b> Compilers, calculators, spreadsheet formula engines (Excel, Google Sheets).</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -868,8 +1812,104 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
     <div class="q-title">Q12: Design a rate limiter using a queue. How does the sliding window approach work?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Queue stores timestamps of requests. Dequeue expired ones, check size against limit.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Sliding Window Log (Queue-based):</b><br><br>1. Queue stores <b>timestamps</b> of each request<br>2. On new request at time T:<br>&nbsp;&nbsp;&bull; Dequeue all entries older than T - windowSize<br>&nbsp;&nbsp;&bull; If queue.size() &lt; maxRequests: allow, enqueue T<br>&nbsp;&nbsp;&bull; Else: reject (429 Too Many Requests)<br><br><b>Time: O(1)</b> amortized. <b>Space: O(maxRequests)</b>.<br><br><b>Real-world:</b> API gateways (Nginx, Kong), Twitter API limits, Discord bot rate limits. For distributed systems, use Redis sorted sets (timestamp as score) &mdash; essentially a distributed queue.<br><br><b>Trade-off:</b> Fixed window counter is simpler but has boundary burst issue. Sliding window log is precise but uses more memory.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Queue stores timestamps of requests. Dequeue expired ones, check size against limit.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px">
+<b>Imagine a bouncer at a club:</b> "Only 3 people allowed in per 10-second window." The bouncer has a list (queue) of when each person entered. When someone new arrives, he checks: how many people entered in the <b>last 10 seconds</b>?<br><br>
+
+<!-- Visual: Rate Limiter Step-by-Step -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:14px;border:1px solid rgba(255,255,255,.1);margin:10px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:10px;letter-spacing:1px">RULE: MAX 3 REQUESTS PER 10-SECOND WINDOW</div>
+
+<div style="display:flex;flex-direction:column;gap:8px">
+
+  <!-- Request at t=1 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:50px;font-size:9px;font-weight:700;color:#3b82f6">t = 1s</div>
+    <div style="font-size:9px;color:#94a3b8">queue:</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:4px 10px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:4px;font-size:10px;color:#93c5fd;font-weight:700">1s</div>
+    </div>
+    <div style="font-size:9px;color:#94a3b8">size: 1/3</div>
+    <div style="padding:2px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:10px;font-size:9px;color:#10b981;font-weight:700">ALLOW</div>
+  </div>
+
+  <!-- Request at t=3 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:50px;font-size:9px;font-weight:700;color:#3b82f6">t = 3s</div>
+    <div style="font-size:9px;color:#94a3b8">queue:</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:4px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd">1s</div>
+      <div style="padding:4px 10px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:4px;font-size:10px;color:#93c5fd;font-weight:700">3s</div>
+    </div>
+    <div style="font-size:9px;color:#94a3b8">size: 2/3</div>
+    <div style="padding:2px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:10px;font-size:9px;color:#10b981;font-weight:700">ALLOW</div>
+  </div>
+
+  <!-- Request at t=7 -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:50px;font-size:9px;font-weight:700;color:#3b82f6">t = 7s</div>
+    <div style="font-size:9px;color:#94a3b8">queue:</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:4px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd">1s</div>
+      <div style="padding:4px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd">3s</div>
+      <div style="padding:4px 10px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:4px;font-size:10px;color:#93c5fd;font-weight:700">7s</div>
+    </div>
+    <div style="font-size:9px;color:#94a3b8">size: 3/3</div>
+    <div style="padding:2px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:10px;font-size:9px;color:#10b981;font-weight:700">ALLOW</div>
+  </div>
+
+  <!-- Request at t=8 → REJECTED -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-top:1px solid rgba(239,68,68,.15);border-bottom:1px solid rgba(239,68,68,.15)">
+    <div style="min-width:50px;font-size:9px;font-weight:700;color:#ef4444">t = 8s</div>
+    <div style="font-size:9px;color:#94a3b8">queue:</div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:4px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd">1s</div>
+      <div style="padding:4px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd">3s</div>
+      <div style="padding:4px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd">7s</div>
+    </div>
+    <div style="font-size:9px;color:#ef4444">3/3 full!</div>
+    <div style="padding:2px 10px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:10px;font-size:9px;color:#ef4444;font-weight:700">REJECT 429</div>
+  </div>
+
+  <!-- Request at t=12 → old entries expire -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="min-width:50px;font-size:9px;font-weight:700;color:#10b981">t = 12s</div>
+    <div style="font-size:9px;color:#94a3b8">queue:</div>
+    <div style="display:flex;gap:2px;align-items:center">
+      <div style="padding:4px 10px;background:rgba(239,68,68,.1);border:1px dashed rgba(239,68,68,.3);border-radius:4px;font-size:10px;color:#ef4444;text-decoration:line-through">1s</div>
+      <div style="font-size:8px;color:#ef4444">&larr; expired (12-10=2, older than 2s)</div>
+    </div>
+    <div style="display:flex;gap:2px">
+      <div style="padding:4px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd">3s</div>
+      <div style="padding:4px 10px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:4px;font-size:10px;color:#93c5fd">7s</div>
+      <div style="padding:4px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);border-radius:4px;font-size:10px;color:#34d399;font-weight:700">12s</div>
+    </div>
+    <div style="font-size:9px;color:#94a3b8">size: 3/3</div>
+    <div style="padding:2px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:10px;font-size:9px;color:#10b981;font-weight:700">ALLOW</div>
+  </div>
+
+</div>
+</div>
+
+<b>How it works:</b><br>
+1. Queue stores <b>timestamps</b> of each allowed request<br>
+2. New request arrives at time T:<br>
+&nbsp;&nbsp;&bull; First, <b>dequeue</b> (remove) all entries older than T - windowSize<br>
+&nbsp;&nbsp;&bull; If queue.size() &lt; maxRequests &rarr; <b>allow</b>, enqueue T<br>
+&nbsp;&nbsp;&bull; Else &rarr; <b>reject</b> (HTTP 429 Too Many Requests)<br><br>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+<div style="flex:1;min-width:160px;padding:8px 12px;background:rgba(16,185,129,.08);border-radius:8px;border:1px solid rgba(16,185,129,.2)">
+  <div style="font-size:10px;font-weight:700;color:#34d399;margin-bottom:2px">Sliding Window (Queue)</div>
+  <div style="font-size:10px;color:#94a3b8">Precise. Tracks exact timestamps. O(1) amortized.</div>
+</div>
+<div style="flex:1;min-width:160px;padding:8px 12px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.2)">
+  <div style="font-size:10px;font-weight:700;color:#fca5a5;margin-bottom:2px">Fixed Window (Counter)</div>
+  <div style="font-size:10px;color:#94a3b8">Simpler but allows burst at boundary (e.g., 3 at t=9 + 3 at t=11 = 6 in 2s).</div>
+</div>
+</div>
+
+<b>Real-world:</b> API gateways (Nginx, Kong), Twitter API limits (900 requests/15min), Discord bot rate limits. For distributed systems, use Redis sorted sets (timestamp as score).</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -879,8 +1919,34 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
     <div class="q-title">Q13: Design a Min Stack that supports push, pop, top, and getMin — all in O(1) time.</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Use an auxiliary stack that tracks the minimum at each level.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> mainStack and minStack.<br><br>&bull; <b>push(x)</b>: push to mainStack. Push min(x, minStack.peek()) to minStack<br>&bull; <b>pop()</b>: pop from both stacks<br>&bull; <b>top()</b>: mainStack.peek()<br>&bull; <b>getMin()</b>: minStack.peek() &rarr; <b>O(1)</b><br><br><b>Space optimization:</b> Only push to minStack when x &le; current min. On pop, only pop minStack if value equals current min. Saves space when min changes rarely.<br><br><b>Real-world:</b> Monitoring systems tracking minimum latency over a sliding window. Stock trading: track minimum price seen so far for maximum profit calculation.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Use an auxiliary stack that tracks the minimum at each level.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Two stacks:</b> mainStack and minStack.<br><br>
+<!-- Visual: Min Stack side by side -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:8px;letter-spacing:1px">push(5), push(3), push(7), push(1)</div>
+<div style="display:flex;gap:20px;justify-content:center">
+  <div style="text-align:center">
+    <div style="font-size:9px;color:#10b981;font-weight:700;margin-bottom:4px">MAIN STACK</div>
+    <div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center">
+      <div style="padding:5px 16px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:4px;font-size:11px;color:#34d399;font-weight:700">5</div>
+      <div style="padding:5px 16px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:4px;font-size:11px;color:#34d399;font-weight:700">3</div>
+      <div style="padding:5px 16px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:4px;font-size:11px;color:#34d399;font-weight:700">7</div>
+      <div style="padding:5px 16px;background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.5);border-radius:4px;font-size:11px;color:#34d399;font-weight:700">1 &larr;</div>
+    </div>
+  </div>
+  <div style="text-align:center">
+    <div style="font-size:9px;color:#8b5cf6;font-weight:700;margin-bottom:4px">MIN STACK</div>
+    <div style="display:flex;flex-direction:column-reverse;gap:2px;align-items:center">
+      <div style="padding:5px 16px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:4px;font-size:11px;color:#c4b5fd;font-weight:700">5</div>
+      <div style="padding:5px 16px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:4px;font-size:11px;color:#c4b5fd;font-weight:700">3</div>
+      <div style="padding:5px 16px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:4px;font-size:11px;color:#c4b5fd;font-weight:700">3</div>
+      <div style="padding:5px 16px;background:rgba(139,92,246,.25);border:1px solid rgba(139,92,246,.5);border-radius:4px;font-size:11px;color:#c4b5fd;font-weight:700">1 &larr;</div>
+    </div>
+  </div>
+</div>
+<div style="font-size:9px;color:#6b7280;margin-top:6px;text-align:center">getMin() = minStack.peek() = <span style="color:#c4b5fd;font-weight:700">1</span> &middot; pop() removes top of both &rarr; new min = <span style="color:#c4b5fd;font-weight:700">3</span></div>
+</div>
+&bull; <b>push(x)</b>: push to mainStack. Push min(x, minStack.peek()) to minStack<br>&bull; <b>pop()</b>: pop from both stacks<br>&bull; <b>top()</b>: mainStack.peek()<br>&bull; <b>getMin()</b>: minStack.peek() &rarr; <b>O(1)</b><br><br><b>Space optimization:</b> Only push to minStack when x &le; current min. On pop, only pop minStack if value equals current min. Saves space when min changes rarely.<br><br><b>Real-world:</b> Monitoring systems tracking minimum latency over a sliding window. Stock trading: track minimum price seen so far for maximum profit calculation.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -890,7 +1956,7 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
     <div class="q-title">Q14: How do message queues (Kafka, RabbitMQ) handle the producer-consumer problem? What guarantees do they provide?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Think about decoupling, buffering, delivery guarantees (at-most-once, at-least-once, exactly-once).</div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Think about decoupling, buffering, delivery guarantees (at-most-once, at-least-once, exactly-once).</div></div>
     <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Message Queue pattern:</b><br>&bull; <b>Producer</b> enqueues messages (fire-and-forget or with ack)<br>&bull; <b>Consumer</b> dequeues and processes<br>&bull; Queue decouples them: producer doesn't wait for consumer<br><br><b>Delivery guarantees:</b><br>1. <b>At-most-once:</b> message may be lost (fastest, no retry)<br>2. <b>At-least-once:</b> message may be duplicated (consumer must be idempotent)<br>3. <b>Exactly-once:</b> hardest, requires transactional writes (Kafka supports this)<br><br><b>Kafka specifics:</b> Partitioned queue (topic). Consumer groups for parallel processing. Offset tracking for replay. Messages persisted to disk &mdash; not deleted on consume.<br><br><b>Real-world:</b> Order processing (e-commerce), event sourcing, log aggregation, microservice communication.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
@@ -901,7 +1967,7 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#8b5cf6">PRIORITY QUEUE</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
     <div class="q-title">Q15: Design a task scheduler for an OS where processes have different priorities. How do you prevent starvation?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Priority queue for scheduling. Starvation happens when low-priority tasks never execute. Think aging.</div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Priority queue for scheduling. Starvation happens when low-priority tasks never execute. Think aging.</div></div>
     <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Priority Queue Scheduler:</b> Always dequeue highest-priority process.<br><br><b>Starvation problem:</b> Low-priority process waits forever if high-priority processes keep arriving.<br><br><b>Solutions:</b><br>1. <b>Aging:</b> Gradually increase priority of waiting processes. After enough time, even lowest priority becomes highest &rarr; guaranteed execution<br>2. <b>Multilevel Feedback Queue:</b> Process starts at high priority. If it uses full quantum, demote to lower queue. I/O-bound processes stay high.<br>3. <b>Fair-share scheduling:</b> Guarantee minimum CPU % per group (Linux CFS)<br><br><b>Real OS example:</b> Linux nice values (-20 to 19). Real-time priorities (0-99) preempt all normal processes. SCHED_FIFO for hard real-time (robots, medical devices).</div></div></div>
   </div>
   <div class="dn">&darr;</div>
@@ -912,8 +1978,42 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#f59e0b22;color:#f59e0b">HARD</span></div>
     <div class="q-title">Q16: Given a histogram (array of bar heights), find the largest rectangle area. What data structure makes this O(n)?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Monotonic increasing stack of indices. Pop when current bar is shorter than stack top.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Monotonic Stack approach (O(n)):</b><br><br>Maintain a stack of indices with increasing heights:<br>1. For each bar i: while stack top height &gt; heights[i], pop index p<br>2. Width = i - stack.peek() - 1 (or i if stack empty)<br>3. Area = heights[p] * width. Track max area.<br>4. Push i to stack<br><br>After loop, process remaining stack entries (treat end as height=0).<br><br><b>Why O(n)?</b> Each index pushed and popped at most once &rarr; 2n operations total.<br><br><b>Naive:</b> For each bar, expand left/right to find max rectangle &rarr; O(n&sup2;).<br><br><b>Extends to:</b> Maximal rectangle in a binary matrix (apply per row as histogram). Used in image processing and layout optimization.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Monotonic increasing stack of indices. Pop when current bar is shorter than stack top.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Monotonic Stack approach (O(n)):</b><br><br>
+<!-- Visual: Histogram with largest rectangle -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:6px;letter-spacing:1px">heights = [2, 1, 5, 6, 2, 3]</div>
+<div style="display:flex;align-items:flex-end;gap:3px;height:110px;padding:0 10px">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+    <div style="width:100%;height:33%;background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.4);border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#93c5fd;font-weight:700">2</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+    <div style="width:100%;height:17%;background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.4);border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#93c5fd;font-weight:700">1</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+    <div style="width:100%;height:83%;background:rgba(16,185,129,.3);border:1px solid rgba(16,185,129,.5);border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#34d399;font-weight:700">5</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+    <div style="width:100%;height:100%;background:rgba(16,185,129,.3);border:1px solid rgba(16,185,129,.5);border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#34d399;font-weight:700">6</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+    <div style="width:100%;height:33%;background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.4);border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#93c5fd;font-weight:700">2</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+    <div style="width:100%;height:50%;background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.4);border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#93c5fd;font-weight:700">3</div>
+  </div>
+</div>
+<div style="display:flex;gap:3px;padding:4px 10px 0">
+  <div style="flex:1;font-size:8px;color:#64748b;text-align:center">[0]</div>
+  <div style="flex:1;font-size:8px;color:#64748b;text-align:center">[1]</div>
+  <div style="flex:1;font-size:8px;color:#10b981;text-align:center;font-weight:700">[2]</div>
+  <div style="flex:1;font-size:8px;color:#10b981;text-align:center;font-weight:700">[3]</div>
+  <div style="flex:1;font-size:8px;color:#64748b;text-align:center">[4]</div>
+  <div style="flex:1;font-size:8px;color:#64748b;text-align:center">[5]</div>
+</div>
+<div style="font-size:9px;color:#6b7280;margin-top:6px;text-align:center">Largest rect = height 5 &times; width 2 (bars [2],[3]) = <span style="color:#10b981;font-weight:700">10</span></div>
+</div>
+Maintain a stack of indices with increasing heights:<br>1. For each bar i: while stack top height &gt; heights[i], pop index p<br>2. Width = i - stack.peek() - 1 (or i if stack empty)<br>3. Area = heights[p] * width. Track max area.<br>4. Push i to stack<br><br><b>Why O(n)?</b> Each index pushed and popped at most once &rarr; 2n operations total.<br><br><b>Extends to:</b> Maximal rectangle in a binary matrix (apply per row as histogram). Used in image processing and layout optimization.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -923,8 +2023,34 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#3b82f6">QUEUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
     <div class="q-title">Q17: How does BFS use a queue to find the shortest path in an unweighted graph? Why won't DFS (stack) work?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">BFS explores level by level. DFS dives deep first — may find a longer path before the shortest one.</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>BFS guarantees shortest path in unweighted graphs:</b><br><br>1. Enqueue source with distance 0<br>2. Dequeue node, enqueue all unvisited neighbors with distance+1<br>3. First time a node is visited = shortest distance (FIFO ensures level-order)<br><br><b>DFS fails because:</b> It follows one path deeply. May reach the target via a long detour first. Would need to explore ALL paths and compare &mdash; exponential.<br><br><b>Key insight:</b> Queue's FIFO property guarantees nodes at distance d are all processed before distance d+1. Stack's LIFO doesn't preserve this ordering.<br><br><b>Real-world:</b> Social network "degrees of separation", maze solving, web crawlers (breadth-first crawling for important pages), network broadcast (flooding).</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">BFS explores level by level. DFS dives deep first — may find a longer path before the shortest one.</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>BFS guarantees shortest path in unweighted graphs:</b><br><br>
+<!-- Visual: BFS level-by-level -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:8px;letter-spacing:1px">BFS FROM NODE A (queue processes level by level)</div>
+<div style="text-align:center">
+  <!-- Level 0 -->
+  <div style="margin-bottom:4px"><span style="font-size:8px;color:#3b82f6;font-weight:700">d=0</span></div>
+  <div style="display:inline-block;padding:6px 14px;background:rgba(59,130,246,.3);border:1.5px solid rgba(59,130,246,.6);border-radius:50%;font-size:11px;color:#93c5fd;font-weight:700">A</div>
+  <div style="font-size:10px;color:#475569;margin:2px 0">&darr;</div>
+  <!-- Level 1 -->
+  <div style="margin-bottom:2px"><span style="font-size:8px;color:#10b981;font-weight:700">d=1</span></div>
+  <div style="display:flex;justify-content:center;gap:12px;margin-bottom:2px">
+    <div style="display:inline-block;padding:6px 14px;background:rgba(16,185,129,.25);border:1.5px solid rgba(16,185,129,.5);border-radius:50%;font-size:11px;color:#34d399;font-weight:700">B</div>
+    <div style="display:inline-block;padding:6px 14px;background:rgba(16,185,129,.25);border:1.5px solid rgba(16,185,129,.5);border-radius:50%;font-size:11px;color:#34d399;font-weight:700">C</div>
+  </div>
+  <div style="font-size:10px;color:#475569;margin:2px 0">&darr;</div>
+  <!-- Level 2 -->
+  <div style="margin-bottom:2px"><span style="font-size:8px;color:#f97316;font-weight:700">d=2</span></div>
+  <div style="display:flex;justify-content:center;gap:12px">
+    <div style="display:inline-block;padding:6px 14px;background:rgba(249,115,22,.2);border:1.5px solid rgba(249,115,22,.45);border-radius:50%;font-size:11px;color:#fb923c;font-weight:700">D</div>
+    <div style="display:inline-block;padding:6px 14px;background:rgba(249,115,22,.2);border:1.5px solid rgba(249,115,22,.45);border-radius:50%;font-size:11px;color:#fb923c;font-weight:700">E</div>
+    <div style="display:inline-block;padding:6px 14px;background:rgba(249,115,22,.2);border:1.5px solid rgba(249,115,22,.45);border-radius:50%;font-size:11px;color:#fb923c;font-weight:700">F</div>
+  </div>
+</div>
+<div style="font-size:9px;color:#94a3b8;margin-top:6px">Queue: <span style="color:#93c5fd">[A]</span> &rarr; <span style="color:#34d399">[B,C]</span> &rarr; <span style="color:#fb923c">[D,E,F]</span> &middot; All d=1 nodes processed before d=2</div>
+</div>
+1. Enqueue source with distance 0<br>2. Dequeue node, enqueue all unvisited neighbors with distance+1<br>3. First time a node is visited = shortest distance (FIFO ensures level-order)<br><br><b>DFS fails because:</b> It follows one path deeply. May reach the target via a long detour first. Would need to explore ALL paths and compare &mdash; exponential.<br><br><b>Key insight:</b> Queue's FIFO property guarantees nodes at distance d are all processed before distance d+1. Stack's LIFO doesn't preserve this ordering.<br><br><b>Real-world:</b> Social network "degrees of separation", maze solving, web crawlers (breadth-first crawling for important pages), network broadcast (flooding).</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
@@ -934,7 +2060,7 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#ef4444">CIRCULAR QUEUE</span><span class="tag" style="background:#8b5cf622;color:#8b5cf6">SYSTEM DESIGN</span></div>
     <div class="q-title">Q18: How does a network router use circular buffers for packet queuing? What happens during congestion?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Ingress/egress queues. Tail drop vs RED (Random Early Detection). Buffer bloat.</div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Ingress/egress queues. Tail drop vs RED (Random Early Detection). Buffer bloat.</div></div>
     <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>Router packet queuing:</b><br>&bull; Incoming packets enqueued in circular buffers (per-port or per-flow)<br>&bull; Scheduler dequeues and forwards based on routing table<br><br><b>Congestion handling:</b><br>1. <b>Tail Drop:</b> buffer full &rarr; drop new packets. Simple but causes TCP synchronization (many flows back off simultaneously)<br>2. <b>RED (Random Early Detection):</b> start randomly dropping packets BEFORE buffer is full. Signals TCP to slow down gradually<br>3. <b>WRED (Weighted RED):</b> different drop probabilities per traffic class (QoS)<br><br><b>Buffer bloat:</b> Too-large buffers cause excessive latency without dropping packets. Modern fix: CoDel (Controlled Delay) algorithm monitors per-packet sojourn time in the queue.<br><br>All implemented as circular queues for O(1) enqueue/dequeue with zero allocation overhead.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
@@ -945,7 +2071,7 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#10b981">STACK</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
     <div class="q-title">Q19: Explain how DFS uses a stack (explicit or call stack) for graph traversal. When would you prefer explicit stack over recursion?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">Recursive DFS uses call stack implicitly. Deep graphs risk stack overflow. Explicit stack uses heap memory.</div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">Recursive DFS uses call stack implicitly. Deep graphs risk stack overflow. Explicit stack uses heap memory.</div></div>
     <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>DFS with explicit stack:</b><br>1. Push source node<br>2. Pop top, mark visited<br>3. Push all unvisited neighbors<br>4. Repeat until stack empty<br><br><b>Recursive DFS:</b> Same logic, but function call stack handles push/pop automatically.<br><br><b>Prefer explicit stack when:</b><br>&bull; Graph depth may exceed call stack limit (10,000+ nodes) &rarr; StackOverflow risk<br>&bull; Need to control traversal order precisely<br>&bull; Need to convert to iterative for performance (no function call overhead)<br>&bull; Language lacks tail-call optimization (Java, Python)<br><br><b>Real-world:</b> Topological sort (build systems like Make/Gradle), cycle detection, solving puzzles (Sudoku backtracking), compiler register allocation.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
@@ -956,8 +2082,36 @@ class Queue {
   <div class="si">
     <div class="q-hdr"><span class="badge" style="background:#8b5cf6">PRIORITY QUEUE</span><span class="tag" style="background:#ef444422;color:#ef4444">SENIOR</span></div>
     <div class="q-title">Q20: You have a stream of events arriving in real-time. Design a system to always know the top-K most frequent events. Which data structures?</div>
-    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Hide</button></div><div class="text-sm">HashMap for frequency counting + min-heap of size K. Why min-heap and not max-heap?</div></div>
-    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>HashMap + Min-Heap (size K):</b><br><br>1. <b>HashMap</b>: event &rarr; frequency count (O(1) update per event)<br>2. <b>Min-Heap of size K</b>: stores the top-K elements by frequency<br><br>For each event:<br>&bull; Update frequency in HashMap<br>&bull; If element already in heap: update its frequency (sift up/down)<br>&bull; If heap.size() &lt; K: insert<br>&bull; Else if frequency &gt; heap.peek(): poll min, insert current<br><br><b>Why min-heap?</b> The root is the <b>smallest</b> of top-K. Easy to check if new element belongs (compare with min). Max-heap of size K would require finding the min to evict &mdash; O(K).<br><br><b>Time:</b> O(n log K) for n events. <b>Space:</b> O(n) for HashMap + O(K) for heap.<br><br><b>Real-world:</b> Trending hashtags (Twitter), top search queries (Google), most active users, network anomaly detection.</div></div></div>
+    <div class="q-box"><div class="hint-label">HINT<button class="hint-btn" onclick="toggleHint(this)">Show</button></div><div class="text-sm hidden">HashMap for frequency counting + min-heap of size K. Why min-heap and not max-heap?</div></div>
+    <div class="a-box"><div class="ans-label">ANSWER<button class="reveal-btn" onclick="toggleReveal(this)">Reveal</button></div><div class="hidden"><div class="text-sm" style="margin-top:6px"><b>HashMap + Min-Heap (size K):</b><br><br>
+<!-- Visual: Top-K Architecture -->
+<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.1);margin:8px 0">
+<div style="font-size:9px;color:#94a3b8;margin-bottom:8px;letter-spacing:1px">TOP-3 MOST FREQUENT (K=3)</div>
+<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;justify-content:center">
+  <!-- HashMap -->
+  <div style="text-align:center">
+    <div style="font-size:8px;color:#3b82f6;font-weight:700;margin-bottom:4px">HASHMAP</div>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <div style="display:flex;gap:2px"><div style="padding:3px 8px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:3px;font-size:8px;color:#93c5fd">"click"</div><div style="padding:3px 6px;background:rgba(59,130,246,.25);border-radius:3px;font-size:8px;color:#93c5fd;font-weight:700">42</div></div>
+      <div style="display:flex;gap:2px"><div style="padding:3px 8px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:3px;font-size:8px;color:#93c5fd">"scroll"</div><div style="padding:3px 6px;background:rgba(59,130,246,.25);border-radius:3px;font-size:8px;color:#93c5fd;font-weight:700">35</div></div>
+      <div style="display:flex;gap:2px"><div style="padding:3px 8px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:3px;font-size:8px;color:#93c5fd">"hover"</div><div style="padding:3px 6px;background:rgba(59,130,246,.25);border-radius:3px;font-size:8px;color:#93c5fd;font-weight:700">28</div></div>
+      <div style="display:flex;gap:2px"><div style="padding:3px 8px;background:rgba(100,116,139,.1);border:1px solid rgba(100,116,139,.2);border-radius:3px;font-size:8px;color:#64748b">"drag"</div><div style="padding:3px 6px;background:rgba(100,116,139,.15);border-radius:3px;font-size:8px;color:#64748b">5</div></div>
+    </div>
+  </div>
+  <div style="font-size:10px;color:#475569;align-self:center">freq &gt; min? &rarr;</div>
+  <!-- Min-Heap -->
+  <div style="text-align:center">
+    <div style="font-size:8px;color:#8b5cf6;font-weight:700;margin-bottom:4px">MIN-HEAP (size 3)</div>
+    <div style="margin-bottom:4px"><div style="display:inline-block;padding:5px 10px;background:rgba(239,68,68,.2);border:1.5px solid rgba(239,68,68,.4);border-radius:6px;font-size:9px;color:#fca5a5;font-weight:700">hover:28</div></div>
+    <div style="display:flex;justify-content:center;gap:8px">
+      <div style="display:inline-block;padding:5px 10px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35);border-radius:6px;font-size:9px;color:#c4b5fd;font-weight:700">scroll:35</div>
+      <div style="display:inline-block;padding:5px 10px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.35);border-radius:6px;font-size:9px;color:#c4b5fd;font-weight:700">click:42</div>
+    </div>
+    <div style="font-size:8px;color:#ef4444;margin-top:4px">root = min of top-K &rarr; peek O(1)</div>
+  </div>
+</div>
+</div>
+1. <b>HashMap</b>: event &rarr; frequency count (O(1) update per event)<br>2. <b>Min-Heap of size K</b>: stores the top-K elements by frequency<br><br>For each event:<br>&bull; Update frequency in HashMap<br>&bull; If heap.size() &lt; K: insert<br>&bull; Else if frequency &gt; heap.peek(): poll min, insert current<br><br><b>Why min-heap?</b> The root is the <b>smallest</b> of top-K. Easy to check if new element belongs (compare with min). Max-heap of size K would require finding the min to evict &mdash; O(K).<br><br><b>Time:</b> O(n log K) for n events. <b>Space:</b> O(n) for HashMap + O(K) for heap.<br><br><b>Real-world:</b> Trending hashtags (Twitter), top search queries (Google), most active users, network anomaly detection.</div></div></div>
   </div>
   <div class="dn">&darr;</div>
 </div>
