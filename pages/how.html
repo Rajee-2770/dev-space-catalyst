@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOW? — Behind the Scenes of Tech &middot; Dev Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#3b82f6;--green:#10b981;--orange:#f97316;--red:#ef4444;--purple:#8b5cf6;--amber:#f59e0b;--teal:#14b8a6;--pink:#ec4899;--dark:#0f172a;--dark2:#1e293b;--gray:#64748b;--border:rgba(148,163,184,.15)}
+html{scroll-snap-type:y mandatory;overflow-y:scroll;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0}
+
+/* ── STICKY HEADER ── */
+.sticky-hdr{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(15,23,42,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;padding:11px 28px;gap:12px}
+.hdr-home{font-size:12px;font-weight:700;color:#94a3b8;text-decoration:none;padding:6px 14px;border-radius:8px;border:1px solid var(--border);transition:all .15s;white-space:nowrap}
+.hdr-home:hover{color:#e2e8f0;border-color:rgba(148,163,184,.35);background:rgba(255,255,255,.05)}
+.hdr-title{font-size:13px;font-weight:700;color:#f1f5f9;letter-spacing:-.2px;text-align:center;flex:1}
+.prog-bar{height:3px;background:rgba(148,163,184,.12)}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--red));transition:width .1s linear}
+
+/* ── FULL-PAGE SLIDES ── */
+.s-hero,.s-card,.s-end{
+  min-height:100vh;
+  scroll-snap-align:start;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:72px 24px 80px;
+  position:relative;
+  border-bottom:1px solid var(--border);
+}
+
+.s-hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f3460 100%);align-items:center;text-align:center;overflow:hidden}
+.s-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.18) 0%,transparent 70%);pointer-events:none}
+.s-hero::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(239,68,68,.14) 0%,transparent 70%);pointer-events:none}
+
+.s-card{background:#fff;color:#0f172a}
+.s-card.dark{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f3460 100%);color:#e2e8f0}
+.s-card.dark2{background:linear-gradient(135deg,#7c2d12 0%,#0f172a 100%);color:#e2e8f0}
+.s-card.dark3{background:linear-gradient(135deg,#4c1d95 0%,#0f172a 100%);color:#e2e8f0}
+.s-card.dark4{background:linear-gradient(135deg,#064e3b 0%,#0f172a 100%);color:#e2e8f0}
+
+.s-end{background:linear-gradient(135deg,#0f172a 0%,#1a0533 50%,#0f172a 100%);align-items:center;justify-content:center;text-align:center;overflow:hidden}
+
+/* ── INNER CONTENT ── */
+.si{max-width:860px;width:100%;margin:0 auto;position:relative;z-index:1}
+
+/* ── BOUNCING DOWN ARROW ── */
+.dn{
+  position:absolute;bottom:22px;left:50%;
+  transform:translateX(-50%);
+  width:38px;height:38px;border-radius:50%;
+  border:1.5px solid rgba(148,163,184,.3);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(148,163,184,.6);font-size:14px;
+  cursor:pointer;z-index:20;user-select:none;
+  animation:dn-bounce 1.6s ease-in-out infinite;
+  transition:border-color .2s,color .2s;
+}
+.dn:hover{border-color:rgba(148,163,184,.8);color:#e2e8f0}
+.s-card:not(.dark):not(.dark2):not(.dark3):not(.dark4) .dn{border-color:rgba(100,116,139,.28);color:rgba(100,116,139,.55)}
+.s-card:not(.dark):not(.dark2):not(.dark3):not(.dark4) .dn:hover{border-color:rgba(100,116,139,.7);color:#475569}
+@keyframes dn-bounce{
+  0%,100%{transform:translateX(-50%) translateY(0);opacity:.55}
+  50%{transform:translateX(-50%) translateY(9px);opacity:1}
+}
+
+/* ── COMPONENTS ── */
+.s-num{font-size:9px;font-weight:700;letter-spacing:1.5px;color:#94a3b8;margin-bottom:10px;text-transform:uppercase}
+.s-card:not(.dark):not(.dark2):not(.dark3):not(.dark4) .s-num{color:#9ca3af}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 11px;border-radius:12px;color:#fff;letter-spacing:.5px}
+h2{font-size:21px;font-weight:700;color:#0f172a;margin:6px 0 4px;line-height:1.3}
+.dark h2,.dark2 h2,.dark3 h2,.dark4 h2,.s-hero h2{color:#f1f5f9}
+.sub{font-size:13px;color:#64748b;margin-bottom:14px}
+.dark .sub,.dark2 .sub,.dark3 .sub,.dark4 .sub{color:#94a3b8}
+.text-sm{font-size:13px;line-height:1.65;color:#374151}
+.dark .text-sm,.dark2 .text-sm,.dark3 .text-sm,.dark4 .text-sm{color:#cbd5e1}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.stat{border-radius:8px;padding:7px 10px;text-align:center}
+.stat-label{font-size:10px;color:#6b7280}
+.dark .stat-label,.dark2 .stat-label,.dark3 .stat-label,.dark4 .stat-label{color:#94a3b8}
+.stat-val{font-size:15px;font-weight:700}
+.codebox{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 12px;border:1px solid rgba(148,163,184,.25);font-family:'Courier New',monospace;font-size:12px;line-height:1.55;white-space:pre;overflow:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
+.tbl th{background:#0f172a;color:#e2e8f0;padding:7px;font-weight:600;text-align:center}
+.tbl td{padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;color:#1e293b}
+.tbl tr:nth-child(even){background:#f1f5f9}
+.dark .tbl td,.dark2 .tbl td,.dark3 .tbl td,.dark4 .tbl td{border-bottom-color:rgba(148,163,184,.2);color:#cbd5e1}
+.dark .tbl tr:nth-child(even),.dark2 .tbl tr:nth-child(even),.dark3 .tbl tr:nth-child(even),.dark4 .tbl tr:nth-child(even){background:rgba(255,255,255,.06)}
+.dark .tbl tr:nth-child(odd),.dark2 .tbl tr:nth-child(odd),.dark3 .tbl tr:nth-child(odd),.dark4 .tbl tr:nth-child(odd){background:rgba(255,255,255,.02)}
+
+.flow-box{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.flow-node{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-align:center;min-width:80px}
+.flow-arrow{font-size:18px;color:#64748b}
+
+.info-card{border-radius:10px;padding:14px;border:1px solid}
+.info-card h4{font-size:13px;font-weight:700;margin-bottom:6px}
+.info-card p{font-size:11px;line-height:1.6}
+
+.reveal-btn{background:none;border:1px dashed #8b5cf6;color:#8b5cf6;padding:5px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;margin-left:10px;transition:all .2s}
+.reveal-btn:hover{background:#8b5cf622}
+.hidden{display:none}
+
+.wish-main{font-size:48px;font-weight:900;line-height:1.15;background:linear-gradient(135deg,#f97316 0%,#ef4444 40%,#8b5cf6 70%,#3b82f6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;z-index:2;margin-bottom:10px;letter-spacing:-1px}
+.wish-sub{font-size:16px;font-weight:500;color:#94a3b8;position:relative;z-index:2;margin-bottom:40px;line-height:1.6;max-width:520px;margin-left:auto;margin-right:auto}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .s-hero,.s-card,.s-end{padding:68px 16px 72px}
+  .wish-main{font-size:32px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .hdr-title{display:none}
+  .flow-box{flex-direction:column}
+  .flow-arrow{transform:rotate(90deg)}
+}
+
+@media print{
+  html{scroll-snap-type:none}
+  .sticky-hdr,.dn{display:none!important}
+  body{background:#fff;color:#000}
+  .s-hero,.s-card,.s-end{min-height:0;page-break-inside:avoid;padding:20px;margin:0 0 12px}
+  .s-card.dark,.s-card.dark2,.s-card.dark3,.s-card.dark4,.s-hero{background:#0f172a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hidden{display:block!important}
+  .reveal-btn{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="sticky-hdr">
+  <div class="hdr-row">
+    <a class="hdr-home" href="../index.html">&larr; Home</a>
+    <span class="hdr-title">HOW? &mdash; Behind the Scenes of Tech</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 0 &middot; HERO
+══════════════════════════════════════════════════════ -->
+<section class="s-hero">
+  <div class="si">
+    <div style="font-size:11px;letter-spacing:3px;color:#f97316;margin-bottom:18px">REAL WORLD &nbsp;&nbsp; BEHIND THE SCENES</div>
+    <h2 style="font-size:38px;color:#f1f5f9;margin-bottom:8px;font-weight:800">HOW?</h2>
+    <p class="sub" style="color:#94a3b8;font-size:15px;margin-bottom:0">Ever wondered how tech really works under the hood?</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px">
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #f97316;font-size:11px;color:#f97316">API</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #3b82f6;font-size:11px;color:#3b82f6">WebSocket</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #10b981;font-size:11px;color:#10b981">WebRTC</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #ef4444;font-size:11px;color:#ef4444">Hashing</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #8b5cf6;font-size:11px;color:#8b5cf6">Encryption</span>
+      <span style="padding:4px 14px;border-radius:16px;border:1px solid #14b8a6;font-size:11px;color:#14b8a6">Push Notification</span>
+    </div>
+    <div style="margin-top:24px;font-size:12px;color:#475569">Real-World Scenarios &middot; Communication Methods &middot; Security Concepts</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 1 &middot; HOW DOES SERVER TALK TO CLIENT?
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">01 &middot; Communication</div>
+    <span class="badge" style="background:var(--orange)">CORE CONCEPT</span>
+    <h2>How Does Server Communicate with Client?</h2>
+    <p class="sub">The internet is a conversation &mdash; here are the different ways server and client talk</p>
+
+    <div style="background:rgba(249,115,22,.08);border-radius:12px;padding:16px;border:1px solid rgba(249,115,22,.2);margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:#f97316;margin-bottom:8px">The Big Picture</div>
+      <div class="flow-box">
+        <div class="flow-node" style="background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3)">Client<br><span style="font-size:9px;font-weight:400;color:#94a3b8">(Browser/App)</span></div>
+        <div class="flow-arrow">&harr;</div>
+        <div class="flow-node" style="background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.3)">Internet<br><span style="font-size:9px;font-weight:400;color:#94a3b8">(HTTP/TCP/IP)</span></div>
+        <div class="flow-arrow">&harr;</div>
+        <div class="flow-node" style="background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3)">Server<br><span style="font-size:9px;font-weight:400;color:#94a3b8">(Backend/DB)</span></div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:#94a3b8;line-height:1.7">
+      A <b style="color:#f1f5f9">client</b> (your browser, mobile app, or IoT device) sends a <b style="color:#f1f5f9">request</b> to the <b style="color:#f1f5f9">server</b> over the internet. The server processes it and sends back a <b style="color:#f1f5f9">response</b>. But not all conversations follow the same pattern &mdash; different use cases need different communication methods.
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 2 &middot; REST API
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">02 &middot; Communication Method</div>
+    <span class="badge" style="background:var(--blue)">REST API</span>
+    <h2>API (Application Programming Interface)</h2>
+    <p class="sub">The most common way &mdash; Client asks, Server answers</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div>
+        <div style="font-size:10px;color:#9ca3af;margin-bottom:6px;letter-spacing:1px">HOW IT WORKS</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb">
+          <div class="flow-box" style="flex-direction:column;align-items:stretch">
+            <div style="font-size:11px;padding:8px;background:#dbeafe;border-radius:6px;text-align:center;color:#1e40af;font-weight:600">1. Client sends HTTP Request</div>
+            <div style="text-align:center;font-size:14px;color:#9ca3af">&darr;</div>
+            <div style="font-size:11px;padding:8px;background:#d1fae5;border-radius:6px;text-align:center;color:#065f46;font-weight:600">2. Server processes &amp; queries DB</div>
+            <div style="text-align:center;font-size:14px;color:#9ca3af">&darr;</div>
+            <div style="font-size:11px;padding:8px;background:#fef3c7;border-radius:6px;text-align:center;color:#92400e;font-weight:600">3. Server sends JSON Response</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#9ca3af;margin-bottom:6px;letter-spacing:1px">HTTP METHODS</div>
+        <div class="grid-2" style="gap:6px">
+          <div class="stat" style="background:#3b82f612"><div class="stat-label">Read</div><div class="stat-val" style="color:#3b82f6;font-size:13px">GET</div></div>
+          <div class="stat" style="background:#10b98112"><div class="stat-label">Create</div><div class="stat-val" style="color:#10b981;font-size:13px">POST</div></div>
+          <div class="stat" style="background:#f9731612"><div class="stat-label">Update</div><div class="stat-val" style="color:#f97316;font-size:13px">PUT</div></div>
+          <div class="stat" style="background:#ef444412"><div class="stat-label">Delete</div><div class="stat-val" style="color:#ef4444;font-size:13px">DELETE</div></div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:#6b7280;line-height:1.6"><b>Real example:</b> Open Instagram &rarr; app makes a GET request to <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:10px">api.instagram.com/feed</code> &rarr; server returns your feed as JSON &rarr; app renders it.</div>
+      </div>
+    </div>
+
+    <div style="background:#fffbeb;border-radius:8px;padding:10px 14px;border:1px solid #fde68a;font-size:11px;color:#92400e;line-height:1.6">
+      <b>Key trait:</b> Request-Response model &mdash; client always initiates. Server cannot push data on its own. This is called <b>half-duplex</b> communication. Used in: Login, fetching data, form submissions, CRUD operations.
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 3 &middot; WEBSOCKET
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">03 &middot; Communication Method</div>
+    <span class="badge" style="background:var(--green)">WEBSOCKET</span>
+    <h2>WebSocket &mdash; Persistent Two-Way Connection</h2>
+    <p class="sub">Both client and server can send messages anytime &mdash; no need to ask first</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div>
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:6px;letter-spacing:1px">API vs WEBSOCKET</div>
+        <div style="background:rgba(255,255,255,.06);border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,.1)">
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:8px"><b style="color:#3b82f6">API:</b> Like sending letters &mdash; you write, wait, get reply</div>
+          <div style="font-size:11px;color:#94a3b8"><b style="color:#10b981">WebSocket:</b> Like a phone call &mdash; both can talk anytime, connection stays open</div>
+          <div style="margin-top:12px;padding:10px;background:rgba(16,185,129,.1);border-radius:8px;border:1px solid rgba(16,185,129,.2)">
+            <div style="font-size:10px;color:#10b981;font-weight:700;margin-bottom:4px">Connection Flow</div>
+            <div style="font-size:11px;color:#cbd5e1;line-height:1.7">
+              1. Client: &ldquo;Upgrade to WebSocket?&rdquo;<br>
+              2. Server: &ldquo;OK, upgraded!&rdquo;<br>
+              3. Now <b>both</b> send messages freely<br>
+              4. Connection stays open until closed
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:6px;letter-spacing:1px">REAL-WORLD USES</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:rgba(16,185,129,.08);border-radius:8px;padding:10px;border:1px solid rgba(16,185,129,.15)">
+            <div style="font-size:11px;font-weight:700;color:#10b981">WhatsApp / Telegram Chat</div>
+            <div style="font-size:10px;color:#94a3b8">Messages delivered instantly in real-time</div>
+          </div>
+          <div style="background:rgba(59,130,246,.08);border-radius:8px;padding:10px;border:1px solid rgba(59,130,246,.15)">
+            <div style="font-size:11px;font-weight:700;color:#3b82f6">Live Stock Prices / Crypto</div>
+            <div style="font-size:10px;color:#94a3b8">Prices update every millisecond without refresh</div>
+          </div>
+          <div style="background:rgba(249,115,22,.08);border-radius:8px;padding:10px;border:1px solid rgba(249,115,22,.15)">
+            <div style="font-size:11px;font-weight:700;color:#f97316">Google Docs Collaboration</div>
+            <div style="font-size:10px;color:#94a3b8">Multiple users typing &mdash; changes appear instantly</div>
+          </div>
+          <div style="background:rgba(139,92,246,.08);border-radius:8px;padding:10px;border:1px solid rgba(139,92,246,.15)">
+            <div style="font-size:11px;font-weight:700;color:#8b5cf6">Online Gaming</div>
+            <div style="font-size:10px;color:#94a3b8">Player positions, actions synced in real-time</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;line-height:1.6"><b style="color:#f1f5f9">Protocol:</b> <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:10px">ws://</code> or <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:10px">wss://</code> (secured). Full-duplex &mdash; both ends talk simultaneously over a single TCP connection.</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 4 &middot; PUSH NOTIFICATIONS
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">04 &middot; Communication Method</div>
+    <span class="badge" style="background:var(--red)">PUSH NOTIFICATION</span>
+    <h2>Push Notifications &mdash; Server Pokes the Client</h2>
+    <p class="sub">Server sends messages even when the app is closed</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div>
+        <div style="font-size:10px;color:#9ca3af;margin-bottom:6px;letter-spacing:1px">HOW IT WORKS</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;border:1px solid #e5e7eb">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:11px;padding:8px;background:#fee2e2;border-radius:6px;text-align:center;color:#991b1b;font-weight:600">1. App registers with FCM / APNs</div>
+            <div style="text-align:center;font-size:12px;color:#9ca3af">&darr;</div>
+            <div style="font-size:11px;padding:8px;background:#fef3c7;border-radius:6px;text-align:center;color:#92400e;font-weight:600">2. Server gets device token</div>
+            <div style="text-align:center;font-size:12px;color:#9ca3af">&darr;</div>
+            <div style="font-size:11px;padding:8px;background:#d1fae5;border-radius:6px;text-align:center;color:#065f46;font-weight:600">3. Server sends payload to FCM/APNs</div>
+            <div style="text-align:center;font-size:12px;color:#9ca3af">&darr;</div>
+            <div style="font-size:11px;padding:8px;background:#dbeafe;border-radius:6px;text-align:center;color:#1e40af;font-weight:600">4. FCM/APNs delivers to device</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#9ca3af;margin-bottom:6px;letter-spacing:1px">KEY PLAYERS</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:#fef2f2;border-radius:8px;padding:10px;border:1px solid #fecaca">
+            <div style="font-size:11px;font-weight:700;color:#dc2626">FCM (Firebase Cloud Messaging)</div>
+            <div style="font-size:10px;color:#6b7280">Google's service for Android &amp; web push</div>
+          </div>
+          <div style="background:#f0f9ff;border-radius:8px;padding:10px;border:1px solid #bae6fd">
+            <div style="font-size:11px;font-weight:700;color:#0284c7">APNs (Apple Push Notification)</div>
+            <div style="font-size:10px;color:#6b7280">Apple's service for iOS/macOS</div>
+          </div>
+          <div style="background:#f0fdf4;border-radius:8px;padding:10px;border:1px solid #bbf7d0">
+            <div style="font-size:11px;font-weight:700;color:#16a34a">Real examples</div>
+            <div style="font-size:10px;color:#6b7280">Zomato: &ldquo;Your food is on its way!&rdquo;<br>WhatsApp: new message notification<br>Gmail: &ldquo;You have 3 new emails&rdquo;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fffbeb;border-radius:8px;padding:10px 14px;border:1px solid #fde68a;font-size:11px;color:#92400e;line-height:1.6">
+      <b>Key trait:</b> Server-initiated &mdash; no client request needed. Works even when app is in background/killed. Relies on OS-level service (FCM/APNs) as a middleman.
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 5 &middot; WebRTC
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark2">
+  <div class="si">
+    <div class="s-num">05 &middot; Communication Method</div>
+    <span class="badge" style="background:var(--pink)">WEBRTC</span>
+    <h2>WebRTC &mdash; Peer-to-Peer Communication</h2>
+    <p class="sub">Direct connection between two clients &mdash; no server needed for data transfer</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div style="background:rgba(236,72,153,.08);border-radius:10px;padding:14px;border:1px solid rgba(236,72,153,.2)">
+        <div style="font-size:10px;color:#f472b6;margin-bottom:6px;letter-spacing:1px;font-weight:700">HOW IT WORKS</div>
+        <div style="font-size:11px;color:#cbd5e1;line-height:1.7">
+          1. <b>Signaling</b> &mdash; server helps clients find each other<br>
+          2. <b>ICE/STUN/TURN</b> &mdash; discovers best path to connect<br>
+          3. <b>Direct P2P connection</b> established<br>
+          4. Audio/Video/Data flows <b>directly</b> between peers
+        </div>
+      </div>
+      <div style="background:rgba(236,72,153,.08);border-radius:10px;padding:14px;border:1px solid rgba(236,72,153,.2)">
+        <div style="font-size:10px;color:#f472b6;margin-bottom:6px;letter-spacing:1px;font-weight:700">USED IN</div>
+        <div style="font-size:11px;color:#cbd5e1;line-height:1.7">
+          <b style="color:#f472b6">Google Meet / Zoom</b> &mdash; video calling<br>
+          <b style="color:#f472b6">Discord</b> &mdash; voice channels<br>
+          <b style="color:#f472b6">AirDrop-like apps</b> &mdash; file sharing<br>
+          <b style="color:#f472b6">Screen sharing</b> in browsers
+        </div>
+        <div style="margin-top:8px;font-size:10px;color:#94a3b8">No server bottleneck = low latency, perfect for real-time media</div>
+      </div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 6 &middot; SSE & POLLING
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">06 &middot; Communication Method</div>
+    <span class="badge" style="background:var(--teal)">SSE &amp; POLLING</span>
+    <h2>Server-Sent Events &amp; Polling</h2>
+    <p class="sub">Other ways to get updates from the server</p>
+
+    <div class="grid-3" style="margin-bottom:14px">
+      <div style="background:#f0fdf4;border-radius:10px;padding:14px;border:1px solid #bbf7d0">
+        <div style="font-size:11px;font-weight:700;color:#16a34a;margin-bottom:6px">Short Polling</div>
+        <div style="font-size:10px;color:#6b7280;line-height:1.6">Client asks server repeatedly at fixed intervals: &ldquo;Any new data?&rdquo; &ldquo;Any new data?&rdquo; &ldquo;Any new data?&rdquo;</div>
+        <div style="margin-top:6px;font-size:10px;color:#16a34a;font-weight:600">e.g., Email inbox check every 30s</div>
+        <div style="margin-top:4px;font-size:9px;color:#dc2626">Wasteful &mdash; most requests return empty</div>
+      </div>
+      <div style="background:#eff6ff;border-radius:10px;padding:14px;border:1px solid #bfdbfe">
+        <div style="font-size:11px;font-weight:700;color:#2563eb;margin-bottom:6px">Long Polling</div>
+        <div style="font-size:10px;color:#6b7280;line-height:1.6">Client asks, server <b>holds the request open</b> until it has data. Then responds &amp; client immediately asks again.</div>
+        <div style="margin-top:6px;font-size:10px;color:#2563eb;font-weight:600">e.g., Facebook chat (earlier versions)</div>
+        <div style="margin-top:4px;font-size:9px;color:#f97316">Better, but still overhead from reconnections</div>
+      </div>
+      <div style="background:#fdf4ff;border-radius:10px;padding:14px;border:1px solid #f0abfc">
+        <div style="font-size:11px;font-weight:700;color:#a855f7;margin-bottom:6px">SSE (Server-Sent Events)</div>
+        <div style="font-size:10px;color:#6b7280;line-height:1.6">Server opens a <b>one-way stream</b> and pushes events to client whenever ready. Client just listens.</div>
+        <div style="margin-top:6px;font-size:10px;color:#a855f7;font-weight:600">e.g., Live sports scores, news feeds</div>
+        <div style="margin-top:4px;font-size:9px;color:#10b981">Efficient &mdash; one connection, server pushes</div>
+      </div>
+    </div>
+
+    <table class="tbl">
+      <tr><th>Method</th><th>Direction</th><th>Connection</th><th>Best For</th></tr>
+      <tr><td>REST API</td><td>Client &rarr; Server</td><td>Opens &amp; closes each time</td><td>CRUD, forms, data fetch</td></tr>
+      <tr><td>WebSocket</td><td>Both &harr;</td><td>Stays open</td><td>Chat, gaming, collaboration</td></tr>
+      <tr><td>SSE</td><td>Server &rarr; Client</td><td>Stays open (one-way)</td><td>Live feeds, notifications</td></tr>
+      <tr><td>Polling</td><td>Client &rarr; Server</td><td>Opens repeatedly</td><td>Simple periodic checks</td></tr>
+      <tr><td>WebRTC</td><td>Client &harr; Client</td><td>Direct P2P</td><td>Video calls, file sharing</td></tr>
+      <tr><td>Push Notif</td><td>Server &rarr; Device</td><td>Via FCM/APNs</td><td>Alerts when app is closed</td></tr>
+    </table>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 7 &middot; ZOMATO ORDER TRACKING
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">07 &middot; Real-World Scenario</div>
+    <span class="badge" style="background:var(--red)">ZOMATO / SWIGGY</span>
+    <h2>How Does Zomato Track Your Order on Map Without Refreshing?</h2>
+    <p class="sub">Your food is moving on the map in real-time &mdash; how?</p>
+
+    <div style="background:rgba(239,68,68,.08);border-radius:12px;padding:16px;border:1px solid rgba(239,68,68,.2);margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:#ef4444;margin-bottom:10px">The Complete Flow</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="background:#ef4444;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">1</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.6"><b style="color:#f1f5f9">Delivery partner's phone</b> sends GPS coordinates every 3-5 seconds to the server via <b style="color:#10b981">WebSocket</b> or periodic API calls.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="background:#ef4444;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">2</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.6"><b style="color:#f1f5f9">Server</b> receives location, updates the order record in the database and pushes the new coordinates.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="background:#ef4444;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">3</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.6"><b style="color:#f1f5f9">Your app</b> is connected via <b style="color:#10b981">WebSocket</b>. Server pushes the new lat/lng to your device instantly.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="background:#ef4444;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">4</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.6"><b style="color:#f1f5f9">Map SDK</b> (Google Maps / Mapbox) smoothly animates the marker from old position to new position. No page refresh needed.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div style="background:rgba(16,185,129,.08);border-radius:8px;padding:10px;border:1px solid rgba(16,185,129,.15)">
+        <div style="font-size:11px;font-weight:700;color:#10b981;margin-bottom:4px">Technologies Used</div>
+        <div style="font-size:10px;color:#94a3b8;line-height:1.7">WebSocket for real-time push<br>Google Maps SDK for map rendering<br>GPS/Location APIs on delivery phone<br>Redis for fast location caching</div>
+      </div>
+      <div style="background:rgba(59,130,246,.08);border-radius:8px;padding:10px;border:1px solid rgba(59,130,246,.15)">
+        <div style="font-size:11px;font-weight:700;color:#3b82f6;margin-bottom:4px">Also Used By</div>
+        <div style="font-size:10px;color:#94a3b8;line-height:1.7">Uber/Ola &mdash; cab tracking<br>Dunzo &mdash; delivery tracking<br>Rapido &mdash; bike taxi tracking<br>Amazon &mdash; &ldquo;delivery is 3 stops away&rdquo;</div>
+      </div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 8 &middot; DO COMPANIES STORE PASSWORDS?
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">08 &middot; Real-World Scenario</div>
+    <span class="badge" style="background:var(--purple)">SECURITY</span>
+    <h2>Do Companies Actually Store Your Password?</h2>
+    <p class="sub">Short answer: NO. Good companies never store your actual password. Here's why.</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div style="background:#fef2f2;border-radius:10px;padding:14px;border:1px solid #fecaca">
+        <div style="font-size:16px;margin-bottom:6px">&#10060;</div>
+        <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:6px">The WRONG Way (Plain Text)</div>
+        <div class="codebox" style="font-size:10px;background:#1e293b">
+Database:
+| user     | password    |
+|----------|-------------|
+| raja     | myP@ss123   |
+| john     | secret456   |
+
+&#9888; If database leaks, ALL
+  passwords are exposed!</div>
+      </div>
+      <div style="background:#f0fdf4;border-radius:10px;padding:14px;border:1px solid #bbf7d0">
+        <div style="font-size:16px;margin-bottom:6px">&#9989;</div>
+        <div style="font-size:12px;font-weight:700;color:#16a34a;margin-bottom:6px">The RIGHT Way (Hashed)</div>
+        <div class="codebox" style="font-size:10px;background:#1e293b">
+Database:
+| user     | password_hash        |
+|----------|----------------------|
+| raja     | a1b2c3d4e5f6...      |
+| john     | x9y8z7w6v5u4...      |
+
+&#9989; Even if DB leaks, attacker
+  can't reverse the hash!</div>
+      </div>
+    </div>
+
+    <div style="background:#eff6ff;border-radius:10px;padding:14px;border:1px solid #bfdbfe;margin-bottom:10px">
+      <div style="font-size:12px;font-weight:700;color:#2563eb;margin-bottom:6px">How Login Actually Works</div>
+      <div style="font-size:11px;color:#374151;line-height:1.7">
+        1. You sign up &rarr; password is <b>hashed</b> &rarr; hash stored in DB (not the password)<br>
+        2. You login &rarr; entered password is <b>hashed again</b><br>
+        3. Server compares <b>hash vs stored hash</b> &mdash; if they match, you're in!<br>
+        4. That's why &ldquo;Forgot Password&rdquo; gives you a <b>reset link</b>, not your old password &mdash; because they don't have it!
+      </div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 9 &middot; HASHING
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark3">
+  <div class="si">
+    <div class="s-num">09 &middot; Security Concept</div>
+    <span class="badge" style="background:var(--red)">HASHING</span>
+    <h2>Hashing &mdash; One-Way Transformation</h2>
+    <p class="sub">Convert any input into a fixed-length string that CANNOT be reversed</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div style="background:rgba(239,68,68,.08);border-radius:10px;padding:14px;border:1px solid rgba(239,68,68,.2)">
+        <div style="font-size:10px;color:#f87171;font-weight:700;margin-bottom:6px;letter-spacing:1px">HOW HASHING WORKS</div>
+        <div style="font-size:11px;color:#cbd5e1;line-height:1.8">
+          Input: <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:10px">"hello"</code><br>
+          &darr; SHA-256<br>
+          Output: <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:9px">2cf24dba5fb0a30e...</code><br><br>
+          Input: <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:10px">"Hello"</code> (capital H)<br>
+          &darr; SHA-256<br>
+          Output: <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:9px">185f8db32271fe25...</code><br><br>
+          <b style="color:#f87171">Tiny change = completely different hash!</b>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#c4b5fd;margin-bottom:6px;letter-spacing:1px;font-weight:700">KEY PROPERTIES</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:rgba(139,92,246,.08);border-radius:8px;padding:10px;border:1px solid rgba(139,92,246,.2)">
+            <div style="font-size:11px;font-weight:700;color:#a78bfa">One-Way</div>
+            <div style="font-size:10px;color:#94a3b8">Cannot reverse hash back to original input</div>
+          </div>
+          <div style="background:rgba(139,92,246,.08);border-radius:8px;padding:10px;border:1px solid rgba(139,92,246,.2)">
+            <div style="font-size:11px;font-weight:700;color:#a78bfa">Deterministic</div>
+            <div style="font-size:10px;color:#94a3b8">Same input always gives same hash</div>
+          </div>
+          <div style="background:rgba(139,92,246,.08);border-radius:8px;padding:10px;border:1px solid rgba(139,92,246,.2)">
+            <div style="font-size:11px;font-weight:700;color:#a78bfa">Fixed Length</div>
+            <div style="font-size:10px;color:#94a3b8">SHA-256 always gives 256-bit output regardless of input size</div>
+          </div>
+          <div style="background:rgba(139,92,246,.08);border-radius:8px;padding:10px;border:1px solid rgba(139,92,246,.2)">
+            <div style="font-size:11px;font-weight:700;color:#a78bfa">Collision Resistant</div>
+            <div style="font-size:10px;color:#94a3b8">Nearly impossible for two inputs to produce same hash</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:4px">Algorithm</div>
+        <div style="font-size:13px;font-weight:700;color:#f87171">MD5</div>
+        <div style="font-size:9px;color:#ef4444">Broken &mdash; don't use for security</div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:4px">Algorithm</div>
+        <div style="font-size:13px;font-weight:700;color:#fbbf24">SHA-256</div>
+        <div style="font-size:9px;color:#10b981">Secure &mdash; widely used</div>
+      </div>
+      <div style="background:rgba(255,255,255,.05);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:#94a3b8;margin-bottom:4px">For Passwords</div>
+        <div style="font-size:13px;font-weight:700;color:#10b981">bcrypt</div>
+        <div style="font-size:9px;color:#10b981">Slow by design &mdash; best for passwords</div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;font-size:11px;color:#94a3b8;line-height:1.6"><b style="color:#f1f5f9">Used for:</b> Password storage, file integrity checks (checksums), digital signatures, blockchain, data deduplication, Git commit IDs.</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 10 &middot; HASHING + SALT
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">10 &middot; Security Concept</div>
+    <span class="badge" style="background:var(--amber)">SALT + HASH</span>
+    <h2>Why Just Hashing Isn't Enough &mdash; Enter Salt</h2>
+    <p class="sub">Attackers have precomputed hash tables (rainbow tables). Salt defeats them.</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div style="background:rgba(239,68,68,.08);border-radius:10px;padding:14px;border:1px solid rgba(239,68,68,.2)">
+        <div style="font-size:12px;font-weight:700;color:#ef4444;margin-bottom:6px">&#10060; Without Salt</div>
+        <div class="codebox" style="font-size:10px">
+User A: "password123" &rarr; hash: abc123
+User B: "password123" &rarr; hash: abc123
+
+Both have SAME hash!
+Attacker with rainbow table:
+abc123 &rarr; "password123" &#9888; CRACKED!</div>
+      </div>
+      <div style="background:rgba(16,185,129,.08);border-radius:10px;padding:14px;border:1px solid rgba(16,185,129,.2)">
+        <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:6px">&#9989; With Salt</div>
+        <div class="codebox" style="font-size:10px">
+User A: "password123" + salt:"x7k2"
+  &rarr; hash: qrs789
+User B: "password123" + salt:"m3p9"
+  &rarr; hash: tuv456
+
+Different hashes! Rainbow tables
+are useless. Each user needs
+separate brute-force attack.</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;line-height:1.6"><b style="color:#f1f5f9">Salt</b> = random string added to password before hashing. Stored alongside the hash. Makes each hash unique even for identical passwords. <b style="color:#f1f5f9">bcrypt</b> automatically handles salting for you.</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 11 &middot; ENCRYPTION
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">11 &middot; Security Concept</div>
+    <span class="badge" style="background:var(--blue)">ENCRYPTION</span>
+    <h2>Encryption &mdash; Two-Way Transformation</h2>
+    <p class="sub">Convert data into unreadable format, but CAN be reversed with a key</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div style="background:#eff6ff;border-radius:10px;padding:14px;border:1px solid #bfdbfe">
+        <div style="font-size:12px;font-weight:700;color:#2563eb;margin-bottom:8px">Symmetric Encryption</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6;margin-bottom:8px">Same key to encrypt &amp; decrypt</div>
+        <div class="flow-box">
+          <div class="flow-node" style="background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;font-size:10px">Plain Text</div>
+          <div style="font-size:12px;color:#6b7280">+&#128273;</div>
+          <div class="flow-node" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-size:10px">Encrypted</div>
+          <div style="font-size:12px;color:#6b7280">+&#128273;</div>
+          <div class="flow-node" style="background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;font-size:10px">Plain Text</div>
+        </div>
+        <div style="font-size:10px;color:#6b7280;margin-top:6px"><b>Algorithms:</b> AES, DES, 3DES<br><b>Used in:</b> File encryption, database encryption, WiFi (WPA2)</div>
+      </div>
+      <div style="background:#fdf4ff;border-radius:10px;padding:14px;border:1px solid #f0abfc">
+        <div style="font-size:12px;font-weight:700;color:#a855f7;margin-bottom:8px">Asymmetric Encryption</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6;margin-bottom:8px">Two keys &mdash; public key encrypts, private key decrypts</div>
+        <div class="flow-box">
+          <div class="flow-node" style="background:#f3e8ff;color:#7c3aed;border:1px solid #c4b5fd;font-size:10px">Plain Text</div>
+          <div style="font-size:12px;color:#6b7280">+&#128272;</div>
+          <div class="flow-node" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-size:10px">Encrypted</div>
+          <div style="font-size:12px;color:#6b7280">+&#128273;</div>
+          <div class="flow-node" style="background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;font-size:10px">Plain Text</div>
+        </div>
+        <div style="font-size:10px;color:#6b7280;margin-top:6px"><b>Algorithms:</b> RSA, ECC<br><b>Used in:</b> HTTPS (SSL/TLS), email encryption, digital signatures</div>
+      </div>
+    </div>
+
+    <div style="background:#fffbeb;border-radius:8px;padding:10px 14px;border:1px solid #fde68a;font-size:11px;color:#92400e;line-height:1.6">
+      <b>Real example (HTTPS):</b> When you visit <code style="background:#fef3c7;padding:1px 4px;border-radius:3px;font-size:10px">https://bank.com</code>, your browser uses the bank's <b>public key</b> to encrypt your data. Only the bank's server has the <b>private key</b> to decrypt it. That's why the &#128274; padlock appears!
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 12 &middot; ENCODING
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark4">
+  <div class="si">
+    <div class="s-num">12 &middot; Security Concept</div>
+    <span class="badge" style="background:var(--teal)">ENCODING</span>
+    <h2>Encoding &mdash; NOT Security, Just Format Conversion</h2>
+    <p class="sub">Transforms data into a different format for transport/storage &mdash; easily reversible, no key needed</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div style="background:rgba(20,184,166,.08);border-radius:10px;padding:14px;border:1px solid rgba(20,184,166,.2)">
+        <div style="font-size:10px;color:#2dd4bf;font-weight:700;margin-bottom:6px;letter-spacing:1px">COMMON ENCODINGS</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:rgba(255,255,255,.05);border-radius:6px;padding:8px">
+            <div style="font-size:11px;font-weight:700;color:#2dd4bf">Base64</div>
+            <div style="font-size:10px;color:#94a3b8"><code style="font-size:9px">"Hello"</code> &rarr; <code style="font-size:9px">"SGVsbG8="</code><br>Used for: email attachments, embedding images in HTML, JWT tokens</div>
+          </div>
+          <div style="background:rgba(255,255,255,.05);border-radius:6px;padding:8px">
+            <div style="font-size:11px;font-weight:700;color:#2dd4bf">URL Encoding</div>
+            <div style="font-size:10px;color:#94a3b8"><code style="font-size:9px">"hello world"</code> &rarr; <code style="font-size:9px">"hello%20world"</code><br>Used for: query parameters in URLs</div>
+          </div>
+          <div style="background:rgba(255,255,255,.05);border-radius:6px;padding:8px">
+            <div style="font-size:11px;font-weight:700;color:#2dd4bf">UTF-8 / ASCII</div>
+            <div style="font-size:10px;color:#94a3b8">Character &rarr; number mapping<br>Used for: text representation in all computers</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(20,184,166,.08);border-radius:10px;padding:14px;border:1px solid rgba(20,184,166,.2)">
+        <div style="font-size:10px;color:#2dd4bf;font-weight:700;margin-bottom:6px;letter-spacing:1px">KEY POINT</div>
+        <div style="font-size:12px;color:#f1f5f9;font-weight:700;margin-bottom:8px">Encoding &#8800; Encryption &#8800; Hashing</div>
+        <div style="font-size:11px;color:#cbd5e1;line-height:1.7">
+          <b style="color:#ef4444">Encoding:</b> Anyone can decode. No key needed. Not for security.<br><br>
+          <b style="color:#3b82f6">Encryption:</b> Need a key to decrypt. For confidentiality.<br><br>
+          <b style="color:#8b5cf6">Hashing:</b> Cannot be reversed at all. For integrity &amp; password storage.
+        </div>
+        <div style="margin-top:10px;background:rgba(239,68,68,.12);border-radius:6px;padding:8px;border:1px solid rgba(239,68,68,.2)">
+          <div style="font-size:10px;color:#f87171;font-weight:700">&#9888; Common Mistake</div>
+          <div style="font-size:10px;color:#fca5a5">Never use Base64 to &ldquo;secure&rdquo; passwords or secrets. It's not security &mdash; it's just a format change!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 13 &middot; COMPARISON TABLE
+══════════════════════════════════════════════════════ -->
+<section class="s-card">
+  <div class="si">
+    <div class="s-num">13 &middot; Comparison</div>
+    <span class="badge" style="background:var(--purple)">CHEAT SHEET</span>
+    <h2>Hashing vs Encryption vs Encoding &mdash; Complete Comparison</h2>
+    <p class="sub">Know the difference &mdash; this is a common interview question</p>
+
+    <table class="tbl" style="margin-bottom:14px">
+      <tr><th>Feature</th><th>Hashing</th><th>Encryption</th><th>Encoding</th></tr>
+      <tr><td><b>Reversible?</b></td><td>&#10060; No (one-way)</td><td>&#9989; Yes (with key)</td><td>&#9989; Yes (no key needed)</td></tr>
+      <tr><td><b>Purpose</b></td><td>Integrity &amp; verification</td><td>Confidentiality</td><td>Data format conversion</td></tr>
+      <tr><td><b>Key needed?</b></td><td>No</td><td>Yes</td><td>No</td></tr>
+      <tr><td><b>Output length</b></td><td>Fixed (e.g. 256-bit)</td><td>Varies with input</td><td>Varies with input</td></tr>
+      <tr><td><b>Example algo</b></td><td>SHA-256, bcrypt, MD5</td><td>AES, RSA, ECC</td><td>Base64, URL, UTF-8</td></tr>
+      <tr><td><b>Real use</b></td><td>Passwords, checksums</td><td>HTTPS, messaging</td><td>Email, URLs, JWT</td></tr>
+      <tr><td><b>Security?</b></td><td>&#9989; Yes</td><td>&#9989; Yes</td><td>&#10060; No</td></tr>
+    </table>
+
+    <div class="grid-3">
+      <div style="background:#fef2f2;border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:20px;margin-bottom:4px">&#128271;</div>
+        <div style="font-size:11px;font-weight:700;color:#dc2626">Hashing</div>
+        <div style="font-size:10px;color:#6b7280">&ldquo;Grind coffee beans &mdash; can't get beans back&rdquo;</div>
+      </div>
+      <div style="background:#eff6ff;border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:20px;margin-bottom:4px">&#128274;</div>
+        <div style="font-size:11px;font-weight:700;color:#2563eb">Encryption</div>
+        <div style="font-size:10px;color:#6b7280">&ldquo;Lock a box &mdash; only the key opens it&rdquo;</div>
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:20px;margin-bottom:4px">&#128196;</div>
+        <div style="font-size:11px;font-weight:700;color:#16a34a">Encoding</div>
+        <div style="font-size:10px;color:#6b7280">&ldquo;Translate English to Morse code &mdash; anyone can translate back&rdquo;</div>
+      </div>
+    </div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 14 &middot; HOW GOOGLE SIGN-IN WORKS
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark">
+  <div class="si">
+    <div class="s-num">14 &middot; Real-World Scenario</div>
+    <span class="badge" style="background:var(--blue)">OAUTH</span>
+    <h2>How Does &ldquo;Sign in with Google&rdquo; Work?</h2>
+    <p class="sub">You click one button and you're logged in to a third-party app &mdash; but how?</p>
+
+    <div style="background:rgba(59,130,246,.08);border-radius:12px;padding:16px;border:1px solid rgba(59,130,246,.2);margin-bottom:14px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">1</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.6">You click <b style="color:#f1f5f9">&ldquo;Sign in with Google&rdquo;</b> on an app (e.g. Spotify)</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">2</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.6">App redirects you to <b style="color:#f1f5f9">Google's login page</b> (your password is never shared with the app)</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">3</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.6">You login to Google &rarr; Google gives the app an <b style="color:#10b981">access token</b> (a temporary pass)</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="background:#3b82f6;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">4</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.6">App uses this token to fetch your <b style="color:#f1f5f9">name &amp; email</b> from Google &mdash; never your password</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:#94a3b8;line-height:1.6"><b style="color:#f1f5f9">This is OAuth 2.0</b> &mdash; a protocol that lets apps access your info without ever knowing your password. The token expires, and you can revoke access anytime from Google Settings.</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 15 &middot; HOW WHATSAPP E2E WORKS
+══════════════════════════════════════════════════════ -->
+<section class="s-card dark2">
+  <div class="si">
+    <div class="s-num">15 &middot; Real-World Scenario</div>
+    <span class="badge" style="background:var(--green)">E2E ENCRYPTION</span>
+    <h2>How Does WhatsApp End-to-End Encryption Work?</h2>
+    <p class="sub">Even WhatsApp's servers can't read your messages</p>
+
+    <div class="grid-2" style="margin-bottom:14px">
+      <div style="background:rgba(16,185,129,.08);border-radius:10px;padding:14px;border:1px solid rgba(16,185,129,.2)">
+        <div style="font-size:10px;color:#34d399;font-weight:700;margin-bottom:6px;letter-spacing:1px">THE FLOW</div>
+        <div style="font-size:11px;color:#cbd5e1;line-height:1.8">
+          1. When you install WhatsApp, your phone generates a <b style="color:#34d399">key pair</b> (public + private)<br>
+          2. <b style="color:#34d399">Public key</b> is shared with WhatsApp server<br>
+          3. <b style="color:#34d399">Private key</b> stays on YOUR phone only<br>
+          4. When Alice sends a message to Bob:<br>
+          &nbsp;&nbsp;&bull; Alice's phone encrypts with <b>Bob's public key</b><br>
+          &nbsp;&nbsp;&bull; Message travels encrypted through server<br>
+          &nbsp;&nbsp;&bull; Only Bob's <b>private key</b> can decrypt it
+        </div>
+      </div>
+      <div style="background:rgba(16,185,129,.08);border-radius:10px;padding:14px;border:1px solid rgba(16,185,129,.2)">
+        <div style="font-size:10px;color:#34d399;font-weight:700;margin-bottom:6px;letter-spacing:1px">WHAT THIS MEANS</div>
+        <div style="font-size:11px;color:#cbd5e1;line-height:1.7">
+          <b style="color:#ef4444">&#10060; WhatsApp server</b> cannot read your messages &mdash; it only sees encrypted gibberish<br><br>
+          <b style="color:#ef4444">&#10060; Hackers</b> intercepting the message get nothing useful<br><br>
+          <b style="color:#10b981">&#9989; Only sender &amp; receiver</b> can read the message<br><br>
+          <b style="color:#fbbf24">&#9888; But:</b> If someone has your unlocked phone, they can read messages (encryption protects the transit, not the device)
+        </div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;line-height:1.6"><b style="color:#f1f5f9">Uses:</b> Signal Protocol (also used by Signal app). This is <b style="color:#f1f5f9">Asymmetric Encryption</b> in action &mdash; public key encrypts, private key decrypts.</div>
+  </div>
+  <div class="dn">&darr;</div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 16 &middot; END
+══════════════════════════════════════════════════════ -->
+<section class="s-end">
+  <div class="si">
+    <div class="wish-main">Now You Know<br>the HOW!</div>
+    <div class="wish-sub">From APIs to encryption, from Zomato tracking to password hashing &mdash; you've explored the real tech behind everyday apps.</div>
+    <a href="../index.html" style="display:inline-block;background:linear-gradient(135deg,#f97316,#ef4444);color:#fff;border:none;padding:15px 44px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(249,115,22,.4);transition:all .22s;letter-spacing:.3px;text-decoration:none">&larr; Back to Dev Hub</a>
+  </div>
+</section>
+
+<script>
+// ── Progress bar ──
+const pf = document.getElementById('pf');
+function updateProgress() {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  pf.style.width = progress + '%';
+}
+window.addEventListener('scroll', updateProgress, { passive: true });
+updateProgress();
+
+// ── Down arrow click ──
+document.querySelectorAll('.dn').forEach(el => {
+  el.addEventListener('click', () => {
+    const section = el.closest('section');
+    const next = section.nextElementSibling;
+    if (next) next.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>DS Visualizer — Dev Hub</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --dark:#0f172a;--dark2:#1e293b;--dark3:#263148;
+      --border:rgba(148,163,184,.15);
+      --blue:#3b82f6;--green:#10b981;--orange:#f97316;
+      --red:#ef4444;--purple:#8b5cf6;--teal:#14b8a6;--amber:#f59e0b;
+      --text:#e2e8f0;--muted:#94a3b8
+    }
+    html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--dark);color:var(--text)}
+
+    /* HEADER */
+    header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 20px;border-bottom:1px solid var(--border);
+      background:rgba(15,23,42,.92);backdrop-filter:blur(12px);
+      position:sticky;top:0;z-index:100
+    }
+    .header-left{display:flex;align-items:center;gap:14px}
+    .back-btn{
+      display:flex;align-items:center;gap:5px;color:var(--muted);
+      text-decoration:none;font-size:12px;padding:5px 10px;
+      border-radius:7px;border:1px solid var(--border);transition:all .18s
+    }
+    .back-btn:hover{color:var(--text);border-color:rgba(148,163,184,.4)}
+    .page-title{font-size:15px;font-weight:700;color:#f1f5f9}
+    .zoom-controls{display:flex;align-items:center;gap:6px}
+    .zoom-btn{
+      width:28px;height:28px;border:1px solid var(--border);border-radius:6px;
+      background:var(--dark2);color:var(--text);cursor:pointer;font-size:14px;
+      display:flex;align-items:center;justify-content:center;transition:all .18s
+    }
+    .zoom-btn:hover{border-color:var(--blue);color:var(--blue)}
+    .zoom-label{font-size:11px;color:var(--muted);min-width:38px;text-align:center}
+
+    /* APP LAYOUT */
+    .app{
+      display:grid;grid-template-columns:210px 1fr 290px;
+      height:calc(100vh - 49px);overflow:hidden
+    }
+
+    /* LEFT PANEL */
+    .left-panel{
+      background:var(--dark2);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;overflow:hidden
+    }
+    .ds-list{flex:1;overflow-y:auto;padding:10px 6px}
+    .ds-sec-title{
+      font-size:9px;font-weight:700;letter-spacing:1.5px;
+      color:var(--muted);text-transform:uppercase;padding:8px 8px 4px
+    }
+    .ds-btn{
+      display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;
+      border:none;background:none;color:var(--muted);font-size:12px;
+      border-radius:7px;cursor:pointer;text-align:left;transition:all .15s
+    }
+    .ds-btn:hover{background:rgba(148,163,184,.08);color:var(--text)}
+    .ds-btn.active{background:rgba(59,130,246,.15);color:var(--blue);font-weight:600}
+    .ds-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+    /* ACTIONS PANEL */
+    .actions-panel{
+      border-top:1px solid var(--border);padding:10px;
+      background:var(--dark2)
+    }
+    .act-title{
+      font-size:9px;font-weight:700;letter-spacing:1px;
+      color:var(--muted);text-transform:uppercase;margin-bottom:8px
+    }
+    .act-input{
+      width:100%;padding:6px 10px;border-radius:7px;
+      border:1px solid var(--border);background:var(--dark);
+      color:var(--text);font-size:12px;margin-bottom:6px
+    }
+    .act-input:focus{outline:none;border-color:var(--blue)}
+    .action-group{display:flex;flex-direction:column;gap:5px}
+    .action-row{display:flex;gap:5px}
+    .act-btn{
+      flex:1;padding:7px 5px;border-radius:7px;
+      border:1px solid var(--border);background:var(--dark);
+      color:var(--text);font-size:11px;font-weight:600;cursor:pointer;transition:all .18s
+    }
+    .act-btn:hover{border-color:var(--blue);color:var(--blue)}
+    .act-btn.prim{background:var(--blue);border-color:var(--blue);color:#fff}
+    .act-btn.prim:hover{background:#2563eb}
+    .act-btn.dng{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:var(--red)}
+    .act-btn.dng:hover{background:var(--red);color:#fff;border-color:var(--red)}
+    .act-btn.grn{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.3);color:var(--green)}
+    .act-btn.grn:hover{background:var(--green);color:#fff;border-color:var(--green)}
+    .act-btn.pur{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.3);color:var(--purple)}
+    .act-btn.pur:hover{background:var(--purple);color:#fff;border-color:var(--purple)}
+
+    .step-controls{display:flex;gap:5px;margin-top:8px}
+    .step-info{font-size:10px;color:var(--muted);text-align:center;margin-top:4px}
+    .speed-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+    .speed-lbl{font-size:10px;color:var(--muted);white-space:nowrap}
+    .speed-slider{flex:1;accent-color:var(--blue);cursor:pointer}
+
+    /* CENTER CANVAS */
+    .canvas-panel{overflow:hidden;position:relative;background:var(--dark)}
+    .canvas-wrapper{
+      width:100%;height:100%;overflow:auto;
+      display:flex;align-items:center;justify-content:center
+    }
+    .canvas-inner{
+      transform-origin:center center;transition:transform .1s;
+      padding:40px;min-width:500px
+    }
+    #vizContainer{display:flex;flex-direction:column;align-items:center;gap:20px}
+    .step-msg{
+      position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+      background:rgba(30,41,59,.97);border:1px solid var(--border);
+      border-radius:10px;padding:9px 18px;font-size:12px;color:#f1f5f9;
+      text-align:center;min-width:280px;backdrop-filter:blur(8px);z-index:10;
+      max-width:80%
+    }
+
+    /* RIGHT PANEL */
+    .right-panel{
+      background:var(--dark2);border-left:1px solid var(--border);
+      display:flex;flex-direction:column;overflow:hidden
+    }
+    .pseudo-tabs{display:flex;border-bottom:1px solid var(--border)}
+    .ptab{
+      flex:1;padding:10px 8px;font-size:11px;font-weight:700;
+      border:none;background:none;color:var(--muted);cursor:pointer;
+      border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.3px
+    }
+    .ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+    .pseudo-content{flex:1;overflow-y:auto;padding:14px}
+    .code-block{
+      font-family:'Courier New',monospace;font-size:11.5px;line-height:1.8;
+      color:#cbd5e1
+    }
+    .code-line{padding:0 8px;border-radius:4px;transition:background .2s;white-space:pre;display:block}
+    .code-line.hl{
+      background:rgba(59,130,246,.18);border-left:3px solid var(--blue);
+      padding-left:5px;color:#f1f5f9
+    }
+    .kw{color:#93c5fd}
+    .fn{color:#86efac}
+    .cm{color:#475569}
+    .num{color:#fbbf24}
+    .str{color:#f9a8d4}
+
+    .complexity-box{
+      margin-top:12px;padding:10px;background:var(--dark);
+      border-radius:8px;border:1px solid var(--border)
+    }
+    .cx-title{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+    .cx-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;align-items:center}
+    .cx-row span:first-child{color:var(--muted)}
+    .cx-green{color:var(--green);font-weight:700}
+    .cx-orange{color:var(--orange);font-weight:700}
+    .cx-red{color:var(--red);font-weight:700}
+    .cx-blue{color:var(--blue);font-weight:700}
+
+    .step-desc-panel{
+      padding:10px 14px;border-top:1px solid var(--border);
+      font-size:11px;color:var(--muted);min-height:58px;line-height:1.5
+    }
+    .step-desc-panel b{color:var(--text)}
+
+    /* VISUALIZATIONS */
+
+    /* Array / ArrayList */
+    .vis-array-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+    .vis-arr{display:flex;align-items:flex-end;gap:0}
+    .arr-cell{display:flex;flex-direction:column;align-items:center}
+    .arr-box{
+      width:54px;height:54px;border:2px solid rgba(59,130,246,.4);
+      background:rgba(59,130,246,.1);display:flex;align-items:center;
+      justify-content:center;font-size:15px;font-weight:700;color:#f1f5f9;
+      transition:all .4s ease
+    }
+    .arr-box.empty{opacity:.25;background:transparent}
+    .arr-box.hl{background:rgba(59,130,246,.35);border-color:var(--blue);box-shadow:0 0 14px rgba(59,130,246,.4)}
+    .arr-box.new{background:rgba(16,185,129,.3);border-color:var(--green);box-shadow:0 0 14px rgba(16,185,129,.4);animation:popIn .4s ease}
+    .arr-box.del{background:rgba(239,68,68,.25);border-color:var(--red);box-shadow:0 0 14px rgba(239,68,68,.4)}
+    .arr-idx{font-size:10px;color:var(--muted);margin-top:4px}
+    .arr-meta{font-size:12px;color:var(--muted)}
+    .arr-meta b{color:var(--text)}
+
+    /* LinkedList */
+    .vis-ll{display:flex;align-items:center;flex-wrap:wrap;gap:0;padding:10px}
+    .ll-node-wrap{display:flex;flex-direction:column;align-items:center}
+    .ll-node{display:flex;align-items:center}
+    .ll-box{
+      display:flex;border:2px solid rgba(139,92,246,.4);border-radius:8px;
+      overflow:hidden;transition:all .4s
+    }
+    .ll-data{
+      width:46px;height:46px;background:rgba(139,92,246,.15);
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;font-weight:700;color:#f1f5f9
+    }
+    .ll-ptr{
+      width:22px;height:46px;background:rgba(139,92,246,.07);
+      border-left:1px solid rgba(139,92,246,.25);
+      display:flex;align-items:center;justify-content:center;
+      font-size:8px;color:var(--purple)
+    }
+    .ll-arrow{
+      width:36px;height:2px;background:var(--purple);position:relative;margin:0 -1px
+    }
+    .ll-arrow::after{
+      content:'';position:absolute;right:-5px;top:-4px;
+      border:4px solid transparent;border-left-color:var(--purple)
+    }
+    .ll-null{font-size:12px;color:var(--muted);font-style:italic;margin-left:4px}
+    .ll-lbl{font-size:9px;color:var(--muted);margin-top:4px;font-weight:700;text-transform:uppercase}
+    .ll-box.hl{border-color:var(--green);box-shadow:0 0 12px rgba(16,185,129,.4)}
+    .ll-box.new{border-color:var(--green);animation:popIn .4s ease}
+    .ll-box.del{border-color:var(--red);box-shadow:0 0 12px rgba(239,68,68,.4)}
+
+    /* Stack */
+    .vis-stack-wrap{display:flex;flex-direction:column;align-items:center;gap:0}
+    .stack-cell{
+      width:150px;height:46px;border:2px solid rgba(16,185,129,.35);
+      background:rgba(16,185,129,.08);display:flex;align-items:center;
+      justify-content:center;font-size:15px;font-weight:700;color:#f1f5f9;
+      border-radius:4px;margin:1px 0;transition:all .4s;position:relative
+    }
+    .stack-cell.top{border-color:var(--green);background:rgba(16,185,129,.22)}
+    .stack-cell.new{animation:slideDown .4s ease;border-color:var(--green)}
+    .stack-cell.del{border-color:var(--red);background:rgba(239,68,68,.15)}
+    .stack-top-tag{
+      position:absolute;right:-62px;font-size:10px;
+      color:var(--green);font-weight:700;white-space:nowrap
+    }
+    .stack-top-tag::before{content:'← TOP'}
+    .stack-base{
+      width:170px;height:6px;background:var(--dark3);
+      border-radius:0 0 6px 6px;border:2px solid rgba(16,185,129,.3);border-top:none
+    }
+    .stack-empty{
+      width:150px;height:46px;border:2px dashed rgba(16,185,129,.2);
+      border-radius:4px;display:flex;align-items:center;justify-content:center;
+      font-size:11px;color:var(--muted)
+    }
+
+    /* Queue */
+    .vis-queue-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+    .queue-row{display:flex;align-items:center;gap:0}
+    .q-cell{
+      width:58px;height:58px;border:2px solid rgba(245,158,11,.3);
+      background:rgba(245,158,11,.08);display:flex;align-items:center;
+      justify-content:center;font-size:15px;font-weight:700;color:#f1f5f9;
+      transition:all .4s
+    }
+    .q-cell.front{border-color:var(--amber);background:rgba(245,158,11,.22)}
+    .q-cell.rear{border-color:var(--orange);background:rgba(249,115,22,.22)}
+    .q-cell.new{animation:slideFromRight .4s ease;border-color:var(--green);background:rgba(16,185,129,.18)}
+    .q-cell.del{border-color:var(--red);background:rgba(239,68,68,.18)}
+    .q-cell.empty-slot{opacity:.2}
+    .ptr-row{display:flex;align-items:center;gap:0}
+    .ptr-cell{width:58px;text-align:center;font-size:9px;font-weight:700;color:var(--muted)}
+    .ptr-cell.fp{color:var(--amber)}
+    .ptr-cell.rp{color:var(--orange)}
+
+    /* Deque */
+    .vis-deque-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+    .deque-row{display:flex;align-items:center;gap:0}
+    .dq-cell{
+      width:55px;height:55px;border:2px solid rgba(20,184,166,.3);
+      background:rgba(20,184,166,.08);display:flex;align-items:center;
+      justify-content:center;font-size:14px;font-weight:700;color:#f1f5f9;
+      transition:all .4s
+    }
+    .dq-cell:first-child{border-radius:8px 0 0 8px}
+    .dq-cell:last-child{border-radius:0 8px 8px 0}
+    .dq-cell.front{border-color:var(--teal);background:rgba(20,184,166,.22)}
+    .dq-cell.rear{border-color:var(--blue);background:rgba(59,130,246,.18)}
+    .dq-cell.new{animation:popIn .4s ease}
+    .dq-cell.del{border-color:var(--red);background:rgba(239,68,68,.18)}
+    .dq-labels{display:flex;justify-content:space-between;width:100%;padding:0 4px}
+    .dq-lbl{font-size:10px;font-weight:700}
+    .dq-lbl.fl{color:var(--teal)}
+    .dq-lbl.rl{color:var(--blue)}
+
+    /* Circular Queue */
+    .vis-circ{position:relative}
+    .circ-svg{display:block}
+
+    /* BFS/DFS */
+    .vis-graph{display:flex;flex-direction:column;align-items:center;gap:16px}
+    .graph-svg{display:block}
+    .traversal-queue{
+      display:flex;align-items:center;gap:8px;padding:8px 16px;
+      background:var(--dark2);border-radius:8px;border:1px solid var(--border);
+      font-size:11px
+    }
+    .tq-label{color:var(--muted);font-weight:700;margin-right:4px}
+    .tq-item{
+      padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px
+    }
+    .visited-order{
+      display:flex;align-items:center;gap:4px;font-size:11px
+    }
+    .vo-label{color:var(--muted);font-weight:700}
+    .vo-item{
+      padding:3px 8px;background:rgba(16,185,129,.15);
+      border:1px solid rgba(16,185,129,.3);border-radius:5px;
+      color:var(--green);font-weight:700;font-size:11px
+    }
+
+    /* Heap */
+    .vis-heap{display:flex;flex-direction:column;align-items:center;gap:14px}
+    .heap-svg{display:block}
+    .heap-arr{
+      display:flex;align-items:center;gap:3px;
+      padding:8px 12px;background:var(--dark2);
+      border-radius:8px;border:1px solid var(--border)
+    }
+    .ha-lbl{font-size:10px;color:var(--muted);margin-right:4px}
+    .ha-cell{
+      width:36px;height:36px;border:2px solid rgba(139,92,246,.35);
+      background:rgba(139,92,246,.1);border-radius:6px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;color:#f1f5f9;transition:all .4s
+    }
+    .ha-cell.hl{background:rgba(59,130,246,.3);border-color:var(--blue)}
+    .ha-cell.new{background:rgba(16,185,129,.3);border-color:var(--green);animation:popIn .4s}
+    .ha-cell.del{background:rgba(239,68,68,.25);border-color:var(--red)}
+    .ha-cell.swap{background:rgba(245,158,11,.3);border-color:var(--amber)}
+
+    /* Animations */
+    @keyframes popIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+    @keyframes slideDown{0%{transform:translateY(-40px);opacity:0}100%{transform:translateY(0);opacity:1}}
+    @keyframes slideFromRight{0%{transform:translateX(60px);opacity:0}100%{transform:translateX(0);opacity:1}}
+    @keyframes fadeOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0)}}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.4)}50%{box-shadow:0 0 0 8px rgba(59,130,246,0)}}
+
+    /* Scrollbar */
+    ::-webkit-scrollbar{width:4px;height:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--dark3);border-radius:3px}
+
+    @media(max-width:900px){
+      .app{grid-template-columns:190px 1fr 240px}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a class="back-btn" href="../index.html">← Home</a>
+    <span class="page-title">Data Structure Visualizer</span>
+  </div>
+  <div class="zoom-controls">
+    <button class="zoom-btn" onclick="doZoom(-0.1)" title="Zoom out">-</button>
+    <span class="zoom-label" id="zoomLabel">100%</span>
+    <button class="zoom-btn" onclick="doZoom(0.1)" title="Zoom in">+</button>
+    <button class="zoom-btn" onclick="doZoom(0,'reset')" title="Reset zoom" style="font-size:11px">↺</button>
+  </div>
+</header>
+
+<div class="app">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="ds-list" id="dsList"></div>
+    <div class="actions-panel" id="actionsPanel">
+      <div class="act-title">Actions</div>
+      <div style="font-size:11px;color:var(--muted)">Select a structure</div>
+    </div>
+  </div>
+
+  <!-- CENTER CANVAS -->
+  <div class="canvas-panel">
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <div class="canvas-inner" id="canvasInner">
+        <div id="vizContainer">
+          <div style="text-align:center;color:var(--muted);padding:60px 0">
+            <div style="font-size:40px;margin-bottom:16px">⬅</div>
+            <div style="font-size:15px;color:#94a3b8">Select a data structure to begin visualization</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="step-msg" id="stepMsg" style="display:none"></div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="pseudo-tabs">
+      <button class="ptab active" id="tabCode" onclick="switchTab('code')">Pseudo Code</button>
+      <button class="ptab" id="tabCx" onclick="switchTab('cx')">Complexity</button>
+    </div>
+    <div class="pseudo-content" id="pseudoContent">
+      <div style="font-size:12px;color:var(--muted);padding:10px 0">Select a structure to see pseudo code.</div>
+    </div>
+    <div class="step-desc-panel" id="stepDescPanel">Click an action to see step-by-step explanation.</div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   GLOBAL STATE
+   ===================================================================== */
+let currentDS = null;
+let currentState = null;
+let frames = [];
+let frameIdx = 0;
+let playing = false;
+let playTimer = null;
+let zoom = 1;
+let currentTab = 'code';
+let currentAction = null;
+
+/* =====================================================================
+   ZOOM
+   ===================================================================== */
+function doZoom(delta, mode) {
+  if (mode === 'reset') zoom = 1;
+  else zoom = Math.min(3, Math.max(0.3, zoom + delta));
+  document.getElementById('canvasInner').style.transform = `scale(${zoom})`;
+  document.getElementById('zoomLabel').textContent = Math.round(zoom * 100) + '%';
+}
+document.getElementById('canvasWrapper').addEventListener('wheel', e => {
+  if (e.ctrlKey || e.metaKey) { e.preventDefault(); doZoom(e.deltaY < 0 ? 0.1 : -0.1); }
+}, { passive: false });
+
+/* =====================================================================
+   SWITCH TAB
+   ===================================================================== */
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabCode').classList.toggle('active', tab === 'code');
+  document.getElementById('tabCx').classList.toggle('active', tab === 'cx');
+  if (currentDS) renderRight();
+}
+
+/* =====================================================================
+   DS DEFINITIONS
+   ===================================================================== */
+const DS_LIST = [
+  { id: 'array',    label: 'Array',          color: '#3b82f6', group: 'Linear' },
+  { id: 'arraylist',label: 'ArrayList',       color: '#06b6d4', group: 'Linear' },
+  { id: 'linkedlist',label:'Linked List',     color: '#8b5cf6', group: 'Linear' },
+  { id: 'stack',    label: 'Stack',           color: '#10b981', group: 'Linear' },
+  { id: 'queue',    label: 'Queue',           color: '#f59e0b', group: 'Linear' },
+  { id: 'deque',    label: 'Deque',           color: '#14b8a6', group: 'Linear' },
+  { id: 'circqueue',label: 'Circular Queue',  color: '#ec4899', group: 'Linear' },
+  { id: 'bfs',      label: 'BFS',             color: '#22d3ee', group: 'Graph' },
+  { id: 'dfs',      label: 'DFS',             color: '#a78bfa', group: 'Graph' },
+  { id: 'heap',     label: 'Min-Heap',        color: '#fb923c', group: 'Tree' },
+];
+
+const PSEUDOCODES = {
+  array: {
+    add:`add(arr, value):
+  <span class="cm">// O(1) — append to end</span>
+  <span class="kw">if</span> arr.size == arr.capacity:
+    <span class="kw">throw</span> FullException
+  arr[arr.size] = value
+  arr.size++`,
+    remove:`remove(arr, index):
+  <span class="cm">// O(n) — shift left from index</span>
+  <span class="kw">if</span> arr.size == 0:
+    <span class="kw">throw</span> EmptyException
+  value = arr[index]
+  <span class="kw">for</span> i = index <span class="kw">to</span> arr.size-2:
+    arr[i] = arr[i+1]
+  arr.size--
+  <span class="kw">return</span> value`,
+    insert:`insert(arr, index, value):
+  <span class="cm">// O(n) — shift right then place</span>
+  <span class="kw">for</span> i = arr.size <span class="kw">downto</span> index+1:
+    arr[i] = arr[i-1]
+  arr[index] = value
+  arr.size++`,
+    delete:`delete(arr, index):
+  <span class="cm">// O(n) — shift left</span>
+  value = arr[index]
+  <span class="kw">for</span> i = index <span class="kw">to</span> arr.size-2:
+    arr[i] = arr[i+1]
+  arr.size--
+  <span class="kw">return</span> value`,
+  },
+  arraylist: {
+    add:`add(list, value):
+  <span class="cm">// O(1) amortized</span>
+  <span class="kw">if</span> size == capacity:
+    resize(capacity * 2)
+  data[size] = value
+  size++
+
+resize(newCapacity):
+  <span class="cm">// O(n) copy</span>
+  newData = <span class="kw">new</span> Array[newCapacity]
+  <span class="kw">for</span> i = 0 <span class="kw">to</span> size-1:
+    newData[i] = data[i]
+  data = newData
+  capacity = newCapacity`,
+    remove:`remove(list, index):
+  <span class="cm">// O(n) — shift left</span>
+  value = data[index]
+  <span class="kw">for</span> i = index <span class="kw">to</span> size-2:
+    data[i] = data[i+1]
+  size--
+  <span class="kw">if</span> size < capacity/4:
+    resize(capacity / 2)
+  <span class="kw">return</span> value`,
+  },
+  linkedlist: {
+    addHead:`addHead(value):
+  <span class="cm">// O(1)</span>
+  node = <span class="kw">new</span> Node(value)
+  node.next = head
+  head = node`,
+    addTail:`addTail(value):
+  <span class="cm">// O(n) — traverse to end</span>
+  node = <span class="kw">new</span> Node(value)
+  <span class="kw">if</span> head == null:
+    head = node; <span class="kw">return</span>
+  curr = head
+  <span class="kw">while</span> curr.next != null:
+    curr = curr.next
+  curr.next = node`,
+    removeHead:`removeHead():
+  <span class="cm">// O(1)</span>
+  <span class="kw">if</span> head == null:
+    <span class="kw">throw</span> EmptyException
+  value = head.data
+  head = head.next
+  <span class="kw">return</span> value`,
+    removeTail:`removeTail():
+  <span class="cm">// O(n)</span>
+  <span class="kw">if</span> head == null:
+    <span class="kw">throw</span> EmptyException
+  <span class="kw">if</span> head.next == null:
+    value = head.data
+    head = null; <span class="kw">return</span> value
+  curr = head
+  <span class="kw">while</span> curr.next.next != null:
+    curr = curr.next
+  value = curr.next.data
+  curr.next = null
+  <span class="kw">return</span> value`,
+  },
+  stack: {
+    push:`push(value):
+  <span class="cm">// O(1) — add to top</span>
+  <span class="kw">if</span> top == capacity:
+    <span class="kw">throw</span> FullException
+  stack[top] = value
+  top++`,
+    pop:`pop():
+  <span class="cm">// O(1) — remove from top</span>
+  <span class="kw">if</span> top == 0:
+    <span class="kw">throw</span> UnderflowException
+  top--
+  <span class="kw">return</span> stack[top]`,
+    peek:`peek():
+  <span class="cm">// O(1) — view top</span>
+  <span class="kw">if</span> top == 0:
+    <span class="kw">throw</span> EmptyException
+  <span class="kw">return</span> stack[top - 1]`,
+  },
+  queue: {
+    enqueue:`enqueue(value):
+  <span class="cm">// O(1) — add to rear</span>
+  <span class="kw">if</span> size == capacity:
+    <span class="kw">throw</span> FullException
+  queue[rear] = value
+  rear++
+  size++`,
+    dequeue:`dequeue():
+  <span class="cm">// O(1) — remove from front</span>
+  <span class="kw">if</span> size == 0:
+    <span class="kw">throw</span> EmptyException
+  value = queue[front]
+  front++
+  size--
+  <span class="kw">return</span> value`,
+    peek:`peek():
+  <span class="cm">// O(1) — view front</span>
+  <span class="kw">if</span> size == 0:
+    <span class="kw">throw</span> EmptyException
+  <span class="kw">return</span> queue[front]`,
+  },
+  deque: {
+    addFront:`addFront(value):
+  <span class="cm">// O(1)</span>
+  front = (front - 1 + cap) % cap
+  deque[front] = value
+  size++`,
+    addRear:`addRear(value):
+  <span class="cm">// O(1)</span>
+  deque[rear] = value
+  rear = (rear + 1) % cap
+  size++`,
+    removeFront:`removeFront():
+  <span class="cm">// O(1)</span>
+  value = deque[front]
+  front = (front + 1) % cap
+  size--
+  <span class="kw">return</span> value`,
+    removeRear:`removeRear():
+  <span class="cm">// O(1)</span>
+  rear = (rear - 1 + cap) % cap
+  value = deque[rear]
+  size--
+  <span class="kw">return</span> value`,
+  },
+  circqueue: {
+    enqueue:`enqueue(value):
+  <span class="cm">// O(1) — circular wrap</span>
+  <span class="kw">if</span> isFull(): <span class="kw">throw</span> Full
+  rear = (rear + 1) % capacity
+  queue[rear] = value
+  size++
+
+isFull():
+  <span class="kw">return</span> size == capacity`,
+    dequeue:`dequeue():
+  <span class="cm">// O(1)</span>
+  <span class="kw">if</span> isEmpty(): <span class="kw">throw</span> Empty
+  value = queue[front]
+  front = (front + 1) % capacity
+  size--
+  <span class="kw">return</span> value
+
+isEmpty():
+  <span class="kw">return</span> size == 0`,
+    toggleAudioMode:`audioBufferEnqueue(value):
+  <span class="cm">// O(1) — overwrite oldest if full</span>
+  <span class="cm">// Used in: audio streaming, video frames, ring buffers</span>
+  <span class="kw">if</span> isFull():
+    <span class="cm">// Lossy — drop oldest sample</span>
+    front = (front + 1) % capacity
+    size--
+  rear = (rear + 1) % capacity
+  buffer[rear] = value
+  size++
+
+<span class="cm">// Oldest data is silently overwritten.</span>
+<span class="cm">// Real-world: Linux kfifo, ALSA audio, video codecs</span>`,
+  },
+  bfs: {
+    bfs:`BFS(graph, start):
+  visited = new Set()
+  queue = new Queue()
+
+  queue.enqueue(start)
+  visited.add(start)
+
+  <span class="kw">while</span> queue is not empty:
+    node = queue.dequeue()
+    process(node)
+
+    <span class="kw">for</span> neighbor <span class="kw">in</span> graph[node]:
+      <span class="kw">if</span> neighbor not in visited:
+        visited.add(neighbor)
+        queue.enqueue(neighbor)
+
+<span class="cm">// Time: O(V + E)  Space: O(V)</span>`,
+  },
+  dfs: {
+    dfs:`DFS(graph, start):
+  visited = new Set()
+  stack = new Stack()
+
+  stack.push(start)
+
+  <span class="kw">while</span> stack is not empty:
+    node = stack.pop()
+    <span class="kw">if</span> node not in visited:
+      visited.add(node)
+      process(node)
+
+      <span class="kw">for</span> neighbor <span class="kw">in</span> graph[node]:
+        <span class="kw">if</span> neighbor not in visited:
+          stack.push(neighbor)
+
+<span class="cm">// Time: O(V + E)  Space: O(V)</span>`,
+  },
+  heap: {
+    insert:`insert(heap, value):
+  <span class="cm">// O(log n)</span>
+  heap.append(value)
+  bubbleUp(heap.size - 1)
+
+bubbleUp(i):
+  <span class="kw">while</span> i > 0:
+    parent = (i - 1) / 2
+    <span class="kw">if</span> heap[parent] > heap[i]:
+      swap(heap, parent, i)
+      i = parent
+    <span class="kw">else</span>: <span class="kw">break</span>`,
+    extractMin:`extractMin(heap):
+  <span class="cm">// O(log n)</span>
+  min = heap[0]
+  heap[0] = heap[heap.size-1]
+  heap.pop()
+  bubbleDown(0)
+  <span class="kw">return</span> min
+
+bubbleDown(i):
+  <span class="kw">while</span> hasChildren(i):
+    sm = smallestChild(i)
+    <span class="kw">if</span> heap[i] > heap[sm]:
+      swap(heap, i, sm)
+      i = sm
+    <span class="kw">else</span>: <span class="kw">break</span>`,
+  },
+};
+
+const COMPLEXITY = {
+  array: [
+    {op:'Access',tc:'O(1)',cc:'cx-green'},{op:'Search',tc:'O(n)',cc:'cx-orange'},
+    {op:'Add (end)',tc:'O(1)',cc:'cx-green'},{op:'Insert (mid)',tc:'O(n)',cc:'cx-orange'},
+    {op:'Remove (end)',tc:'O(1)',cc:'cx-green'},{op:'Remove (mid)',tc:'O(n)',cc:'cx-orange'},
+    {op:'Space',tc:'O(n)',cc:'cx-orange'},
+  ],
+  arraylist: [
+    {op:'Access',tc:'O(1)',cc:'cx-green'},{op:'Search',tc:'O(n)',cc:'cx-orange'},
+    {op:'Add (end)',tc:'O(1) amort.',cc:'cx-green'},{op:'Add (mid)',tc:'O(n)',cc:'cx-orange'},
+    {op:'Remove',tc:'O(n)',cc:'cx-orange'},{op:'Resize',tc:'O(n)',cc:'cx-orange'},
+    {op:'Space',tc:'O(n)',cc:'cx-orange'},
+  ],
+  linkedlist: [
+    {op:'Access',tc:'O(n)',cc:'cx-orange'},{op:'Search',tc:'O(n)',cc:'cx-orange'},
+    {op:'Insert (head)',tc:'O(1)',cc:'cx-green'},{op:'Insert (tail)',tc:'O(n)',cc:'cx-orange'},
+    {op:'Delete (head)',tc:'O(1)',cc:'cx-green'},{op:'Delete (tail)',tc:'O(n)',cc:'cx-orange'},
+    {op:'Space',tc:'O(n)',cc:'cx-orange'},
+  ],
+  stack: [
+    {op:'Push',tc:'O(1)',cc:'cx-green'},{op:'Pop',tc:'O(1)',cc:'cx-green'},
+    {op:'Peek',tc:'O(1)',cc:'cx-green'},{op:'Search',tc:'O(n)',cc:'cx-orange'},
+    {op:'Space',tc:'O(n)',cc:'cx-orange'},
+  ],
+  queue: [
+    {op:'Enqueue',tc:'O(1)',cc:'cx-green'},{op:'Dequeue',tc:'O(1)',cc:'cx-green'},
+    {op:'Peek',tc:'O(1)',cc:'cx-green'},{op:'Search',tc:'O(n)',cc:'cx-orange'},
+    {op:'Space',tc:'O(n)',cc:'cx-orange'},
+  ],
+  deque: [
+    {op:'Add Front/Rear',tc:'O(1)',cc:'cx-green'},{op:'Remove Front/Rear',tc:'O(1)',cc:'cx-green'},
+    {op:'Peek',tc:'O(1)',cc:'cx-green'},{op:'Search',tc:'O(n)',cc:'cx-orange'},
+    {op:'Space',tc:'O(n)',cc:'cx-orange'},
+  ],
+  circqueue: [
+    {op:'Enqueue',tc:'O(1)',cc:'cx-green'},{op:'Dequeue',tc:'O(1)',cc:'cx-green'},
+    {op:'Peek',tc:'O(1)',cc:'cx-green'},{op:'isFull/isEmpty',tc:'O(1)',cc:'cx-green'},
+    {op:'Overwrite (Audio)',tc:'O(1)',cc:'cx-green'},{op:'Space',tc:'O(n)',cc:'cx-orange'},
+  ],
+  bfs: [
+    {op:'Time',tc:'O(V + E)',cc:'cx-orange'},{op:'Space',tc:'O(V)',cc:'cx-orange'},
+    {op:'Completeness',tc:'Yes',cc:'cx-green'},{op:'Optimal',tc:'Yes (unweighted)',cc:'cx-green'},
+    {op:'Uses',tc:'Queue',cc:'cx-blue'},
+  ],
+  dfs: [
+    {op:'Time',tc:'O(V + E)',cc:'cx-orange'},{op:'Space',tc:'O(V)',cc:'cx-orange'},
+    {op:'Completeness',tc:'Yes',cc:'cx-green'},{op:'Optimal',tc:'No',cc:'cx-red'},
+    {op:'Uses',tc:'Stack',cc:'cx-blue'},
+  ],
+  heap: [
+    {op:'Insert',tc:'O(log n)',cc:'cx-blue'},{op:'Extract Min',tc:'O(log n)',cc:'cx-blue'},
+    {op:'Peek Min',tc:'O(1)',cc:'cx-green'},{op:'Build Heap',tc:'O(n)',cc:'cx-orange'},
+    {op:'Search',tc:'O(n)',cc:'cx-orange'},{op:'Space',tc:'O(n)',cc:'cx-orange'},
+  ],
+};
+
+/* =====================================================================
+   INIT STATE
+   ===================================================================== */
+function initState(dsId) {
+  switch(dsId) {
+    case 'array':
+      return { items:[10,20,30,40,50], capacity:8, hl:[], newIdx:-1, delIdx:-1 };
+    case 'arraylist':
+      return { items:[10,20,30], capacity:4, hl:[], newIdx:-1, delIdx:-1, resizing:false };
+    case 'linkedlist':
+      return { nodes:[{v:10},{v:20},{v:30}], hl:[], newIdx:-1, delIdx:-1 };
+    case 'stack':
+      return { items:[10,20,30], hl:[], newTop:false, delTop:false };
+    case 'queue':
+      return { items:[10,20,30], capacity:6, hl:[], newIdx:-1, delIdx:-1 };
+    case 'deque':
+      return { items:[10,20,30], hl:[], newFront:false, newRear:false, delFront:false, delRear:false };
+    case 'circqueue':
+      return { slots:Array(8).fill(null), front:0, rear:2, size:3, capacity:8, hl:[], newIdx:-1, delIdx:-1, overIdx:-1,
+               items:[10,20,30], // logical items for display
+               overwriteMode: false, // audio buffer: overwrite oldest when full
+             };
+    case 'bfs': {
+      const G = buildGraph();
+      return { nodes:G.nodes, edges:G.edges, visited:[], queued:[], current:-1, visitOrder:[] };
+    }
+    case 'dfs': {
+      const G = buildGraph();
+      return { nodes:G.nodes, edges:G.edges, visited:[], stack:[], current:-1, visitOrder:[] };
+    }
+    case 'heap':
+      return { items:[5,12,8,20,15,10], hl:[], swapA:-1, swapB:-1, newIdx:-1, delIdx:-1 };
+    default:
+      return {};
+  }
+}
+
+function buildGraph() {
+  return {
+    nodes: [
+      {id:0,label:'A',x:300,y:50},
+      {id:1,label:'B',x:140,y:160},
+      {id:2,label:'C',x:460,y:160},
+      {id:3,label:'D',x:60,y:290},
+      {id:4,label:'E',x:220,y:290},
+      {id:5,label:'F',x:380,y:290},
+      {id:6,label:'G',x:540,y:290},
+    ],
+    edges: [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6],[3,4],[5,6]],
+    adj: { 0:[1,2], 1:[0,3,4], 2:[0,5,6], 3:[1,4], 4:[1,3], 5:[2,6], 6:[2,5] }
+  };
+}
+
+/* =====================================================================
+   RENDER LEFT PANEL DS LIST
+   ===================================================================== */
+function renderDSList() {
+  const container = document.getElementById('dsList');
+  let html = '';
+  let lastGroup = '';
+  DS_LIST.filter(ds => ds.group === 'Linear').forEach(ds => {
+    if (ds.group !== lastGroup) {
+      html += `<div class="ds-sec-title">${ds.group}</div>`;
+      lastGroup = ds.group;
+    }
+    html += `<button class="ds-btn${currentDS===ds.id?' active':''}" onclick="selectDS('${ds.id}')">
+      <span class="ds-dot" style="background:${ds.color}"></span>${ds.label}
+    </button>`;
+  });
+  container.innerHTML = html;
+}
+
+/* =====================================================================
+   RENDER ACTIONS PANEL
+   ===================================================================== */
+function renderActions() {
+  const panel = document.getElementById('actionsPanel');
+  let html = `<div class="act-title">Actions</div>`;
+
+  const configs = {
+    array: {
+      input: true,
+      rows: [
+        [{id:'add',label:'Add',cls:'prim'},{id:'remove',label:'Remove at idx',cls:'dng'}],
+        [{id:'insert',label:'Insert at idx',cls:'grn'},{id:'delete',label:'Delete at idx',cls:'dng'}],
+        [{id:'reset',label:'Reset',cls:''}],
+      ]
+    },
+    arraylist: {
+      input: true,
+      rows: [
+        [{id:'add',label:'Add',cls:'prim'},{id:'remove',label:'Remove at idx',cls:'dng'}],
+        [{id:'reset',label:'Reset',cls:''}],
+      ]
+    },
+    linkedlist: {
+      input: true,
+      rows: [
+        [{id:'addHead',label:'Add Head',cls:'prim'},{id:'addTail',label:'Add Tail',cls:'grn'}],
+        [{id:'removeHead',label:'Remove Head',cls:'dng'},{id:'removeTail',label:'Remove Tail',cls:'dng'}],
+        [{id:'reset',label:'Reset',cls:''}],
+      ]
+    },
+    stack: {
+      input: true,
+      rows: [
+        [{id:'push',label:'Push',cls:'prim'},{id:'pop',label:'Pop',cls:'dng'}],
+        [{id:'peek',label:'Peek',cls:'pur'},{id:'reset',label:'Reset',cls:''}],
+      ]
+    },
+    queue: {
+      input: true,
+      rows: [
+        [{id:'enqueue',label:'Enqueue',cls:'prim'},{id:'dequeue',label:'Dequeue',cls:'dng'}],
+        [{id:'peek',label:'Peek Front',cls:'pur'},{id:'reset',label:'Reset',cls:''}],
+      ]
+    },
+    deque: {
+      input: true,
+      rows: [
+        [{id:'addFront',label:'Add Front',cls:'prim'},{id:'addRear',label:'Add Rear',cls:'grn'}],
+        [{id:'removeFront',label:'Rem. Front',cls:'dng'},{id:'removeRear',label:'Rem. Rear',cls:'dng'}],
+        [{id:'reset',label:'Reset',cls:''}],
+      ]
+    },
+    circqueue: {
+      input: true,
+      rows: [
+        [{id:'enqueue',label:'Enqueue',cls:'prim'},{id:'dequeue',label:'Dequeue',cls:'dng'}],
+        [{id:'toggleAudioMode',label:(currentState && currentState.overwriteMode)?'🔊 Audio Buffer: ON':'🔇 Audio Buffer: OFF',cls:(currentState && currentState.overwriteMode)?'grn':''}],
+        [{id:'reset',label:'Reset',cls:''}],
+      ]
+    },
+    bfs: {
+      input: false,
+      rows: [
+        [{id:'startBFS',label:'▶ Start BFS',cls:'prim'}],
+        [{id:'reset',label:'Reset Graph',cls:''}],
+      ]
+    },
+    dfs: {
+      input: false,
+      rows: [
+        [{id:'startDFS',label:'▶ Start DFS',cls:'prim'}],
+        [{id:'reset',label:'Reset Graph',cls:''}],
+      ]
+    },
+    heap: {
+      input: true,
+      rows: [
+        [{id:'insert',label:'Insert',cls:'prim'},{id:'extractMin',label:'Extract Min',cls:'dng'}],
+        [{id:'reset',label:'Reset',cls:''}],
+      ]
+    },
+  };
+
+  const cfg = configs[currentDS];
+  if (!cfg) { panel.innerHTML = html; return; }
+
+  if (cfg.input) {
+    html += `<input class="act-input" id="actInput" type="number" placeholder="Value (default: random)" />`;
+    html += `<input class="act-input" id="actIndex" type="number" placeholder="Index (if needed)" style="margin-bottom:8px"/>`;
+  }
+
+  html += `<div class="action-group">`;
+  cfg.rows.forEach(row => {
+    html += `<div class="action-row">`;
+    row.forEach(btn => {
+      html += `<button class="act-btn ${btn.cls}" onclick="doAction('${btn.id}')">${btn.label}</button>`;
+    });
+    html += `</div>`;
+  });
+  html += `</div>`;
+
+  html += `<div class="step-controls">
+    <button class="act-btn" onclick="stepBack()">◀ Prev</button>
+    <button class="act-btn prim" id="playBtn" onclick="togglePlay()">▶ Play</button>
+    <button class="act-btn" onclick="stepForward()">Next ▶</button>
+  </div>
+  <div class="step-info" id="stepInfo">No steps yet</div>
+  <div class="speed-row">
+    <span class="speed-lbl">Speed:</span>
+    <input class="speed-slider" type="range" min="1" max="5" value="3" id="speedSlider">
+  </div>`;
+
+  panel.innerHTML = html;
+}
+
+function getSpeed() {
+  const s = document.getElementById('speedSlider');
+  if (!s) return 800;
+  const v = parseInt(s.value);
+  return [1500,1100,800,500,250][v-1];
+}
+
+/* =====================================================================
+   SELECT DS
+   ===================================================================== */
+function selectDS(id) {
+  stopPlay();
+  currentDS = id;
+  currentState = initState(id);
+  frames = [];
+  frameIdx = 0;
+  currentAction = null;
+  renderDSList();
+  renderActions();
+  renderViz(currentState);
+  renderRight();
+  document.getElementById('stepMsg').style.display = 'none';
+  document.getElementById('stepDescPanel').textContent = 'Click an action to see step-by-step explanation.';
+}
+
+/* =====================================================================
+   DO ACTION
+   ===================================================================== */
+function doAction(action) {
+  stopPlay();
+  currentAction = action;
+
+  const inputEl = document.getElementById('actInput');
+  const indexEl = document.getElementById('actIndex');
+  let val = inputEl ? (parseInt(inputEl.value) || Math.floor(Math.random()*90)+10) : 0;
+  let idx = indexEl ? (parseInt(indexEl.value)) : 0;
+
+  // Audio Buffer Mode toggle
+  if (action === 'toggleAudioMode') {
+    currentState.overwriteMode = !currentState.overwriteMode;
+    frames = [];
+    frameIdx = 0;
+    renderActions();
+    renderViz(currentState);
+    document.getElementById('stepDescPanel').textContent = currentState.overwriteMode
+      ? '🔊 Audio Buffer Mode ON — when full, the oldest sample is overwritten (lossy, like real-time audio streaming).'
+      : '🔇 Normal Mode — Enqueue is rejected when the queue is full.';
+    updateStepInfo();
+    return;
+  }
+
+  // Reset action
+  if (action === 'reset') {
+    currentState = initState(currentDS);
+    frames = [{ state: JSON.parse(JSON.stringify(currentState)), msg: 'Reset to initial state.', hl: -1 }];
+    frameIdx = 0;
+    renderViz(currentState);
+    showMsg('Reset to initial state.');
+    renderRight();
+    updateStepInfo();
+    return;
+  }
+
+  frames = generateFrames(currentDS, action, currentState, val, idx);
+  frameIdx = 0;
+
+  if (frames.length > 0) {
+    applyFrame(frames[0]);
+    updateStepInfo();
+    renderRight();
+  }
+}
+
+/* =====================================================================
+   FRAME GENERATION
+   ===================================================================== */
+function generateFrames(dsId, action, state, val, idx) {
+  const s = () => JSON.parse(JSON.stringify(state));
+  const st = s();
+
+  if (dsId === 'array') return genArrayFrames(action, st, val, idx);
+  if (dsId === 'arraylist') return genArrayListFrames(action, st, val, idx);
+  if (dsId === 'linkedlist') return genLinkedListFrames(action, st, val, idx);
+  if (dsId === 'stack') return genStackFrames(action, st, val);
+  if (dsId === 'queue') return genQueueFrames(action, st, val);
+  if (dsId === 'deque') return genDequeFrames(action, st, val);
+  if (dsId === 'circqueue') return genCircQueueFrames(action, st, val);
+  if (dsId === 'bfs') return genBFSFrames(st);
+  if (dsId === 'dfs') return genDFSFrames(st);
+  if (dsId === 'heap') return genHeapFrames(action, st, val);
+  return [];
+}
+
+function frame(state, msg, hl) {
+  return { state: JSON.parse(JSON.stringify(state)), msg, hl: hl || -1 };
+}
+
+/* --- ARRAY --- */
+function genArrayFrames(action, st, val, idx) {
+  const F = [];
+  if (action === 'add') {
+    if (st.items.length >= st.capacity) return [frame(st,'❌ Array is full! Cannot add.',-1)];
+    const i = st.items.length;
+    st.hl = [i]; F.push(frame(st,`Step 1: Found empty slot at index [${i}]`,1));
+    st.items.push(val); st.newIdx = i; st.hl = [];
+    F.push(frame(st,`Step 2: Stored ${val} at arr[${i}]`,2));
+    st.newIdx = -1; F.push(frame(st,`✓ Added ${val}! size = ${st.items.length}`,3));
+  } else if (action === 'remove') {
+    if (!st.items.length) return [frame(st,'❌ Array is empty!',-1)];
+    const at = isNaN(idx) || idx < 0 ? st.items.length - 1 : Math.min(idx, st.items.length - 1);
+    const v = st.items[at];
+    st.hl = [at]; F.push(frame(st,`Step 1: Found ${v} at arr[${at}]. Will shift left.`,1));
+    st.delIdx = at; st.hl = []; F.push(frame(st,`Step 2: Removing arr[${at}] = ${v}`,2));
+    st.items.splice(at, 1); st.delIdx = -1;
+    F.push(frame(st,`✓ Removed ${v} at index ${at}. size = ${st.items.length}`,3));
+  } else if (action === 'insert') {
+    if (st.items.length >= st.capacity) return [frame(st,'❌ Array is full!',-1)];
+    idx = isNaN(idx) || idx < 0 ? 0 : Math.min(idx, st.items.length);
+    F.push(frame(st,`Step 1: Insert ${val} at index ${idx}. Need to shift right.`,1));
+    for (let i = st.items.length; i > idx; i--) {
+      const ts = JSON.parse(JSON.stringify(st));
+      ts.hl = [i-1,i]; ts.items = [...st.items]; ts.items.splice(i,0,undefined);
+      F.push(frame(ts,`Shifting arr[${i-1}] → arr[${i}]`,2));
+    }
+    st.items.splice(idx,0,val); st.newIdx = idx; st.hl = [];
+    F.push(frame(st,`Step 3: Placed ${val} at arr[${idx}]`,3));
+    st.newIdx = -1; F.push(frame(st,`✓ Insert done! size = ${st.items.length}`,4));
+  } else if (action === 'delete') {
+    if (!st.items.length) return [frame(st,'❌ Array empty!',-1)];
+    idx = isNaN(idx) || idx < 0 ? 0 : Math.min(idx, st.items.length-1);
+    const v = st.items[idx];
+    st.hl = [idx]; F.push(frame(st,`Step 1: Found ${v} at arr[${idx}]. Shifting left.`,1));
+    st.delIdx = idx; F.push(frame(st,`Step 2: Removing arr[${idx}]`,2));
+    st.items.splice(idx,1); st.delIdx = -1; st.hl = [];
+    F.push(frame(st,`✓ Deleted ${v}. size = ${st.items.length}`,3));
+  }
+  currentState = st;
+  return F;
+}
+
+/* --- ARRAYLIST --- */
+function genArrayListFrames(action, st, val, idx) {
+  const F = [];
+  if (action === 'add') {
+    if (st.items.length >= st.capacity) {
+      const oldCap = st.capacity;
+      st.resizing = true;
+      F.push(frame(st,`Step 1: size(${st.items.length}) == capacity(${oldCap}). Need to resize!`,1));
+      st.capacity *= 2;
+      F.push(frame(st,`Step 2: New array allocated — capacity doubled to ${st.capacity}`,2));
+      st.resizing = false;
+    }
+    const i = st.items.length;
+    st.hl = [i]; F.push(frame(st,`Step 3: Adding ${val} at index ${i}`,3));
+    st.items.push(val); st.newIdx = i; st.hl = [];
+    F.push(frame(st,`✓ Added ${val}. size=${st.items.length} capacity=${st.capacity}`,4));
+    st.newIdx = -1;
+  } else if (action === 'remove') {
+    if (!st.items.length) return [frame(st,'❌ Empty!',-1)];
+    idx = isNaN(idx) || idx < 0 ? 0 : Math.min(idx, st.items.length-1);
+    const v = st.items[idx];
+    st.delIdx = idx; F.push(frame(st,`Step 1: Removing ${v} at index ${idx}. Shifting left…`,1));
+    st.items.splice(idx,1); st.delIdx = -1;
+    if (st.items.length < st.capacity/4 && st.capacity > 4) st.capacity = Math.max(4, st.capacity/2);
+    F.push(frame(st,`✓ Removed ${v}. size=${st.items.length} capacity=${st.capacity}`,2));
+  }
+  currentState = st;
+  return F;
+}
+
+/* --- LINKED LIST --- */
+function genLinkedListFrames(action, st, val, idx) {
+  const F = [];
+  if (action === 'addHead') {
+    F.push(frame(st,`Step 1: Create new node(${val})`,1));
+    st.newIdx = 0;
+    st.nodes.unshift({v:val});
+    F.push(frame(st,`Step 2: new.next = head; head = new node(${val})`,2));
+    st.newIdx = -1; F.push(frame(st,`✓ Node ${val} added at head.`,3));
+  } else if (action === 'addTail') {
+    const n = st.nodes.length;
+    for (let i = 0; i < n; i++) {
+      st.hl = [i]; F.push(frame(st,`Step ${i+1}: Traversing... at node ${st.nodes[i].v}`,1));
+    }
+    st.hl = [];
+    st.nodes.push({v:val}); st.newIdx = st.nodes.length-1;
+    F.push(frame(st,`Step ${n+1}: curr.next = new node(${val})`,2));
+    st.newIdx = -1; F.push(frame(st,`✓ Node ${val} added at tail.`,3));
+  } else if (action === 'removeHead') {
+    if (!st.nodes.length) return [frame(st,'❌ List is empty!',-1)];
+    const v = st.nodes[0].v;
+    st.hl = [0]; F.push(frame(st,`Step 1: Found head = ${v}`,1));
+    st.delIdx = 0; F.push(frame(st,`Step 2: head = head.next; Remove node(${v})`,2));
+    st.nodes.shift(); st.delIdx = -1; st.hl = [];
+    F.push(frame(st,`✓ Removed head ${v}.`,3));
+  } else if (action === 'removeTail') {
+    if (!st.nodes.length) return [frame(st,'❌ List is empty!',-1)];
+    const n = st.nodes.length;
+    for (let i = 0; i < n-1; i++) {
+      st.hl = [i]; F.push(frame(st,`Traversing to second-last: node ${st.nodes[i].v}`,1));
+    }
+    st.hl = [n-1]; st.delIdx = n-1;
+    F.push(frame(st,`Step ${n}: prev.next = null; Remove tail(${st.nodes[n-1].v})`,2));
+    st.nodes.pop(); st.delIdx = -1; st.hl = [];
+    F.push(frame(st,`✓ Tail removed.`,3));
+  }
+  currentState = st;
+  return F;
+}
+
+/* --- STACK --- */
+function genStackFrames(action, st, val) {
+  const F = [];
+  if (action === 'push') {
+    if (st.items.length >= 7) return [frame(st,'❌ Stack full!',-1)];
+    F.push(frame(st,`Step 1: Check if stack is full (size=${st.items.length})`,1));
+    st.items.push(val); st.newTop = true;
+    F.push(frame(st,`Step 2: Push ${val} onto top. top = ${st.items.length-1}`,2));
+    st.newTop = false; F.push(frame(st,`✓ Push done! Stack size = ${st.items.length}`,3));
+  } else if (action === 'pop') {
+    if (!st.items.length) return [frame(st,'❌ Stack underflow!',-1)];
+    const v = st.items[st.items.length-1];
+    st.hl = [st.items.length-1]; F.push(frame(st,`Step 1: Peek top = ${v}`,1));
+    st.delTop = true; F.push(frame(st,`Step 2: Remove top element ${v}`,2));
+    st.items.pop(); st.delTop = false; st.hl = [];
+    F.push(frame(st,`✓ Popped ${v}. Stack size = ${st.items.length}`,3));
+  } else if (action === 'peek') {
+    if (!st.items.length) return [frame(st,'❌ Stack is empty!',-1)];
+    const v = st.items[st.items.length-1];
+    st.hl = [st.items.length-1];
+    F.push(frame(st,`Peek: Top element is ${v} (no removal)`,1));
+    st.hl = []; F.push(frame(st,`✓ Peek done! Top = ${v}`,2));
+  }
+  currentState = st;
+  return F;
+}
+
+/* --- QUEUE --- */
+function genQueueFrames(action, st, val) {
+  const F = [];
+  if (action === 'enqueue') {
+    if (st.items.length >= st.capacity) return [frame(st,'❌ Queue full!',-1)];
+    const r = st.items.length;
+    F.push(frame(st,`Step 1: rear = ${r}. Enqueue ${val} at rear`,1));
+    st.items.push(val); st.newIdx = st.items.length-1;
+    F.push(frame(st,`Step 2: queue[rear]=${val}; rear++; size++`,2));
+    st.newIdx = -1; F.push(frame(st,`✓ Enqueued ${val}. size=${st.items.length}`,3));
+  } else if (action === 'dequeue') {
+    if (!st.items.length) return [frame(st,'❌ Queue empty!',-1)];
+    const v = st.items[0];
+    st.hl = [0]; F.push(frame(st,`Step 1: front = 0. Dequeue ${v} from front`,1));
+    st.delIdx = 0; F.push(frame(st,`Step 2: value=${v}; front++; size--`,2));
+    st.items.shift(); st.delIdx = -1; st.hl = [];
+    F.push(frame(st,`✓ Dequeued ${v}. size=${st.items.length}`,3));
+  } else if (action === 'peek') {
+    if (!st.items.length) return [frame(st,'❌ Queue empty!',-1)];
+    st.hl = [0]; F.push(frame(st,`Peek: Front element is ${st.items[0]}`,1));
+    st.hl = []; F.push(frame(st,`✓ Front = ${st.items[0]}`,2));
+  }
+  currentState = st;
+  return F;
+}
+
+/* --- DEQUE --- */
+function genDequeFrames(action, st, val) {
+  const F = [];
+  if (action === 'addFront') {
+    F.push(frame(st,`Step 1: front = (front-1+cap)%cap; Add ${val} at front`,1));
+    st.items.unshift(val); st.newFront = true;
+    F.push(frame(st,`Step 2: deque[front]=${val}; size++`,2));
+    st.newFront = false; F.push(frame(st,`✓ Added ${val} at front. size=${st.items.length}`,3));
+  } else if (action === 'addRear') {
+    F.push(frame(st,`Step 1: Add ${val} at rear`,1));
+    st.items.push(val); st.newRear = true;
+    F.push(frame(st,`Step 2: deque[rear]=${val}; rear=(rear+1)%cap; size++`,2));
+    st.newRear = false; F.push(frame(st,`✓ Added ${val} at rear. size=${st.items.length}`,3));
+  } else if (action === 'removeFront') {
+    if (!st.items.length) return [frame(st,'❌ Deque empty!',-1)];
+    const v = st.items[0];
+    st.delFront = true; F.push(frame(st,`Step 1: Remove front = ${v}`,1));
+    st.items.shift(); st.delFront = false;
+    F.push(frame(st,`✓ Removed front ${v}. size=${st.items.length}`,2));
+  } else if (action === 'removeRear') {
+    if (!st.items.length) return [frame(st,'❌ Deque empty!',-1)];
+    const v = st.items[st.items.length-1];
+    st.delRear = true; F.push(frame(st,`Step 1: Remove rear = ${v}`,1));
+    st.items.pop(); st.delRear = false;
+    F.push(frame(st,`✓ Removed rear ${v}. size=${st.items.length}`,2));
+  }
+  currentState = st;
+  return F;
+}
+
+/* --- CIRCULAR QUEUE --- */
+function genCircQueueFrames(action, st, val) {
+  const F = [];
+  if (action === 'enqueue') {
+    if (st.size >= st.capacity) {
+      if (!st.overwriteMode) return [frame(st,'❌ Circular Queue full! Enable Audio Buffer Mode to overwrite oldest.',-1)];
+
+      // Audio Buffer Mode: overwrite oldest (drop front, advance pointers)
+      const overwrittenVal = st.items[0];
+      const overSlot = st.front;
+      st.overIdx = overSlot;
+      F.push(frame(st,`[Audio Buffer] Buffer full! Oldest sample at slot[${overSlot}]=${overwrittenVal} will be dropped`,1));
+      st.front = (st.front + 1) % st.capacity; st.items.shift(); st.size--;
+      st.overIdx = -1;
+      F.push(frame(st,`Step 2: Dropped oldest=${overwrittenVal}; front advanced to ${st.front}`,2));
+      const newRear = (st.rear + 1) % st.capacity;
+      st.rear = newRear; st.newIdx = newRear; st.items.push(val); st.size++;
+      F.push(frame(st,`Step 3: slots[${newRear}]=${val}; size=${st.size} (buffer full, circular)`,3));
+      st.newIdx = -1;
+      F.push(frame(st,`✓ [Overwrite] Enqueued ${val} at slot ${newRear}. Oldest ${overwrittenVal} was dropped.`,4));
+    } else {
+      const newRear = (st.rear + 1) % st.capacity;
+      F.push(frame(st,`Step 1: rear=(${st.rear}+1)%${st.capacity}=${newRear}; Check not full`,1));
+      st.rear = newRear; st.newIdx = newRear; st.items.push(val); st.size++;
+      F.push(frame(st,`Step 2: slots[${newRear}]=${val}; size=${st.size}`,2));
+      st.newIdx = -1; F.push(frame(st,`✓ Enqueued ${val} at slot ${newRear}`,3));
+    }
+  } else if (action === 'dequeue') {
+    if (st.size <= 0) return [frame(st,'❌ Circular Queue empty!',-1)];
+    const v = st.items[0];
+    const oldFront = st.front;
+    st.delIdx = oldFront;
+    F.push(frame(st,`Step 1: front=${oldFront}; Dequeue slots[${oldFront}]=${v}`,1));
+    st.front = (st.front + 1) % st.capacity; st.items.shift(); st.size--;
+    st.delIdx = -1;
+    F.push(frame(st,`Step 2: front=(${oldFront}+1)%${st.capacity}=${st.front}; size=${st.size}`,2));
+    F.push(frame(st,`✓ Dequeued ${v}. front=${st.front}`,3));
+  }
+  currentState = st;
+  return F;
+}
+
+/* --- BFS --- */
+function genBFSFrames(st) {
+  const F = [];
+  const G = buildGraph();
+  const adj = G.adj;
+  st.visited = []; st.queued = [0]; st.current = -1; st.visitOrder = [];
+  F.push(frame(st,`BFS from node A(0): enqueue A into queue`,1));
+
+  const visited = new Set();
+  const queue = [0];
+  visited.add(0);
+  st.visited = []; st.queued = [0]; st.current = -1;
+  F.push(frame(st,`Queue: [A]. Visited: []`,2));
+
+  while (queue.length) {
+    const node = queue.shift();
+    st.current = node; st.visited.push(node); st.visitOrder = [...st.visited];
+    st.queued = [...queue];
+    F.push(frame(st,`Dequeue A(${node})=${G.nodes[node].label}. Visit it. Process node ${G.nodes[node].label}.`,3));
+
+    const neighbors = adj[node] || [];
+    for (const nb of neighbors) {
+      if (!visited.has(nb)) {
+        visited.add(nb);
+        queue.push(nb);
+        st.queued = [...queue];
+        F.push(frame(st,`Neighbor ${G.nodes[nb].label}: not visited → enqueue. Queue: [${queue.map(n=>G.nodes[n].label).join(',')}]`,4));
+      }
+    }
+  }
+  st.current = -1;
+  F.push(frame(st,`✓ BFS complete! Visit order: ${st.visitOrder.map(n=>G.nodes[n].label).join(' → ')}`,5));
+  currentState = st;
+  return F;
+}
+
+/* --- DFS --- */
+function genDFSFrames(st) {
+  const F = [];
+  const G = buildGraph();
+  const adj = G.adj;
+  st.visited = []; st.stack = [0]; st.current = -1; st.visitOrder = [];
+  F.push(frame(st,`DFS from node A(0): push A onto stack`,1));
+  F.push(frame(st,`Stack: [A]. Visited: []`,2));
+
+  const visited = new Set();
+  const stack = [0];
+  while (stack.length) {
+    const node = stack.pop();
+    if (visited.has(node)) {
+      st.stack = [...stack];
+      F.push(frame(st,`Pop ${G.nodes[node].label} — already visited, skip.`,3));
+      continue;
+    }
+    visited.add(node);
+    st.visited.push(node); st.current = node; st.visitOrder = [...st.visited];
+    st.stack = [...stack];
+    F.push(frame(st,`Pop & Visit ${G.nodes[node].label}. Stack: [${stack.map(n=>G.nodes[n].label).join(',')||'empty'}]`,4));
+
+    const neighbors = (adj[node] || []).slice().reverse();
+    for (const nb of neighbors) {
+      if (!visited.has(nb)) {
+        stack.push(nb);
+      }
+    }
+    st.stack = [...stack];
+    if (stack.length) F.push(frame(st,`Push neighbors of ${G.nodes[node].label}: Stack: [${stack.map(n=>G.nodes[n].label).join(',')}]`,5));
+  }
+  st.current = -1;
+  F.push(frame(st,`✓ DFS complete! Visit order: ${st.visitOrder.map(n=>G.nodes[n].label).join(' → ')}`,6));
+  currentState = st;
+  return F;
+}
+
+/* --- HEAP --- */
+function genHeapFrames(action, st, val) {
+  const F = [];
+  if (action === 'insert') {
+    st.items.push(val); let i = st.items.length - 1;
+    st.newIdx = i; st.hl = [i];
+    F.push(frame(st,`Step 1: Insert ${val} at end (index ${i}). Heap array: [${st.items.join(',')}]`,1));
+    while (i > 0) {
+      const parent = Math.floor((i-1)/2);
+      st.hl = [i, parent];
+      F.push(frame(st,`Compare heap[${i}]=${st.items[i]} with parent heap[${parent}]=${st.items[parent]}`,2));
+      if (st.items[parent] > st.items[i]) {
+        st.swapA = i; st.swapB = parent;
+        F.push(frame(st,`heap[${parent}]=${st.items[parent]} > heap[${i}]=${st.items[i]}: Swap!`,3));
+        const tmp = st.items[i]; st.items[i] = st.items[parent]; st.items[parent] = tmp;
+        st.swapA = -1; st.swapB = -1;
+        i = parent;
+        F.push(frame(st,`After swap: [${st.items.join(',')}]`,3));
+      } else {
+        F.push(frame(st,`heap[${parent}] ≤ heap[${i}]: Heap property satisfied. Stop.`,4));
+        break;
+      }
+    }
+    st.hl = []; st.newIdx = -1;
+    F.push(frame(st,`✓ Insert done! Min-Heap: [${st.items.join(',')}]`,5));
+  } else if (action === 'extractMin') {
+    if (!st.items.length) return [frame(st,'❌ Heap empty!',-1)];
+    const min = st.items[0];
+    st.hl = [0]; F.push(frame(st,`Step 1: Min = heap[0] = ${min}`,1));
+    const last = st.items[st.items.length-1];
+    st.items[0] = last; st.items.pop(); st.delIdx = 0;
+    F.push(frame(st,`Step 2: Move last(${last}) to root. Remove last. Heap: [${st.items.join(',')}]`,2));
+    st.delIdx = -1;
+    let i = 0;
+    while (true) {
+      const l = 2*i+1, r = 2*i+2;
+      let sm = i;
+      if (l < st.items.length && st.items[l] < st.items[sm]) sm = l;
+      if (r < st.items.length && st.items[r] < st.items[sm]) sm = r;
+      if (sm === i) {
+        F.push(frame(st,`heap[${i}] ≤ both children. Stop.`,4));
+        break;
+      }
+      st.swapA = i; st.swapB = sm; st.hl = [i,sm];
+      F.push(frame(st,`heap[${i}]=${st.items[i]} > child[${sm}]=${st.items[sm]}: Swap!`,3));
+      const tmp = st.items[i]; st.items[i] = st.items[sm]; st.items[sm] = tmp;
+      st.swapA = -1; st.swapB = -1; i = sm;
+      F.push(frame(st,`After swap: [${st.items.join(',')}]`,3));
+    }
+    st.hl = [];
+    F.push(frame(st,`✓ Extracted min=${min}. Heap: [${st.items.join(',')}]`,5));
+  }
+  currentState = st;
+  return F;
+}
+
+/* =====================================================================
+   APPLY FRAME
+   ===================================================================== */
+function applyFrame(f) {
+  if (!f) return;
+  renderViz(f.state);
+  showMsg(f.msg);
+  document.getElementById('stepDescPanel').innerHTML = `<b>Step ${frameIdx+1}/${frames.length}:</b> ${f.msg}`;
+  if (currentAction) renderRight(f.hl);
+}
+
+/* =====================================================================
+   STEP CONTROLS
+   ===================================================================== */
+function stepForward() {
+  if (!frames.length) return;
+  frameIdx = Math.min(frameIdx+1, frames.length-1);
+  applyFrame(frames[frameIdx]);
+  updateStepInfo();
+}
+function stepBack() {
+  if (!frames.length) return;
+  frameIdx = Math.max(frameIdx-1, 0);
+  applyFrame(frames[frameIdx]);
+  updateStepInfo();
+}
+function togglePlay() {
+  if (playing) stopPlay();
+  else startPlay();
+}
+function startPlay() {
+  if (!frames.length) return;
+  playing = true;
+  const btn = document.getElementById('playBtn');
+  if (btn) btn.textContent = '⏸ Pause';
+  function tick() {
+    if (frameIdx >= frames.length-1) { stopPlay(); return; }
+    frameIdx++;
+    applyFrame(frames[frameIdx]);
+    updateStepInfo();
+    playTimer = setTimeout(tick, getSpeed());
+  }
+  playTimer = setTimeout(tick, getSpeed());
+}
+function stopPlay() {
+  playing = false;
+  clearTimeout(playTimer);
+  const btn = document.getElementById('playBtn');
+  if (btn) btn.textContent = '▶ Play';
+}
+function updateStepInfo() {
+  const el = document.getElementById('stepInfo');
+  if (el) el.textContent = frames.length ? `Step ${frameIdx+1} / ${frames.length}` : 'No steps yet';
+}
+
+/* =====================================================================
+   SHOW MESSAGE
+   ===================================================================== */
+function showMsg(msg) {
+  const el = document.getElementById('stepMsg');
+  el.style.display = 'block';
+  el.textContent = msg;
+}
+
+/* =====================================================================
+   RENDER RIGHT PANEL
+   ===================================================================== */
+function renderRight(hlLine) {
+  const content = document.getElementById('pseudoContent');
+  if (currentTab === 'cx') {
+    const rows = COMPLEXITY[currentDS] || [];
+    let h = `<div class="complexity-box"><div class="cx-title">Time & Space Complexity</div>`;
+    rows.forEach(r => {
+      h += `<div class="cx-row"><span>${r.op}</span><span class="${r.cc}">${r.tc}</span></div>`;
+    });
+    h += `</div>`;
+    content.innerHTML = h;
+    return;
+  }
+
+  const pc = PSEUDOCODES[currentDS];
+  if (!pc) { content.innerHTML = '<div style="color:var(--muted);font-size:12px">No pseudocode available.</div>'; return; }
+
+  let code = '';
+  if (currentAction && pc[currentAction]) {
+    code = pc[currentAction];
+  } else {
+    // Show first pseudocode
+    code = Object.values(pc)[0];
+  }
+
+  // Render as code block with line numbers
+  const lines = code.split('\n');
+  let h = `<div class="code-block">`;
+  lines.forEach((line, i) => {
+    const isHl = hlLine !== undefined && hlLine !== null && hlLine !== -1 && Math.floor(hlLine) === i+1;
+    h += `<span class="code-line${isHl?' hl':''}">${line}</span>`;
+  });
+  h += `</div>`;
+
+  // Also show complexity mini box
+  const rows = (COMPLEXITY[currentDS] || []).slice(0, 3);
+  h += `<div class="complexity-box"><div class="cx-title">Key Complexities</div>`;
+  rows.forEach(r => {
+    h += `<div class="cx-row"><span>${r.op}</span><span class="${r.cc}">${r.tc}</span></div>`;
+  });
+  h += `</div>`;
+
+  content.innerHTML = h;
+}
+
+/* =====================================================================
+   RENDER VISUALIZATIONS
+   ===================================================================== */
+function renderViz(state) {
+  const container = document.getElementById('vizContainer');
+  switch(currentDS) {
+    case 'array': container.innerHTML = renderArray(state); break;
+    case 'arraylist': container.innerHTML = renderArrayList(state); break;
+    case 'linkedlist': container.innerHTML = renderLinkedList(state); break;
+    case 'stack': container.innerHTML = renderStack(state); break;
+    case 'queue': container.innerHTML = renderQueue(state); break;
+    case 'deque': container.innerHTML = renderDeque(state); break;
+    case 'circqueue': container.innerHTML = renderCircQueue(state); break;
+    case 'bfs': container.innerHTML = renderGraph(state, 'bfs'); break;
+    case 'dfs': container.innerHTML = renderGraph(state, 'dfs'); break;
+    case 'heap': container.innerHTML = renderHeap(state); break;
+    default: break;
+  }
+}
+
+/* --- ARRAY render --- */
+function renderArray(st) {
+  let h = `<div class="vis-array-wrap"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Array — size: <b style="color:var(--text)">${st.items.length}</b> / capacity: <b style="color:var(--text)">${st.capacity}</b></div><div class="vis-arr">`;
+  for (let i = 0; i < st.capacity; i++) {
+    const empty = i >= st.items.length;
+    let cls = 'arr-box';
+    if (empty) cls += ' empty';
+    if (!empty && st.hl && st.hl.includes(i)) cls += ' hl';
+    if (i === st.newIdx) cls += ' new';
+    if (i === st.delIdx) cls += ' del';
+    h += `<div class="arr-cell"><div class="${cls}">${empty ? '' : st.items[i]}</div><div class="arr-idx">${i}</div></div>`;
+  }
+  h += `</div></div>`;
+  return h;
+}
+
+/* --- ARRAYLIST render --- */
+function renderArrayList(st) {
+  let h = `<div class="vis-array-wrap">`;
+  if (st.resizing) {
+    h += `<div style="font-size:12px;color:var(--amber);margin-bottom:6px;animation:pulse 1s infinite">⚡ Resizing... allocating new array!</div>`;
+  }
+  h += `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">ArrayList — size: <b style="color:var(--text)">${st.items.length}</b> / capacity: <b style="color:var(--text)">${st.capacity}</b></div><div class="vis-arr">`;
+  for (let i = 0; i < st.capacity; i++) {
+    const empty = i >= st.items.length;
+    let cls = 'arr-box';
+    if (empty) cls += ' empty';
+    if (!empty && st.hl && st.hl.includes(i)) cls += ' hl';
+    if (i === st.newIdx) cls += ' new';
+    if (i === st.delIdx) cls += ' del';
+    h += `<div class="arr-cell"><div class="${cls}">${empty ? '' : st.items[i]}</div><div class="arr-idx">${i}</div></div>`;
+  }
+  h += `</div>`;
+  // Capacity bar
+  const pct = Math.round((st.items.length / st.capacity) * 100);
+  const barColor = pct >= 75 ? 'var(--red)' : pct >= 50 ? 'var(--orange)' : 'var(--green)';
+  h += `<div style="width:100%;max-width:${st.capacity*54}px;margin-top:10px">
+    <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Fill ratio: ${pct}%</div>
+    <div style="height:6px;background:var(--dark3);border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:all .4s"></div>
+    </div>
+  </div>`;
+  h += `</div>`;
+  return h;
+}
+
+/* --- LINKED LIST render --- */
+function renderLinkedList(st) {
+  let h = `<div class="vis-ll">`;
+  st.nodes.forEach((node, i) => {
+    let cls = 'll-box';
+    if (st.hl && st.hl.includes(i)) cls += ' hl';
+    if (i === st.newIdx) cls += ' new';
+    if (i === st.delIdx) cls += ' del';
+    const isHead = i === 0, isTail = i === st.nodes.length - 1;
+    h += `<div class="ll-node-wrap">
+      <div class="ll-node">
+        <div class="${cls}">
+          <div class="ll-data">${node.v}</div>
+          <div class="ll-ptr">→</div>
+        </div>
+        ${i < st.nodes.length-1 ? '<div class="ll-arrow"></div>' : '<div class="ll-null">null</div>'}
+      </div>
+      <div class="ll-lbl">${isHead?'head':''}${isHead&&isTail?'/':''}${isTail&&!isHead?'tail':''}</div>
+    </div>`;
+  });
+  if (!st.nodes.length) {
+    h += `<div style="color:var(--muted);font-size:13px;font-style:italic">head → null (empty list)</div>`;
+  }
+  h += `</div>`;
+  return h;
+}
+
+/* --- STACK render --- */
+function renderStack(st) {
+  let h = `<div class="vis-stack-wrap">`;
+  if (!st.items.length) {
+    h += `<div class="stack-empty">Empty Stack</div>`;
+  } else {
+    for (let i = st.items.length-1; i >= 0; i--) {
+      const isTop = i === st.items.length-1;
+      let cls = 'stack-cell';
+      if (isTop) cls += ' top';
+      if (isTop && st.newTop) cls += ' new';
+      if (isTop && st.delTop) cls += ' del';
+      h += `<div class="${cls}">${st.items[i]}${isTop ? '<div class="stack-top-tag"></div>' : ''}</div>`;
+    }
+  }
+  h += `<div class="stack-base"></div>`;
+  h += `<div style="font-size:11px;color:var(--muted);margin-top:10px">Size: <b style="color:var(--text)">${st.items.length}</b></div>`;
+  h += `</div>`;
+  return h;
+}
+
+/* --- QUEUE render --- */
+function renderQueue(st) {
+  let h = `<div class="vis-queue-wrap">`;
+  const cap = Math.max(st.capacity, st.items.length);
+  h += `<div style="font-size:11px;color:var(--muted)">FRONT → &nbsp;&nbsp;&nbsp;&nbsp; → REAR</div>`;
+  h += `<div class="queue-row">`;
+  for (let i = 0; i < cap; i++) {
+    const empty = i >= st.items.length;
+    let cls = 'q-cell';
+    if (empty) cls += ' empty-slot';
+    if (!empty && i === 0) cls += ' front';
+    if (!empty && i === st.items.length-1) cls += ' rear';
+    if (i === st.newIdx) cls += ' new';
+    if (i === st.delIdx) cls += ' del';
+    h += `<div class="${cls}">${empty ? '' : st.items[i]}</div>`;
+  }
+  h += `</div><div class="ptr-row">`;
+  for (let i = 0; i < cap; i++) {
+    const isFront = !st.hl || i === 0;
+    const isRear = i === st.items.length-1;
+    let cls = 'ptr-cell';
+    if (i === 0 && st.items.length > 0) cls += ' fp';
+    if (i === st.items.length-1 && st.items.length > 0) cls += ' rp';
+    h += `<div class="${cls}">${i === 0 && st.items.length > 0 ? '▲ F' : i === st.items.length-1 && st.items.length > 0 ? '▲ R' : ''}</div>`;
+  }
+  h += `</div><div style="font-size:11px;color:var(--muted)">Size: <b style="color:var(--text)">${st.items.length}</b></div>`;
+  h += `</div>`;
+  return h;
+}
+
+/* --- DEQUE render --- */
+function renderDeque(st) {
+  let h = `<div class="vis-deque-wrap">`;
+  h += `<div class="dq-labels"><span class="dq-lbl fl">◀ FRONT</span><span class="dq-lbl rl">REAR ▶</span></div>`;
+  h += `<div class="deque-row">`;
+  if (!st.items.length) {
+    h += `<div style="padding:14px 24px;border:2px dashed rgba(20,184,166,.2);border-radius:8px;color:var(--muted);font-size:12px">Empty Deque</div>`;
+  } else {
+    st.items.forEach((v, i) => {
+      const isFront = i === 0, isRear = i === st.items.length-1;
+      let cls = 'dq-cell';
+      if (isFront) cls += ' front';
+      if (isRear && !isFront) cls += ' rear';
+      if (isFront && st.newFront) cls += ' new';
+      if (isRear && st.newRear) cls += ' new';
+      if (isFront && st.delFront) cls += ' del';
+      if (isRear && st.delRear) cls += ' del';
+      h += `<div class="${cls}">${v}</div>`;
+    });
+  }
+  h += `</div><div style="font-size:11px;color:var(--muted)">Size: <b style="color:var(--text)">${st.items.length}</b></div>`;
+  h += `</div>`;
+  return h;
+}
+
+/* --- CIRCULAR QUEUE render --- */
+function renderCircQueue(st) {
+  const R = 130, cx = 200, cy = 185, n = st.capacity;
+  const nodeR = 26;
+  let svg = `<div class="vis-circ">`;
+
+  // Audio Buffer Mode banner
+  if (st.overwriteMode) {
+    const isFull = st.size >= st.capacity;
+    const bannerColor = isFull ? 'rgba(234,179,8,.18)' : 'rgba(16,185,129,.12)';
+    const borderColor = isFull ? '#eab308' : '#10b981';
+    const label = isFull ? '🔊 Audio Buffer — FULL (next enqueue overwrites oldest)' : '🔊 Audio Buffer Mode — overwrite oldest when full';
+    svg += `<div style="margin-bottom:8px;padding:6px 12px;background:${bannerColor};border:1px solid ${borderColor};border-radius:6px;font-size:11px;font-weight:600;color:${borderColor};text-align:center">${label}</div>`;
+  }
+
+  svg += `<svg class="circ-svg" width="400" height="370" viewBox="0 0 400 370">`;
+
+  // Draw circle guide — amber ring in audio buffer mode when full
+  const ringStroke = (st.overwriteMode && st.size >= st.capacity) ? 'rgba(234,179,8,.4)' : 'rgba(236,72,153,.15)';
+  svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${ringStroke}" stroke-width="${(st.overwriteMode && st.size >= st.capacity) ? 3 : 2}" stroke-dasharray="6,4"/>`;
+
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const nx = cx + R * Math.cos(angle);
+    const ny = cy + R * Math.sin(angle);
+
+    const inUse = i < st.items.length;
+    const physicalIdx = (st.front + i) % n;
+    const isFront = i === 0 && st.items.length > 0;
+    const isRear = i === st.items.length-1 && st.items.length > 0;
+    const isNew = i === st.items.length-1 && st.newIdx !== -1;
+    const isDel = i === 0 && st.delIdx !== -1;
+    const isOver = physicalIdx === st.overIdx && st.overIdx !== -1;
+
+    let fill = 'rgba(236,72,153,.1)';
+    let stroke = 'rgba(236,72,153,.25)';
+    let textColor = '#64748b';
+    let strokeWidth = 2;
+    if (inUse) { fill = 'rgba(236,72,153,.2)'; stroke = 'rgba(236,72,153,.6)'; textColor = '#f1f5f9'; }
+    if (isFront) { fill = 'rgba(245,158,11,.3)'; stroke = '#f59e0b'; }
+    if (isRear) { fill = 'rgba(249,115,22,.3)'; stroke = '#f97316'; }
+    if (isNew) { fill = 'rgba(16,185,129,.35)'; stroke = '#10b981'; }
+    if (isDel) { fill = 'rgba(239,68,68,.3)'; stroke = '#ef4444'; }
+    if (isOver) { fill = 'rgba(234,179,8,.4)'; stroke = '#eab308'; strokeWidth = 3; textColor = '#fff'; }
+
+    svg += `<circle cx="${nx}" cy="${ny}" r="${nodeR}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    svg += `<text x="${nx}" y="${ny+1}" text-anchor="middle" dominant-baseline="middle" fill="${textColor}" font-size="13" font-weight="700">${inUse ? st.items[i] : ''}</text>`;
+    svg += `<text x="${nx}" y="${ny+nodeR+12}" text-anchor="middle" fill="#475569" font-size="9">[${physicalIdx}]</text>`;
+
+    if (isFront) svg += `<text x="${nx}" y="${ny-nodeR-6}" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">FRONT</text>`;
+    if (isRear && !isFront) svg += `<text x="${nx}" y="${ny-nodeR-6}" text-anchor="middle" fill="#f97316" font-size="10" font-weight="700">REAR</text>`;
+    if (isOver) svg += `<text x="${nx}" y="${ny-nodeR-6}" text-anchor="middle" fill="#eab308" font-size="10" font-weight="700">DROP</text>`;
+  }
+
+  // Center label
+  const centerLabel = st.overwriteMode ? '🔊' : 'Circular';
+  svg += `<text x="${cx}" y="${cy-18}" text-anchor="middle" fill="${st.overwriteMode ? '#eab308' : '#475569'}" font-size="${st.overwriteMode ? 18 : 11}">${centerLabel}</text>`;
+  svg += `<text x="${cx}" y="${cy+4}" text-anchor="middle" fill="var(--text)" font-size="14" font-weight="700">${st.size}/${st.capacity}</text>`;
+  svg += `<text x="${cx}" y="${cy+22}" text-anchor="middle" fill="#475569" font-size="10">size/capacity</text>`;
+  svg += `</svg>`;
+
+  // Items list
+  svg += `<div style="margin-top:4px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:11px">
+    <span style="color:var(--muted)">Buffer:</span>
+    ${st.items.map((v,i) => {
+      const isNewest = i === st.items.length - 1 && st.newIdx !== -1;
+      const bg = isNewest ? 'rgba(16,185,129,.25)' : 'rgba(236,72,153,.15)';
+      const border = isNewest ? 'rgba(16,185,129,.6)' : 'rgba(236,72,153,.3)';
+      return `<span style="padding:3px 8px;background:${bg};border:1px solid ${border};border-radius:5px;color:#f1f5f9;font-weight:700">${v}</span>`;
+    }).join('')}
+    ${!st.items.length ? '<span style="color:var(--muted);font-style:italic">empty</span>' : ''}
+  </div>`;
+
+  // Legend for audio buffer mode
+  if (st.overwriteMode) {
+    svg += `<div style="margin-top:6px;display:flex;gap:10px;font-size:10px;color:var(--muted);flex-wrap:wrap">
+      <span><span style="color:#f59e0b;font-weight:700">■</span> Front (oldest)</span>
+      <span><span style="color:#f97316;font-weight:700">■</span> Rear (newest)</span>
+      <span><span style="color:#10b981;font-weight:700">■</span> Just written</span>
+      <span><span style="color:#eab308;font-weight:700">■</span> Overwritten/Dropped</span>
+    </div>`;
+  }
+
+  svg += `</div>`;
+  return svg;
+}
+
+/* --- GRAPH render (BFS/DFS) --- */
+function renderGraph(st, type) {
+  const G = buildGraph();
+  const svgW = 620, svgH = 360;
+  let svg = `<div class="vis-graph"><svg class="graph-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">`;
+
+  const nodeColor = (id) => {
+    if (id === st.current) return { fill:'#f59e0b', stroke:'#d97706', text:'#0f172a' };
+    if (st.visited && st.visited.includes(id)) return { fill:'#10b981', stroke:'#059669', text:'#fff' };
+    if ((type==='bfs'?st.queued:st.stack) && (type==='bfs'?st.queued:st.stack).includes(id))
+      return { fill:'rgba(59,130,246,.4)', stroke:'#3b82f6', text:'#f1f5f9' };
+    return { fill:'rgba(30,41,59,.8)', stroke:'rgba(148,163,184,.3)', text:'#94a3b8' };
+  };
+
+  // Edges
+  G.edges.forEach(([a,b]) => {
+    const na = G.nodes[a], nb = G.nodes[b];
+    const bothVisited = st.visited && st.visited.includes(a) && st.visited.includes(b);
+    svg += `<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="${bothVisited?'#10b981':'rgba(100,116,139,.3)'}" stroke-width="${bothVisited?2:1.5}"/>`;
+  });
+
+  // Nodes
+  G.nodes.forEach(n => {
+    const c = nodeColor(n.id);
+    svg += `<circle cx="${n.x}" cy="${n.y}" r="24" fill="${c.fill}" stroke="${c.stroke}" stroke-width="2"/>`;
+    svg += `<text x="${n.x}" y="${n.y+1}" text-anchor="middle" dominant-baseline="middle" fill="${c.text}" font-size="14" font-weight="700">${n.label}</text>`;
+    svg += `<text x="${n.x}" y="${n.y+32}" text-anchor="middle" fill="#475569" font-size="10">${n.id}</text>`;
+  });
+
+  svg += `</svg>`;
+
+  // Legend
+  svg += `<div style="display:flex;gap:12px;font-size:10px;margin-top:-8px">
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>Visited</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Current</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#3b82f6;display:inline-block"></span>In ${type==='bfs'?'Queue':'Stack'}</span>
+  </div>`;
+
+  // Queue/Stack display
+  const ds = type === 'bfs' ? st.queued : st.stack;
+  const dsLabel = type === 'bfs' ? 'Queue' : 'Stack';
+  svg += `<div class="traversal-queue"><span class="tq-label">${dsLabel}:</span>`;
+  if (ds && ds.length) {
+    ds.forEach(id => {
+      svg += `<span class="tq-item" style="background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.3);color:var(--blue)">${G.nodes[id].label}</span>`;
+    });
+  } else {
+    svg += `<span style="color:var(--muted);font-size:11px;font-style:italic">empty</span>`;
+  }
+  svg += `</div>`;
+
+  // Visit order
+  svg += `<div class="visited-order"><span class="vo-label">Visited:</span>`;
+  if (st.visitOrder && st.visitOrder.length) {
+    st.visitOrder.forEach(id => {
+      svg += `<span class="vo-item">${G.nodes[id].label}</span>`;
+    });
+  } else {
+    svg += `<span style="color:var(--muted);font-size:11px;font-style:italic">none yet</span>`;
+  }
+  svg += `</div></div>`;
+  return svg;
+}
+
+/* --- HEAP render --- */
+function renderHeap(st) {
+  const items = st.items;
+  const n = items.length;
+  const svgW = 560, svgH = 300;
+  const nodeR = 22;
+
+  // Compute positions: level, position in level
+  const positions = [];
+  for (let i = 0; i < n; i++) {
+    const level = Math.floor(Math.log2(i+1));
+    const levelStart = Math.pow(2, level) - 1;
+    const posInLevel = i - levelStart;
+    const totalInLevel = Math.pow(2, level);
+    const xSpacing = svgW / (totalInLevel + 1);
+    const x = xSpacing * (posInLevel + 1);
+    const y = 40 + level * 80;
+    positions.push({ x, y });
+  }
+
+  let svg = `<div class="vis-heap"><svg class="heap-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">`;
+
+  // Edges
+  for (let i = 0; i < n; i++) {
+    const l = 2*i+1, r = 2*i+2;
+    if (l < n) svg += `<line x1="${positions[i].x}" y1="${positions[i].y}" x2="${positions[l].x}" y2="${positions[l].y}" stroke="rgba(251,146,60,.3)" stroke-width="1.5"/>`;
+    if (r < n) svg += `<line x1="${positions[i].x}" y1="${positions[i].y}" x2="${positions[r].x}" y2="${positions[r].y}" stroke="rgba(251,146,60,.3)" stroke-width="1.5"/>`;
+  }
+
+  // Nodes
+  for (let i = 0; i < n; i++) {
+    const p = positions[i];
+    let fill = 'rgba(251,146,60,.15)', stroke = 'rgba(251,146,60,.4)', textC = '#f1f5f9';
+    if (st.hl && st.hl.includes(i)) { fill='rgba(59,130,246,.3)'; stroke='#3b82f6'; }
+    if (i === st.newIdx) { fill='rgba(16,185,129,.3)'; stroke='#10b981'; }
+    if (i === st.delIdx) { fill='rgba(239,68,68,.25)'; stroke='#ef4444'; }
+    if (i === st.swapA || i === st.swapB) { fill='rgba(245,158,11,.4)'; stroke='#f59e0b'; }
+    if (i === 0) { textC = '#fbbf24'; }
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="${nodeR}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+    svg += `<text x="${p.x}" y="${p.y+1}" text-anchor="middle" dominant-baseline="middle" fill="${textC}" font-size="13" font-weight="700">${items[i]}</text>`;
+    svg += `<text x="${p.x}" y="${p.y+nodeR+12}" text-anchor="middle" fill="#475569" font-size="9">[${i}]</text>`;
+  }
+
+  if (!n) {
+    svg += `<text x="${svgW/2}" y="${svgH/2}" text-anchor="middle" fill="#475569" font-size="14">Empty Heap</text>`;
+  }
+  svg += `</svg>`;
+
+  // Array representation
+  svg += `<div class="heap-arr"><span class="ha-lbl">Array:</span>`;
+  items.forEach((v, i) => {
+    let cls = 'ha-cell';
+    if (st.hl && st.hl.includes(i)) cls += ' hl';
+    if (i === st.newIdx) cls += ' new';
+    if (i === st.delIdx) cls += ' del';
+    if (i === st.swapA || i === st.swapB) cls += ' swap';
+    svg += `<div class="${cls}" title="index ${i}">${v}</div>`;
+  });
+  if (!items.length) svg += `<span style="color:var(--muted);font-size:11px;font-style:italic">empty</span>`;
+  svg += `</div>`;
+
+  if (items.length) {
+    svg += `<div style="font-size:11px;color:var(--muted)">Min = <b style="color:#fbbf24">${items[0]}</b> (root) &nbsp;|&nbsp; Size = <b style="color:var(--text)">${items.length}</b></div>`;
+  }
+  svg += `</div>`;
+  return svg;
+}
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+renderDSList();
+</script>
+</body>
+</html>

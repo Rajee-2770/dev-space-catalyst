@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hashing Techniques — Dev Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#3b82f6;--green:#10b981;--orange:#f97316;--red:#ef4444;--purple:#8b5cf6;--amber:#f59e0b;--teal:#14b8a6;--pink:#ec4899;--dark:#0f172a;--dark2:#1e293b;--gray:#64748b;--border:rgba(148,163,184,.15)}
+html{scroll-snap-type:y mandatory;overflow-y:scroll;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0}
+
+/* ── STICKY HEADER ── */
+.sticky-hdr{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(15,23,42,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;padding:11px 28px;gap:12px}
+.hdr-home{font-size:12px;font-weight:700;color:#94a3b8;text-decoration:none;padding:6px 14px;border-radius:8px;border:1px solid var(--border);transition:all .15s;white-space:nowrap}
+.hdr-home:hover{color:#e2e8f0;border-color:rgba(148,163,184,.35);background:rgba(255,255,255,.05)}
+.hdr-title{font-size:13px;font-weight:700;color:#f1f5f9;letter-spacing:-.2px;text-align:center;flex:1}
+.prog-bar{height:3px;background:rgba(148,163,184,.12)}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--amber));transition:width .1s linear}
+
+/* ── FULL-PAGE SLIDES ── */
+.s-hero,.s-card,.q-card,.s-end,.s-trans{
+  min-height:100vh;
+  scroll-snap-align:start;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:72px 24px 80px;
+  position:relative;
+  border-bottom:1px solid var(--border);
+}
+
+.s-hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#1a1000 100%);align-items:center;text-align:center;overflow:hidden}
+.s-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.18) 0%,transparent 70%);pointer-events:none}
+.s-hero::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.14) 0%,transparent 70%);pointer-events:none}
+
+.s-card{background:#fff;color:#0f172a}
+.s-card.dark{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f3460 100%);color:#e2e8f0}
+.s-card.dark2{background:linear-gradient(135deg,#0c2605 0%,#0f172a 100%);color:#e2e8f0}
+.s-card.dark3{background:linear-gradient(135deg,#1a0045 0%,#0f172a 100%);color:#e2e8f0}
+.s-card.dark4{background:linear-gradient(135deg,#1a0010 0%,#0f172a 100%);color:#e2e8f0}
+.s-card.dkamber{background:linear-gradient(135deg,#1a0f00 0%,#0f172a 100%);color:#e2e8f0}
+
+.s-trans{background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#1a0500 100%);align-items:center;justify-content:center;text-align:center;color:#e2e8f0}
+.q-card{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#e2e8f0}
+.s-end{background:linear-gradient(135deg,#0f172a 0%,#1a0533 50%,#0f172a 100%);align-items:center;justify-content:center;text-align:center;overflow:hidden}
+
+.si{max-width:860px;width:100%;margin:0 auto;position:relative;z-index:1}
+
+/* ── DOWN ARROW ── */
+.dn{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(148,163,184,.3);display:flex;align-items:center;justify-content:center;color:rgba(148,163,184,.6);font-size:14px;cursor:pointer;z-index:20;user-select:none;animation:dn-bounce 1.6s ease-in-out infinite;transition:border-color .2s,color .2s}
+.dn:hover{border-color:rgba(148,163,184,.8);color:#e2e8f0}
+.s-card .dn{border-color:rgba(100,116,139,.28);color:rgba(100,116,139,.55)}
+.s-card .dn:hover{border-color:rgba(100,116,139,.7);color:#475569}
+@keyframes dn-bounce{0%,100%{transform:translateX(-50%) translateY(0);opacity:.55}50%{transform:translateX(-50%) translateY(9px);opacity:1}}
+
+/* ── TYPOGRAPHY ── */
+.s-num{font-size:9px;font-weight:700;letter-spacing:1.5px;color:#94a3b8;margin-bottom:10px;text-transform:uppercase}
+.s-card:not(.dark):not(.dark2):not(.dark3):not(.dark4):not(.dkamber) .s-num{color:#9ca3af}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 11px;border-radius:12px;color:#fff;letter-spacing:.5px}
+h2{font-size:21px;font-weight:700;color:#0f172a;margin:6px 0 4px;line-height:1.3}
+.dark h2,.dark2 h2,.dark3 h2,.dark4 h2,.dkamber h2,.q-card h2,.s-hero h2,.s-trans h2{color:#f1f5f9}
+.sub{font-size:13px;color:#64748b;margin-bottom:14px}
+.dark .sub,.dark2 .sub,.dark3 .sub,.dark4 .sub,.dkamber .sub,.q-card .sub,.s-trans .sub{color:#94a3b8}
+.text-sm{font-size:13px;line-height:1.65;color:#374151}
+.dark .text-sm,.dark2 .text-sm,.dark3 .text-sm,.dark4 .text-sm,.dkamber .text-sm,.q-card .text-sm{color:#cbd5e1}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px}
+.tbl th{background:#0f172a;color:#e2e8f0;padding:7px;font-weight:600;text-align:center}
+.tbl td{padding:7px;text-align:center;border-bottom:1px solid #e2e8f0;color:#1e293b}
+.tbl tr:nth-child(even){background:#f1f5f9}
+.dark .tbl td,.dark2 .tbl td,.dark3 .tbl td,.dark4 .tbl td,.dkamber .tbl td{border-bottom-color:rgba(148,163,184,.2);color:#cbd5e1}
+.dark .tbl tr:nth-child(even),.dark2 .tbl tr:nth-child(even),.dark3 .tbl tr:nth-child(even),.dark4 .tbl tr:nth-child(even),.dkamber .tbl tr:nth-child(even){background:rgba(255,255,255,.06)}
+.dark .tbl tr:nth-child(odd),.dark2 .tbl tr:nth-child(odd),.dark3 .tbl tr:nth-child(odd),.dark4 .tbl tr:nth-child(odd),.dkamber .tbl tr:nth-child(odd){background:rgba(255,255,255,.02)}
+.formula{font-family:'Courier New',monospace;background:#fff7ed;padding:6px 12px;border-radius:6px;font-size:12px;color:#92400e;display:inline-block;margin-top:6px}
+.dark .formula,.dark2 .formula,.dark3 .formula,.dark4 .formula,.dkamber .formula,.q-card .formula{background:rgba(245,158,11,.12);color:#fbbf24}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.card-sm{border-radius:8px;padding:8px 12px}
+.codebox{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 12px;border:1px solid rgba(148,163,184,.25);font-family:'Courier New',monospace;font-size:12px;line-height:1.55;white-space:pre;overflow:auto}
+.q-box{background:#fff7ed;border-radius:10px;padding:12px 16px;border-left:3px solid var(--orange);margin-bottom:10px}
+.a-box{background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e5e7eb}
+.q-card .q-box,.dark .q-box,.dkamber .q-box{background:rgba(249,115,22,.1);border-left-color:var(--orange)}
+.q-card .a-box,.dark .a-box,.dark2 .a-box,.dark3 .a-box,.dark4 .a-box,.dkamber .a-box{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+.q-title{font-size:17px;font-weight:700;color:#0f172a;line-height:1.45;margin-bottom:14px}
+.dark .q-title,.dark2 .q-title,.dark3 .q-title,.dark4 .q-title,.dkamber .q-title,.q-card .q-title{color:#f1f5f9}
+.hint-label,.ans-label{font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.hint-label{color:#c2410c}
+.ans-label{color:#8b5cf6}
+.dark .hint-label,.q-card .hint-label,.dkamber .hint-label{color:#fb923c}
+.dark .ans-label,.dark2 .ans-label,.dark3 .ans-label,.dark4 .ans-label,.dkamber .ans-label,.q-card .ans-label{color:#c4b5fd}
+.reveal-btn{background:none;border:1px dashed #8b5cf6;color:#8b5cf6;padding:5px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;margin-left:10px;transition:all .2s}
+.reveal-btn:hover{background:#8b5cf622}
+.hidden{display:none}
+.q-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.fw-row{display:flex;gap:10px;align-items:flex-start}
+.fw-toggle{width:26px;height:26px;border-radius:8px;border:1px solid rgba(15,23,42,.18);background:rgba(255,255,255,.72);cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900;line-height:1;transition:all .15s;flex-shrink:0}
+.fw-toggle:hover{background:#fff}
+.fw-toggle.on{transform:rotate(180deg)}
+.fw-ans{margin-top:4px;font-size:12px;color:#374151}
+
+/* ── ANIMATIONS ── */
+
+/* Hash flow animation */
+@keyframes flow-right{0%{transform:translateX(-20px);opacity:0}100%{transform:translateX(0);opacity:1}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.3)}50%{box-shadow:0 0 22px rgba(249,115,22,.7)}}
+@keyframes spin-hash{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes float-up{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes fade-in-up{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes bucket-fill{0%{height:0;opacity:0}100%{height:var(--h);opacity:1}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes bit-scroll{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+@keyframes collide{0%,100%{transform:translateX(0)}25%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+@keyframes chain-grow{0%{width:0;opacity:0}100%{width:100%;opacity:1}}
+@keyframes ping{0%{transform:scale(1);opacity:1}80%,100%{transform:scale(2.2);opacity:0}}
+@keyframes lock-bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-6px) rotate(3deg)}}
+@keyframes reveal-slide{0%{max-height:0;opacity:0}100%{max-height:300px;opacity:1}}
+
+/* Bucket bars */
+.bucket-bar{border-radius:4px 4px 0 0;animation:bucket-fill .8s ease forwards}
+
+/* Hash pipeline */
+.hash-pipe{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;margin:16px 0}
+.hp-box{padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;text-align:center;position:relative}
+.hp-arrow{font-size:22px;color:#f97316;animation:float-up 1.8s ease-in-out infinite;margin:0 4px}
+.hp-input{background:rgba(59,130,246,.18);border:1.5px solid #3b82f6;color:#93c5fd;animation:pulse-glow 2s ease-in-out infinite;animation-name:pulse-blue}
+@keyframes pulse-blue{0%,100%{box-shadow:0 0 8px rgba(59,130,246,.3)}50%{box-shadow:0 0 22px rgba(59,130,246,.7)}}
+.hp-fn{background:rgba(249,115,22,.18);border:1.5px solid #f97316;color:#fdba74;animation:spin-hash 4s linear infinite;border-radius:50%!important;width:80px;height:80px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.hp-out{background:rgba(16,185,129,.18);border:1.5px solid #10b981;color:#6ee7b7;animation:pulse-glow 2.2s ease-in-out infinite}
+
+/* Scrolling bits */
+.bits-wrap{overflow:hidden;height:80px;border-radius:8px;background:#0f172a;border:1px solid rgba(148,163,184,.15);font-family:monospace;font-size:10px;color:#22d3ee;padding:4px 8px;position:relative}
+.bits-inner{animation:bit-scroll 4s linear infinite}
+
+/* Tech table highlight */
+.tbl-hl{background:rgba(249,115,22,.12)!important;color:#fdba74!important;font-weight:700}
+
+/* Three-way comparison boxes */
+.tri-wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+.tri-box{border-radius:12px;padding:14px;text-align:center;border:1.5px solid}
+.tri-title{font-size:13px;font-weight:800;margin-bottom:6px}
+.tri-icon{font-size:28px;margin-bottom:6px;display:block}
+.tri-prop{font-size:10px;margin:3px 0;padding:3px 6px;border-radius:4px}
+
+/* Hashmap visual */
+.hm-wrap{display:flex;gap:8px;margin:12px 0;overflow-x:auto}
+.hm-bucket{min-width:70px;border-radius:8px;border:1.5px solid rgba(148,163,184,.25);overflow:hidden}
+.hm-idx{background:rgba(249,115,22,.2);color:#fdba74;font-size:10px;font-weight:700;padding:4px;text-align:center;border-bottom:1px solid rgba(249,115,22,.2)}
+.hm-chain{padding:4px;display:flex;flex-direction:column;gap:3px;min-height:36px}
+.hm-node{background:rgba(59,130,246,.18);border:1px solid rgba(59,130,246,.35);border-radius:5px;padding:3px 6px;font-size:10px;font-weight:700;color:#93c5fd;text-align:center;animation:fade-in-up .5s ease forwards}
+.hm-null{color:rgba(148,163,184,.35);font-size:10px;text-align:center;padding:4px}
+
+/* HashSet dedup visual */
+.hset-wrap{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.hset-item{padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;border:1.5px solid;transition:all .4s}
+.hset-new{background:rgba(16,185,129,.2);border-color:#10b981;color:#6ee7b7}
+.hset-dup{background:rgba(239,68,68,.15);border-color:#ef4444;color:#fca5a5;text-decoration:line-through;animation:collide .4s ease}
+.hset-saved{background:rgba(139,92,246,.2);border-color:#8b5cf6;color:#c4b5fd}
+
+/* Hero floating keys */
+.hero-keys{position:absolute;pointer-events:none;width:100%;height:100%;top:0;left:0;overflow:hidden}
+.hkey{position:absolute;font-size:20px;opacity:0.07;animation:float-up 3s ease-in-out infinite}
+
+/* Ping dot */
+.ping-dot{position:relative;display:inline-block;width:10px;height:10px;margin-right:6px}
+.ping-dot::before{content:'';position:absolute;inset:0;border-radius:50%;background:var(--orange);animation:ping 1.5s cubic-bezier(0,0,.2,1) infinite}
+.ping-dot::after{content:'';position:absolute;inset:0;border-radius:50%;background:var(--orange);border-radius:50%}
+
+@media(max-width:600px){
+  .tri-wrap{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .hdr-row{padding:11px 16px}
+  .si{padding:0 4px}
+}
+
+/* ── COLLISION ANIMATION STYLES ── */
+@keyframes cr-flash{0%,100%{transform:scale(1)}30%{transform:scale(1.18)}60%{transform:scale(.94)}}
+@keyframes cr-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes cr-pop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes cr-probe-move{0%{opacity:0;transform:translateY(-14px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes cr-glow-red{0%,100%{box-shadow:0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 14px rgba(239,68,68,.7)}}
+@keyframes cr-glow-green{0%,100%{box-shadow:0 0 0 rgba(16,185,129,0)}50%{box-shadow:0 0 12px rgba(16,185,129,.6)}}
+@keyframes cr-glow-amber{0%,100%{box-shadow:0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 12px rgba(245,158,11,.6)}}
+@keyframes cr-dot-pulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes cr-arrow-flow{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:1;transform:translateX(3px)}}
+@keyframes cr-chain-drop{0%{max-height:0;opacity:0;transform:translateY(-8px)}100%{max-height:60px;opacity:1;transform:translateY(0)}}
+
+/* Probe slot */
+.cr-slot{
+  width:52px;height:52px;border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;border:1.5px solid;transition:all .35s;
+  position:relative;cursor:default;flex-shrink:0
+}
+.cr-slot-idx{font-size:8px;font-weight:600;opacity:.65;margin-bottom:2px}
+.cr-slot-key{font-size:11px;font-weight:800}
+
+.cr-slot.empty{background:rgba(148,163,184,.06);border-color:rgba(148,163,184,.2);color:#64748b}
+.cr-slot.normal{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#93c5fd;animation:cr-pop .4s ease}
+.cr-slot.new-insert{background:rgba(16,185,129,.2);border-color:#10b981;color:#6ee7b7;animation:cr-pop .4s ease,cr-glow-green 1.2s ease}
+.cr-slot.collide{background:rgba(239,68,68,.18);border-color:#ef4444;color:#fca5a5;animation:cr-shake .5s ease,cr-glow-red 1.2s ease}
+.cr-slot.probe-land{background:rgba(245,158,11,.2);border-color:#f59e0b;color:#fcd34d;animation:cr-probe-move .4s ease,cr-glow-amber 1.2s ease}
+.cr-slot.probe-skip{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.4);color:#fca5a5}
+
+/* Probe arrow between collision and landing slot */
+.cr-probe-arrow{font-size:13px;color:#f59e0b;animation:cr-arrow-flow 1s ease-in-out infinite;flex-shrink:0;align-self:center}
+
+/* Chain bucket */
+.cr-bucket{border-radius:10px;border:1.5px solid rgba(59,130,246,.25);overflow:hidden;min-width:64px;flex-shrink:0}
+.cr-bucket-idx{background:rgba(59,130,246,.18);color:#93c5fd;font-size:9px;font-weight:700;padding:3px 6px;text-align:center;border-bottom:1px solid rgba(59,130,246,.18)}
+.cr-bucket.active .cr-bucket-idx{background:rgba(249,115,22,.25);color:#fdba74;border-color:rgba(249,115,22,.25)}
+.cr-bucket.collide-bucket .cr-bucket-idx{background:rgba(239,68,68,.2);color:#fca5a5;border-color:rgba(239,68,68,.2);animation:cr-shake .5s ease}
+.cr-bucket-body{padding:3px;display:flex;flex-direction:column;gap:2px;min-height:32px;align-items:center}
+
+/* Chain node */
+.cr-node{padding:3px 7px;border-radius:5px;font-size:10px;font-weight:700;text-align:center;width:100%}
+.cr-node.empty-node{color:rgba(148,163,184,.3);font-size:9px;border:1px dashed rgba(148,163,184,.15);border-radius:4px}
+.cr-node.node-normal{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);color:#93c5fd;animation:cr-pop .4s ease}
+.cr-node.node-new{background:rgba(16,185,129,.22);border:1px solid rgba(16,185,129,.5);color:#6ee7b7;animation:cr-chain-drop .4s ease,cr-glow-green 1.2s ease}
+.cr-node.node-collide{background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.45);color:#fca5a5;animation:cr-shake .5s ease}
+
+/* Arrow connector in chain */
+.cr-chain-arrow{font-size:9px;color:#64748b;text-align:center;line-height:1}
+
+/* Step message banner */
+.cr-msg-box{border-radius:10px;padding:10px 14px;margin:8px 0;font-size:12px;font-weight:600;line-height:1.55;transition:all .3s;border:1.5px solid}
+.cr-msg-box.info{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:#93c5fd}
+.cr-msg-box.success{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#6ee7b7}
+.cr-msg-box.collision{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.4);color:#fca5a5;animation:cr-flash .45s ease}
+.cr-msg-box.probe{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:#fcd34d}
+
+/* Calc pill */
+.cr-calc{font-family:'Courier New',monospace;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.25);color:#fdba74;display:inline-block;min-height:24px;transition:all .25s}
+
+/* Step dots */
+.cr-dot{width:7px;height:7px;border-radius:50%;background:rgba(148,163,184,.25);transition:all .3s;cursor:pointer}
+.cr-dot.done{background:rgba(249,115,22,.5)}
+.cr-dot.active{background:#f97316;transform:scale(1.35)}
+
+/* Control buttons */
+.cr-btn{padding:6px 14px;border-radius:8px;border:1.5px solid;font-size:11px;font-weight:700;cursor:pointer;transition:all .18s}
+.cr-btn.prev{background:rgba(148,163,184,.1);border-color:rgba(148,163,184,.25);color:#94a3b8}
+.cr-btn.prev:hover{border-color:rgba(148,163,184,.5);color:#e2e8f0}
+.cr-btn.play{background:rgba(249,115,22,.2);border-color:rgba(249,115,22,.5);color:#fdba74}
+.cr-btn.play:hover{background:rgba(249,115,22,.3)}
+.cr-btn.next{background:rgba(59,130,246,.2);border-color:rgba(59,130,246,.4);color:#93c5fd}
+.cr-btn.next:hover{background:rgba(59,130,246,.3)}
+</style>
+</head>
+<body>
+
+<!-- ── STICKY HEADER ── -->
+<div class="sticky-hdr">
+  <div class="hdr-row">
+    <a class="hdr-home" href="../index.html">← Home</a>
+    <div class="hdr-title">Hashing Techniques</div>
+    <span style="width:80px"></span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 · HERO
+══════════════════════════════════════════════ -->
+<section class="s-hero" id="s0">
+  <div class="hero-keys">
+    <span class="hkey" style="left:8%;top:20%;animation-delay:0s">🔑</span>
+    <span class="hkey" style="left:20%;top:70%;animation-delay:.5s;font-size:28px">#</span>
+    <span class="hkey" style="left:80%;top:15%;animation-delay:1s">🔒</span>
+    <span class="hkey" style="left:70%;top:75%;animation-delay:1.5s;font-size:26px">⚡</span>
+    <span class="hkey" style="left:50%;top:10%;animation-delay:.8s">🗂</span>
+    <span class="hkey" style="left:90%;top:50%;animation-delay:.3s;font-size:14px">h(x)</span>
+    <span class="hkey" style="left:5%;top:55%;animation-delay:1.2s;font-size:14px">SHA</span>
+  </div>
+  <div class="si">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--orange);margin-bottom:20px;text-transform:uppercase">DSA · Topic 3</div>
+    <div style="font-size:62px;margin-bottom:12px;animation:float-up 2.5s ease-in-out infinite">🔑</div>
+    <h2 style="font-size:38px;font-weight:900;background:linear-gradient(90deg,#fdba74,#f97316,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px">Hashing Techniques</h2>
+    <p style="font-size:16px;color:#94a3b8;max-width:560px;line-height:1.7;margin:0 auto 28px">
+      From O(1) lookups to password security — understand how hash functions power modern computing.
+    </p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <span class="badge" style="background:rgba(249,115,22,.2);color:#fdba74;border:1px solid rgba(249,115,22,.35)">Hash Function</span>
+      <span class="badge" style="background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.35)">HashMap</span>
+      <span class="badge" style="background:rgba(139,92,246,.2);color:#c4b5fd;border:1px solid rgba(139,92,246,.35)">Collision</span>
+      <span class="badge" style="background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.35)">SHA / bcrypt</span>
+      <span class="badge" style="background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.35)">O(1) Lookup</span>
+    </div>
+    <div style="margin-top:28px;font-size:11px;color:#475569">8 Topics · 10 Interview Q&amp;A · Animated</div>
+  </div>
+  <div class="dn" onclick="scrollNext(0)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 · WHAT IS HASHING
+══════════════════════════════════════════════ -->
+<section class="s-card dark" id="s1">
+  <div class="si">
+    <div class="s-num">01 · Foundation</div>
+    <h2>What is Hashing?</h2>
+    <div class="sub">Mapping any input to a fixed-size output in O(1)</div>
+
+    <!-- Animated pipeline -->
+    <div class="hash-pipe">
+      <div class="hp-box hp-input">"hello"<br><span style="font-size:9px;opacity:.7">any key</span></div>
+      <div class="hp-arrow">→</div>
+      <div class="hp-box hp-fn">h(x)</div>
+      <div class="hp-arrow">→</div>
+      <div class="hp-box hp-out">index 3<br><span style="font-size:9px;opacity:.7">bucket slot</span></div>
+    </div>
+
+    <div class="grid-2" style="gap:12px;margin-top:12px">
+      <div>
+        <div class="text-sm" style="margin-bottom:10px">A <b style="color:#fdba74">hash function</b> takes an input (key) of any size and deterministically produces a fixed-size integer called the <b style="color:#6ee7b7">hash code</b>.</div>
+        <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:12px">
+          <div style="font-size:11px;color:#fdba74;font-weight:700;margin-bottom:6px">Core Properties</div>
+          <div style="font-size:12px;color:#cbd5e1;line-height:1.8">
+            ✦ <b>Deterministic</b> — same key always gives same hash<br>
+            ✦ <b>Fast</b> — O(1) computation<br>
+            ✦ <b>Uniform</b> — spreads keys evenly<br>
+            ✦ <b>Fixed output</b> — always same size digest
+          </div>
+        </div>
+      </div>
+      <div>
+        <!-- Scrolling bits animation -->
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:6px">Hash Output (bits scrolling)</div>
+        <div class="bits-wrap">
+          <div class="bits-inner">
+            01101000 01100101 01101100 01101100<br>
+            10110100 01000110 11010011 00101100<br>
+            01101000 01100101 01101100 01101100<br>
+            10110100 01000110 11010011 00101100<br>
+            01101000 01100101 01101100 01101100<br>
+            10110100 01000110 11010011 00101100
+          </div>
+        </div>
+        <div class="formula" style="margin-top:8px;font-size:11px">index = hash(key) % capacity</div>
+        <div style="margin-top:8px;font-size:11px;color:#64748b">Modulo maps hash code → array slot</div>
+      </div>
+    </div>
+
+    <!-- Bucket visualization -->
+    <div style="margin-top:16px">
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:8px">Hash Table — keys mapped to buckets</div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:90px;padding:0 4px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="bucket-bar" style="width:48px;--h:60px;height:60px;background:rgba(249,115,22,.5);border:1px solid #f97316"></div>
+          <span style="font-size:9px;color:#64748b">[0]</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="bucket-bar" style="width:48px;--h:30px;height:30px;background:rgba(59,130,246,.5);border:1px solid #3b82f6;animation-delay:.15s"></div>
+          <span style="font-size:9px;color:#64748b">[1]</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="bucket-bar" style="width:48px;--h:75px;height:75px;background:rgba(16,185,129,.5);border:1px solid #10b981;animation-delay:.3s"></div>
+          <span style="font-size:9px;color:#64748b">[2]</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="bucket-bar" style="width:48px;--h:45px;height:45px;background:rgba(139,92,246,.5);border:1px solid #8b5cf6;animation-delay:.45s"></div>
+          <span style="font-size:9px;color:#64748b">[3]</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="bucket-bar" style="width:48px;--h:20px;height:20px;background:rgba(236,72,153,.5);border:1px solid #ec4899;animation-delay:.6s"></div>
+          <span style="font-size:9px;color:#64748b">[4]</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="bucket-bar" style="width:48px;--h:55px;height:55px;background:rgba(245,158,11,.5);border:1px solid #f59e0b;animation-delay:.75s"></div>
+          <span style="font-size:9px;color:#64748b">[5]</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="bucket-bar" style="width:48px;--h:38px;height:38px;background:rgba(20,184,166,.5);border:1px solid #14b8a6;animation-delay:.9s"></div>
+          <span style="font-size:9px;color:#64748b">[6]</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div class="bucket-bar" style="width:48px;--h:65px;height:65px;background:rgba(249,115,22,.4);border:1px solid #f97316;animation-delay:1.05s"></div>
+          <span style="font-size:9px;color:#64748b">[7]</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(1)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 · REAL-TIME USES
+══════════════════════════════════════════════ -->
+<section class="s-card" id="s2">
+  <div class="si">
+    <div class="s-num" style="color:#9ca3af">02 · Real World</div>
+    <h2>How Hashing is Used in Real-Time</h2>
+    <div class="sub">Hashing is everywhere — you use it dozens of times a day</div>
+
+    <div class="grid-2" style="gap:10px;margin-top:10px">
+
+      <div class="card-sm" style="background:#fff7ed;border:1.5px solid rgba(249,115,22,.25)">
+        <div style="font-size:20px;margin-bottom:6px;animation:float-up 2s ease-in-out infinite">🔐</div>
+        <div style="font-weight:700;color:#c2410c;font-size:13px">Password Storage</div>
+        <div style="font-size:11px;color:#78350f;line-height:1.6;margin-top:4px">Your password is never stored raw. bcrypt/SHA-256 converts it to a hash. On login, input is hashed and <b>compared</b> — the original is never recovered.</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:10px;background:#fef3c7;padding:4px 8px;border-radius:5px;color:#92400e">
+          "MyPass123" → $2b$12$k8v...aX9
+        </div>
+      </div>
+
+      <div class="card-sm" style="background:#f0fdf4;border:1.5px solid rgba(16,185,129,.25)">
+        <div style="font-size:20px;margin-bottom:6px;animation:float-up 2s ease-in-out infinite;animation-delay:.3s">⚡</div>
+        <div style="font-weight:700;color:#065f46;font-size:13px">Caching (Redis, CDN)</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px">Cache keys are hashed to route requests to the right node. Consistent hashing distributes keys across multiple servers with minimal reshuffling.</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:10px;background:#dcfce7;padding:4px 8px;border-radius:5px;color:#14532d">
+          hash("user:42:profile") → node-3
+        </div>
+      </div>
+
+      <div class="card-sm" style="background:#eff6ff;border:1.5px solid rgba(59,130,246,.25)">
+        <div style="font-size:20px;margin-bottom:6px;animation:float-up 2s ease-in-out infinite;animation-delay:.6s">📁</div>
+        <div style="font-weight:700;color:#1e40af;font-size:13px">File Integrity (Checksum)</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px">When you download a file, SHA-256 hash verifies nothing changed. Git uses SHA to identify commits — a tiny edit creates a completely different hash.</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:10px;background:#dbeafe;padding:4px 8px;border-radius:5px;color:#1e3a8a">
+          git log: a3f9c2d... → unique commit
+        </div>
+      </div>
+
+      <div class="card-sm" style="background:#fdf4ff;border:1.5px solid rgba(139,92,246,.25)">
+        <div style="font-size:20px;margin-bottom:6px;animation:float-up 2s ease-in-out infinite;animation-delay:.9s">🌐</div>
+        <div style="font-weight:700;color:#6b21a8;font-size:13px">Load Balancing / Routing</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px">Hash of user IP/session ID consistently routes the same user to the same backend server, enabling sticky sessions without shared state.</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:10px;background:#ede9fe;padding:4px 8px;border-radius:5px;color:#4c1d95">
+          server = hash(ip) % num_servers
+        </div>
+      </div>
+
+      <div class="card-sm" style="background:#fff1f2;border:1.5px solid rgba(239,68,68,.25)">
+        <div style="font-size:20px;margin-bottom:6px;animation:float-up 2s ease-in-out infinite;animation-delay:1.2s">🔍</div>
+        <div style="font-weight:700;color:#991b1b;font-size:13px">Deduplication</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px">Dropbox hashes file blocks — if the block hash already exists in cloud, it skips upload. Saves bandwidth. Same for email spam dedup.</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:10px;background:#ffe4e6;padding:4px 8px;border-radius:5px;color:#7f1d1d">
+          seen.contains(hash(block))? skip
+        </div>
+      </div>
+
+      <div class="card-sm" style="background:#fffbeb;border:1.5px solid rgba(245,158,11,.25)">
+        <div style="font-size:20px;margin-bottom:6px;animation:float-up 2s ease-in-out infinite;animation-delay:1.5s">🧬</div>
+        <div style="font-weight:700;color:#92400e;font-size:13px">Blockchain / Crypto</div>
+        <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px">Each Bitcoin block contains the hash of the previous block — changing any block invalidates all later hashes. SHA-256 is the backbone of Bitcoin mining.</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:10px;background:#fef3c7;padding:4px 8px;border-radius:5px;color:#78350f">
+          block_hash = SHA256(prev + data)
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(2)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 · HASHING TECHNIQUES
+══════════════════════════════════════════════ -->
+<section class="s-card dark" id="s3">
+  <div class="si">
+    <div class="s-num">03 · Algorithms</div>
+    <h2>Hashing Techniques &amp; Algorithms</h2>
+    <div class="sub">From fast general-purpose hashes to cryptographic ones</div>
+
+    <table class="tbl" style="margin-top:12px">
+      <thead>
+        <tr>
+          <th>Algorithm</th><th>Output Size</th><th>Speed</th><th>Cryptographic</th><th>Use Case</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b style="color:#fdba74">MurmurHash3</b></td><td>32/128-bit</td><td style="color:#6ee7b7">⚡ Fastest</td><td style="color:#fca5a5">✗ No</td><td>HashMap, Bloom filter</td>
+        </tr>
+        <tr>
+          <td><b style="color:#93c5fd">FNV-1a</b></td><td>32/64-bit</td><td style="color:#6ee7b7">⚡ Fast</td><td style="color:#fca5a5">✗ No</td><td>Hash tables, checksums</td>
+        </tr>
+        <tr>
+          <td><b style="color:#c4b5fd">CRC32</b></td><td>32-bit</td><td style="color:#6ee7b7">Fast</td><td style="color:#fca5a5">✗ No</td><td>File/network checksums</td>
+        </tr>
+        <tr class="tbl-hl">
+          <td><b>MD5</b></td><td>128-bit</td><td style="color:#6ee7b7">Fast</td><td style="color:#fca5a5">⚠ Broken</td><td>Legacy checksums (not secure)</td>
+        </tr>
+        <tr class="tbl-hl">
+          <td><b>SHA-1</b></td><td>160-bit</td><td>Medium</td><td style="color:#fcd34d">⚠ Weak</td><td>Git (legacy), SSL</td>
+        </tr>
+        <tr>
+          <td><b style="color:#6ee7b7">SHA-256</b></td><td>256-bit</td><td>Medium</td><td style="color:#6ee7b7">✓ Secure</td><td>TLS, Bitcoin, JWT, file verify</td>
+        </tr>
+        <tr>
+          <td><b style="color:#6ee7b7">SHA-3 / Keccak</b></td><td>224–512-bit</td><td>Slower</td><td style="color:#6ee7b7">✓ Strong</td><td>Post-quantum security</td>
+        </tr>
+        <tr>
+          <td><b style="color:#fcd34d">bcrypt</b></td><td>60-char string</td><td style="color:#fca5a5">Intentionally slow</td><td style="color:#6ee7b7">✓ Best</td><td>Password hashing</td>
+        </tr>
+        <tr>
+          <td><b style="color:#fcd34d">Argon2</b></td><td>variable</td><td style="color:#fca5a5">Intentionally slow</td><td style="color:#6ee7b7">✓ Best</td><td>Password hashing (winner PHC)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Animated Technique comparison -->
+    <div class="grid-2" style="gap:10px;margin-top:4px">
+      <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:#fdba74;font-weight:700;margin-bottom:6px">Non-Cryptographic (speed-optimized)</div>
+        <div style="display:flex;gap:8px;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:80px;height:12px;border-radius:4px;background:linear-gradient(90deg,#10b981,#6ee7b7);animation:chain-grow .6s ease forwards"></div>
+            <span style="font-size:11px;color:#cbd5e1">MurmurHash3</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:70px;height:12px;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#93c5fd);animation:chain-grow .6s ease .2s forwards;width:0"></div>
+            <span style="font-size:11px;color:#cbd5e1">FNV-1a</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:60px;height:12px;border-radius:4px;background:linear-gradient(90deg,#8b5cf6,#c4b5fd);animation:chain-grow .6s ease .4s forwards;width:0"></div>
+            <span style="font-size:11px;color:#cbd5e1">CRC32</span>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:#6ee7b7;font-weight:700;margin-bottom:6px">Cryptographic (security-optimized)</div>
+        <div style="display:flex;gap:8px;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="height:12px;border-radius:4px;background:linear-gradient(90deg,#10b981,#6ee7b7);animation:chain-grow .8s ease .6s forwards;width:0;min-width:0;max-width:120px;flex:1"></div>
+            <span style="font-size:11px;color:#cbd5e1">SHA-256 ✓</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="height:12px;border-radius:4px;background:linear-gradient(90deg,#f59e0b,#fcd34d);animation:chain-grow .8s ease .8s forwards;width:0;min-width:0;max-width:90px;flex:.8"></div>
+            <span style="font-size:11px;color:#cbd5e1">bcrypt 🔒</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="height:12px;border-radius:4px;background:linear-gradient(90deg,#ec4899,#f9a8d4);animation:chain-grow .8s ease 1s forwards;width:0;min-width:0;max-width:110px;flex:.95"></div>
+            <span style="font-size:11px;color:#cbd5e1">Argon2 🏆</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(3)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 · COLLISION RESOLUTION  (animated)
+══════════════════════════════════════════════ -->
+<section class="s-card" id="s4">
+  <div class="si">
+    <div class="s-num" style="color:#9ca3af">04 · Internals</div>
+    <h2>Collision Resolution</h2>
+    <div class="sub">Watch two keys land on the same slot — and see both strategies fix it</div>
+
+    <!-- Step dots + calc -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0 4px">
+      <div style="display:flex;gap:5px;align-items:center" id="cr-dots"></div>
+      <div id="cr-calc" class="cr-calc">&nbsp;</div>
+    </div>
+
+    <!-- Message banner -->
+    <div id="cr-msg" class="cr-msg-box info">Press ▶ Play or Next ▶ to watch collision resolution step by step.</div>
+
+    <!-- Two-panel animation -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0">
+
+      <!-- LEFT: Separate Chaining -->
+      <div style="border:1.5px solid rgba(59,130,246,.3);border-radius:12px;padding:10px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(59,130,246,.2);color:#93c5fd;padding:2px 7px;border-radius:8px">CHAINING</span>
+          <span style="font-size:10px;font-weight:700;color:#374151">Separate Chaining</span>
+        </div>
+        <!-- chain table rendered by JS -->
+        <div id="cr-chain" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:2px"></div>
+        <div style="margin-top:8px;font-size:10px;color:#64748b;line-height:1.6">
+          Each bucket = linked list.<br>Colliding keys <b style="color:#93c5fd">append to the chain</b>.
+        </div>
+        <div style="margin-top:4px;font-family:monospace;font-size:9px;color:#64748b;background:rgba(59,130,246,.06);padding:4px 8px;border-radius:5px">Used by: Java HashMap</div>
+      </div>
+
+      <!-- RIGHT: Open Addressing (Linear Probing) -->
+      <div style="border:1.5px solid rgba(16,185,129,.3);border-radius:12px;padding:10px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(16,185,129,.2);color:#6ee7b7;padding:2px 7px;border-radius:8px">PROBING</span>
+          <span style="font-size:10px;font-weight:700;color:#374151">Linear Probing</span>
+        </div>
+        <!-- probe table rendered by JS -->
+        <div id="cr-probe" style="display:flex;gap:3px;flex-wrap:wrap;align-items:center"></div>
+        <!-- probe legend -->
+        <div id="cr-probe-legend" style="min-height:16px;margin-top:4px;font-size:10px;color:#f59e0b;font-family:monospace"></div>
+        <div style="margin-top:4px;font-size:10px;color:#64748b;line-height:1.6">
+          On collision, <b style="color:#6ee7b7">probe next slot</b> (slot+1, +2…) until empty.
+        </div>
+        <div style="margin-top:4px;font-family:monospace;font-size:9px;color:#64748b;background:rgba(16,185,129,.06);padding:4px 8px;border-radius:5px">Used by: Python dict</div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 4px">
+      <button class="cr-btn prev" onclick="crStep(-1)">◀ Prev</button>
+      <button class="cr-btn play" id="cr-play-btn" onclick="crTogglePlay()">▶ Play</button>
+      <button class="cr-btn next" onclick="crStep(1)">Next ▶</button>
+      <span id="cr-stepnum" style="font-size:10px;color:#64748b;margin-left:4px">Step 0 / 8</span>
+    </div>
+
+    <!-- Load factor strip -->
+    <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#f59e0b;margin-bottom:2px">Load Factor λ</div>
+        <div style="font-family:monospace;font-size:11px;color:#fcd34d">λ = <span id="cr-lf">0</span> / 8 = <span id="cr-lfval">0.00</span></div>
+      </div>
+      <div style="flex:1;min-width:120px">
+        <div style="height:8px;background:rgba(148,163,184,.12);border-radius:4px;overflow:hidden">
+          <div id="cr-lfbar" style="height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,#10b981,#f59e0b,#ef4444);transition:width .4s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:#64748b;margin-top:2px">
+          <span>0</span><span style="color:#f59e0b">0.75 resize</span><span>1.0</span>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#64748b;line-height:1.5">When λ &gt; 0.75 → resize 2×<br>&amp; rehash all keys — O(n)</div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(4)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 6 · HASHING vs ENCODING vs ENCRYPTION
+══════════════════════════════════════════════ -->
+<section class="s-card dark3" id="s5">
+  <div class="si">
+    <div class="s-num">05 · Security Concepts</div>
+    <h2>Hashing vs Encoding vs Encryption</h2>
+    <div class="sub">Three different things — often confused</div>
+
+    <div class="tri-wrap" style="margin-top:14px">
+
+      <!-- Hashing -->
+      <div class="tri-box" style="background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.35)">
+        <span class="tri-icon" style="animation:float-up 2s ease-in-out infinite">🔥</span>
+        <div class="tri-title" style="color:#fdba74">Hashing</div>
+        <div class="tri-prop" style="background:rgba(249,115,22,.12);color:#fdba74">One-way only</div>
+        <div class="tri-prop" style="background:rgba(249,115,22,.06);color:#e2e8f0;font-size:11px">Cannot reverse</div>
+        <div class="tri-prop" style="background:rgba(249,115,22,.06);color:#e2e8f0;font-size:11px">Fixed-size output</div>
+        <div class="tri-prop" style="background:rgba(249,115,22,.06);color:#e2e8f0;font-size:11px">No key needed</div>
+        <div style="margin-top:8px;font-size:10px;color:#94a3b8">SHA-256, bcrypt, MD5</div>
+        <div style="margin-top:6px;font-size:10px;color:#94a3b8;font-style:italic">Use: passwords, integrity</div>
+      </div>
+
+      <!-- Encoding -->
+      <div class="tri-box" style="background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.35)">
+        <span class="tri-icon" style="animation:float-up 2s ease-in-out infinite;animation-delay:.4s">📦</span>
+        <div class="tri-title" style="color:#93c5fd">Encoding</div>
+        <div class="tri-prop" style="background:rgba(59,130,246,.12);color:#93c5fd">Two-way (reversible)</div>
+        <div class="tri-prop" style="background:rgba(59,130,246,.06);color:#e2e8f0;font-size:11px">Easily decoded</div>
+        <div class="tri-prop" style="background:rgba(59,130,246,.06);color:#e2e8f0;font-size:11px">Not for security</div>
+        <div class="tri-prop" style="background:rgba(59,130,246,.06);color:#e2e8f0;font-size:11px">No key needed</div>
+        <div style="margin-top:8px;font-size:10px;color:#94a3b8">Base64, URL encoding, UTF-8</div>
+        <div style="margin-top:6px;font-size:10px;color:#94a3b8;font-style:italic">Use: data transport, format</div>
+      </div>
+
+      <!-- Encryption -->
+      <div class="tri-box" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.35)">
+        <span class="tri-icon" style="animation:lock-bob 2.5s ease-in-out infinite">🔒</span>
+        <div class="tri-title" style="color:#6ee7b7">Encryption</div>
+        <div class="tri-prop" style="background:rgba(16,185,129,.12);color:#6ee7b7">Two-way (key needed)</div>
+        <div class="tri-prop" style="background:rgba(16,185,129,.06);color:#e2e8f0;font-size:11px">Needs secret key</div>
+        <div class="tri-prop" style="background:rgba(16,185,129,.06);color:#e2e8f0;font-size:11px">For confidentiality</div>
+        <div class="tri-prop" style="background:rgba(16,185,129,.06);color:#e2e8f0;font-size:11px">Symmetric / Asymmetric</div>
+        <div style="margin-top:8px;font-size:10px;color:#94a3b8">AES, RSA, TLS/HTTPS</div>
+        <div style="margin-top:6px;font-size:10px;color:#94a3b8;font-style:italic">Use: secure data transfer</div>
+      </div>
+    </div>
+
+    <!-- Flow comparison -->
+    <div style="margin-top:14px">
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;font-weight:600">DATA FLOW COMPARISON</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px">
+          <span style="color:#fdba74;font-weight:700;min-width:82px">Hash:</span>
+          <span style="background:rgba(59,130,246,.2);padding:3px 8px;border-radius:4px;color:#93c5fd">"password"</span>
+          <span style="color:#f97316">→ h() →</span>
+          <span style="background:rgba(249,115,22,.2);padding:3px 8px;border-radius:4px;color:#fdba74">5f4dcc3b…</span>
+          <span style="color:#ef4444;font-size:10px">✗ irreversible</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px">
+          <span style="color:#93c5fd;font-weight:700;min-width:82px">Encode:</span>
+          <span style="background:rgba(59,130,246,.2);padding:3px 8px;border-radius:4px;color:#93c5fd">"hello"</span>
+          <span style="color:#3b82f6">→ Base64 →</span>
+          <span style="background:rgba(59,130,246,.2);padding:3px 8px;border-radius:4px;color:#93c5fd">aGVsbG8=</span>
+          <span style="color:#3b82f6">→ decode →</span>
+          <span style="background:rgba(59,130,246,.2);padding:3px 8px;border-radius:4px;color:#93c5fd">"hello"</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11px">
+          <span style="color:#6ee7b7;font-weight:700;min-width:82px">Encrypt:</span>
+          <span style="background:rgba(16,185,129,.2);padding:3px 8px;border-radius:4px;color:#6ee7b7">"secret"</span>
+          <span style="color:#10b981">→ AES+key →</span>
+          <span style="background:rgba(16,185,129,.2);padding:3px 8px;border-radius:4px;color:#6ee7b7">Xk9p2…</span>
+          <span style="color:#10b981">→ +key →</span>
+          <span style="background:rgba(16,185,129,.2);padding:3px 8px;border-radius:4px;color:#6ee7b7">"secret"</span>
+        </div>
+      </div>
+    </div>
+
+    <table class="tbl" style="margin-top:12px">
+      <thead><tr><th>Property</th><th>Hashing</th><th>Encoding</th><th>Encryption</th></tr></thead>
+      <tbody>
+        <tr><td>Reversible?</td><td style="color:#fca5a5">✗ No</td><td style="color:#6ee7b7">✓ Yes</td><td style="color:#6ee7b7">✓ Yes (with key)</td></tr>
+        <tr><td>Key required?</td><td style="color:#fca5a5">✗ No</td><td style="color:#fca5a5">✗ No</td><td style="color:#6ee7b7">✓ Yes</td></tr>
+        <tr><td>Goal</td><td>Integrity / lookup</td><td>Interoperability</td><td>Confidentiality</td></tr>
+        <tr><td>Security?</td><td>Yes (crypto hash)</td><td style="color:#fca5a5">No</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="dn" onclick="scrollNext(5)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 7 · HASHMAP INTERNALS
+══════════════════════════════════════════════ -->
+<section class="s-card dark2" id="s6">
+  <div class="si">
+    <div class="s-num">06 · Data Structures</div>
+    <h2>HashMap — How It Works Inside</h2>
+    <div class="sub">Array of buckets + linked lists (→ trees at high load)</div>
+
+    <!-- Animated HashMap visual -->
+    <div style="margin:14px 0">
+      <div style="font-size:11px;color:#6ee7b7;font-weight:600;margin-bottom:6px">Inserting: put("apple",1) put("banana",2) put("cherry",3) put("apricot",4)</div>
+      <div class="hm-wrap">
+        <div class="hm-bucket">
+          <div class="hm-idx">[0]</div>
+          <div class="hm-chain">
+            <div class="hm-node" style="animation-delay:0s">apple→1</div>
+            <div class="hm-node" style="background:rgba(249,115,22,.18);border-color:rgba(249,115,22,.35);color:#fdba74;animation-delay:.4s">apricot→4</div>
+          </div>
+        </div>
+        <div class="hm-bucket">
+          <div class="hm-idx">[1]</div>
+          <div class="hm-chain"><div class="hm-null">—</div></div>
+        </div>
+        <div class="hm-bucket">
+          <div class="hm-idx">[2]</div>
+          <div class="hm-chain"><div class="hm-node" style="animation-delay:.8s">banana→2</div></div>
+        </div>
+        <div class="hm-bucket">
+          <div class="hm-idx">[3]</div>
+          <div class="hm-chain"><div class="hm-null">—</div></div>
+        </div>
+        <div class="hm-bucket">
+          <div class="hm-idx">[4]</div>
+          <div class="hm-chain"><div class="hm-node" style="animation-delay:1.2s">cherry→3</div></div>
+        </div>
+        <div class="hm-bucket">
+          <div class="hm-idx">[5]</div>
+          <div class="hm-chain"><div class="hm-null">—</div></div>
+        </div>
+        <div class="hm-bucket">
+          <div class="hm-idx">[6]</div>
+          <div class="hm-chain"><div class="hm-null">—</div></div>
+        </div>
+        <div class="hm-bucket">
+          <div class="hm-idx">[7]</div>
+          <div class="hm-chain"><div class="hm-null">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:10px;margin-top:6px">
+      <div>
+        <div class="codebox">// Java HashMap internals
+put(key, value):
+  h = hash(key)              // hashCode()
+  i = h & (n-1)             // bitwise modulo
+  if bucket[i] == null:
+    bucket[i] = new Node(h,key,value)
+  else:
+    // traverse chain, update or append
+    // if chain.size >= 8: convert to TreeNode
+
+get(key):
+  h = hash(key)
+  i = h & (n-1)
+  node = bucket[i]
+  while node != null:
+    if node.key.equals(key): return node.value
+    node = node.next
+  return null</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px">
+          <div style="font-size:11px;color:#6ee7b7;font-weight:700;margin-bottom:4px">Java HashMap — Key Facts</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.7">
+            • Default capacity: <b>16</b> buckets<br>
+            • Load factor: <b>0.75</b> (resize at 12 entries)<br>
+            • Chain → Tree at <b>8</b> nodes (Red-Black Tree)<br>
+            • Tree → Chain at <b>6</b> nodes (shrink)<br>
+            • Keys must implement <b>hashCode() + equals()</b>
+          </div>
+        </div>
+        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:10px">
+          <div style="font-size:11px;color:#93c5fd;font-weight:700;margin-bottom:4px">Complexity</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px">
+            <div style="color:#94a3b8">put / get / remove</div><div style="color:#6ee7b7;font-weight:700">O(1) avg</div>
+            <div style="color:#94a3b8">Worst (all collide)</div><div style="color:#fca5a5">O(n)</div>
+            <div style="color:#94a3b8">With tree bucket</div><div style="color:#fcd34d">O(log n)</div>
+            <div style="color:#94a3b8">Resize (rehash)</div><div style="color:#fcd34d">O(n) once</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(6)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 8 · HASHSET
+══════════════════════════════════════════════ -->
+<section class="s-card dark4" id="s7">
+  <div class="si">
+    <div class="s-num">07 · Data Structures</div>
+    <h2>HashSet — Uniqueness Enforcer</h2>
+    <div class="sub">HashSet is just a HashMap with dummy values — keys only, no duplicates</div>
+
+    <!-- Dedup animation -->
+    <div style="margin:14px 0">
+      <div style="font-size:11px;color:#c4b5fd;font-weight:600;margin-bottom:8px">Inserting: [5, 3, 5, 7, 3, 9, 7, 1]  →  HashSet deduplication</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+        <span style="font-size:11px;color:#94a3b8">Input:</span>
+        <span class="hset-item hset-new" style="animation-delay:0s">5</span>
+        <span class="hset-item hset-new" style="animation-delay:.2s">3</span>
+        <span class="hset-item hset-dup" style="animation-delay:.4s">5✗</span>
+        <span class="hset-item hset-new" style="animation-delay:.6s">7</span>
+        <span class="hset-item hset-dup" style="animation-delay:.8s">3✗</span>
+        <span class="hset-item hset-new" style="animation-delay:1s">9</span>
+        <span class="hset-item hset-dup" style="animation-delay:1.2s">7✗</span>
+        <span class="hset-item hset-new" style="animation-delay:1.4s">1</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:11px;color:#94a3b8">Result:</span>
+        <span class="hset-item hset-saved">1</span>
+        <span class="hset-item hset-saved">3</span>
+        <span class="hset-item hset-saved">5</span>
+        <span class="hset-item hset-saved">7</span>
+        <span class="hset-item hset-saved">9</span>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:10px;margin-top:10px">
+      <div>
+        <div class="codebox">// HashSet backed by HashMap
+class HashSet&lt;E&gt; {
+  private HashMap&lt;E, Object&gt; map;
+  private static final Object PRESENT = new Object();
+
+  add(e):    map.put(e, PRESENT)  // O(1)
+  contains(e): map.containsKey(e) // O(1)
+  remove(e): map.remove(e)        // O(1)
+  size():    map.size()
+}
+
+// Usage — find duplicates in O(n)
+Set&lt;Integer&gt; seen = new HashSet&lt;&gt;();
+for (int x : array) {
+  if (!seen.add(x)) // add() returns false on dup
+    System.out.println("Duplicate: " + x);
+}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);border-radius:10px;padding:12px">
+          <div style="font-size:11px;color:#c4b5fd;font-weight:700;margin-bottom:6px">HashMap vs HashSet</div>
+          <table class="tbl" style="margin-bottom:0">
+            <thead><tr><th>Property</th><th>HashMap</th><th>HashSet</th></tr></thead>
+            <tbody>
+              <tr><td>Stores</td><td>Key + Value</td><td>Keys only</td></tr>
+              <tr><td>Duplicates</td><td>Keys: No</td><td>No</td></tr>
+              <tr><td>get()</td><td>✓ Yes</td><td>✗ No</td></tr>
+              <tr><td>Null key</td><td>1 null key</td><td>1 null</td></tr>
+              <tr><td>Backed by</td><td>Array+List</td><td>HashMap</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:10px;padding:10px">
+          <div style="font-size:11px;color:#fdba74;font-weight:700;margin-bottom:4px">Real Use Cases</div>
+          <div style="font-size:11px;color:#cbd5e1;line-height:1.7">
+            • Find duplicates in array — O(n)<br>
+            • Two Sum problem — complement lookup<br>
+            • Graph visited tracking — BFS/DFS<br>
+            • LRU cache — O(1) access + order<br>
+            • Anagram detection — char frequency map
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(7)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 9 · TRANSITION — Q&A
+══════════════════════════════════════════════ -->
+<section class="s-trans" id="s8">
+  <div class="si">
+    <div style="font-size:48px;margin-bottom:16px;animation:float-up 2s ease-in-out infinite">🎯</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--orange);margin-bottom:12px">INTERVIEW PREP</div>
+    <h2 style="font-size:32px;font-weight:900;background:linear-gradient(90deg,#fdba74,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">10 Hashing Interview Questions</h2>
+    <p style="color:#94a3b8;margin-top:10px;font-size:14px">From beginner to advanced — tap ▼ to reveal answers</p>
+  </div>
+  <div class="dn" onclick="scrollNext(8)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q1
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s9">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q1 of 10 · FUNDAMENTALS</div>
+      <span class="badge" style="background:rgba(16,185,129,.2);color:#6ee7b7">Easy</span>
+    </div>
+    <div class="q-title">What is a hash function and what properties must a good hash function have?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q1h')">Show</button></div>
+      <div id="q1h" class="hidden text-sm">Think about determinism, speed, and distribution of output across the index space.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q1a')">Reveal</button></div>
+      <div id="q1a" class="hidden">
+        <div class="text-sm" style="line-height:1.8">
+          A hash function maps a key of arbitrary size to a fixed-size integer (the hash code), which is then mapped to a bucket index via <code style="color:#fdba74">index = hash(key) % capacity</code>.<br><br>
+          <b style="color:#c4b5fd">Properties of a good hash function:</b><br>
+          1. <b>Deterministic</b> — same key always produces same hash<br>
+          2. <b>Fast</b> — should run in O(1)<br>
+          3. <b>Uniform distribution</b> — minimizes collisions, spreads keys evenly<br>
+          4. <b>Avalanche effect</b> — small input change → large output change<br>
+          5. <b>Low collision rate</b> — different keys should rarely hash to the same slot
+        </div>
+        <!-- Mini animation: avalanche effect -->
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;font-family:monospace;font-size:10px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="color:#94a3b8;width:100px">"hello"</span>
+            <span style="color:#f97316">→</span>
+            <span style="color:#fdba74;background:rgba(249,115,22,.1);padding:2px 8px;border-radius:4px">2cf24dba…</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="color:#94a3b8;width:100px">"hellp" (+1 char)</span>
+            <span style="color:#f97316">→</span>
+            <span style="color:#fca5a5;background:rgba(239,68,68,.1);padding:2px 8px;border-radius:4px">a5c4a4af…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(9)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q2
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s10">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q2 of 10 · INTERNALS</div>
+      <span class="badge" style="background:rgba(16,185,129,.2);color:#6ee7b7">Easy</span>
+    </div>
+    <div class="q-title">What is a collision in a hash table? Explain the two main ways to resolve it.</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q2h')">Show</button></div>
+      <div id="q2h" class="hidden text-sm">Two keys map to the same bucket index. One solution stores extra nodes; the other probes for a new slot.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q2a')">Reveal</button></div>
+      <div id="q2a" class="hidden">
+        <div class="text-sm" style="line-height:1.8">
+          A <b style="color:#fdba74">collision</b> occurs when two different keys hash to the same bucket index.<br><br>
+          <b style="color:#93c5fd">1. Separate Chaining</b> — each bucket holds a linked list (or tree). Colliding entries are appended to the chain. Java HashMap uses this; chains become Red-Black Trees when they exceed 8 nodes.<br><br>
+          <b style="color:#6ee7b7">2. Open Addressing</b> — on collision, probe for the next empty slot in the array.<br>
+          &nbsp; • Linear probing: +1, +2, +3…<br>
+          &nbsp; • Quadratic probing: +1², +2²…<br>
+          &nbsp; • Double hashing: uses a second hash function<br><br>
+          Open addressing uses less memory but suffers from clustering; chaining handles high load factors better.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(10)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q3
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s11">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q3 of 10 · COMPLEXITY</div>
+      <span class="badge" style="background:rgba(245,158,11,.2);color:#fcd34d">Medium</span>
+    </div>
+    <div class="q-title">Why is HashMap O(1) average but O(n) worst case? When does worst case happen?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q3h')">Show</button></div>
+      <div id="q3h" class="hidden text-sm">Think about what happens when all keys hash to the same bucket.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q3a')">Reveal</button></div>
+      <div id="q3a" class="hidden">
+        <div class="text-sm" style="line-height:1.8">
+          <b>Average O(1)</b>: With a good hash function and a low load factor, each bucket has ~1 entry. get/put inspects only that bucket → constant time.<br><br>
+          <b>Worst O(n)</b>: If all n keys collide to the same bucket, the lookup must traverse the entire chain of length n → O(n).<br><br>
+          This can happen due to:<br>
+          • A poor hash function with few distinct outputs<br>
+          • A malicious adversary crafting keys with the same hash (HashDoS attack)<br><br>
+          Java 8+ mitigates this: when a bucket chain grows past 8 nodes, it converts to a <b style="color:#6ee7b7">Red-Black Tree</b>, making worst case <b>O(log n)</b> per bucket, not O(n).
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(11)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q4
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s12">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q4 of 10 · CONTRACT</div>
+      <span class="badge" style="background:rgba(245,158,11,.2);color:#fcd34d">Medium</span>
+    </div>
+    <div class="q-title">If two objects are equal (equals() returns true), must their hashCode() be the same? What about the reverse?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q4h')">Show</button></div>
+      <div id="q4h" class="hidden text-sm">This is the Java hashCode/equals contract. One direction is mandatory; the other is ideal but not required.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q4a')">Reveal</button></div>
+      <div id="q4a" class="hidden">
+        <div class="text-sm" style="line-height:1.8">
+          <b style="color:#6ee7b7">Rule 1 (mandatory):</b> If <code>a.equals(b) == true</code>, then <code>a.hashCode() == b.hashCode()</code> MUST hold. Violating this breaks HashMap — the map will fail to find an existing key.<br><br>
+          <b style="color:#fdba74">Rule 2 (not required):</b> If <code>a.hashCode() == b.hashCode()</code>, it does NOT mean <code>a.equals(b)</code>. This is just a collision — two different objects can share a hash code.<br><br>
+          <b>Mnemonic:</b> Equal objects → same hash. Same hash ≠ equal objects.<br><br>
+          <b style="color:#fca5a5">Common mistake:</b> Overriding equals() without overriding hashCode() — this silently breaks any HashMap/HashSet usage of that class.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(12)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q5
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s13">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q5 of 10 · DESIGN</div>
+      <span class="badge" style="background:rgba(245,158,11,.2);color:#fcd34d">Medium</span>
+    </div>
+    <div class="q-title">What is the load factor and why does Java use 0.75 as the default? What happens during rehashing?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q5h')">Show</button></div>
+      <div id="q5h" class="hidden text-sm">Load factor = entries / buckets. Think about the space-time tradeoff at different load values.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q5a')">Reveal</button></div>
+      <div id="q5a" class="hidden">
+        <div class="text-sm" style="line-height:1.8">
+          <b>Load factor λ = n / capacity</b><br><br>
+          <b>Why 0.75?</b> It's a sweet spot from Poisson distribution analysis:<br>
+          • λ &lt; 0.5 → too many empty buckets → wasted memory<br>
+          • λ &gt; 0.9 → too many collisions → O(n) lookups<br>
+          • λ = 0.75 → roughly 0.5 expected probes per lookup, good space-time balance<br><br>
+          <b>Rehashing process:</b><br>
+          1. A new array of 2× capacity is created<br>
+          2. Every existing entry is re-inserted using the new capacity (new index = hash &amp; (newCap-1))<br>
+          3. Old array is discarded<br>
+          Cost: O(n) one time, amortized O(1) per insert.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(13)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q6
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s14">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q6 of 10 · SECURITY</div>
+      <span class="badge" style="background:rgba(245,158,11,.2);color:#fcd34d">Medium</span>
+    </div>
+    <div class="q-title">Why should you never use MD5 or SHA-1 for password storage? What should you use instead?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q6h')">Show</button></div>
+      <div id="q6h" class="hidden text-sm">Think about speed — fast is bad for passwords. Also think about rainbow tables.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q6a')">Reveal</button></div>
+      <div id="q6a" class="hidden">
+        <div class="text-sm" style="line-height:1.8">
+          <b style="color:#fca5a5">Problems with MD5/SHA-1/SHA-256 for passwords:</b><br>
+          1. <b>Too fast</b> — a GPU can compute billions of SHA-256 hashes/sec, enabling brute-force attacks<br>
+          2. <b>No salt by default</b> — same password always gives same hash; rainbow tables precompute common hashes<br>
+          3. <b>MD5/SHA-1 are cryptographically broken</b> — collisions can be engineered<br><br>
+          <b style="color:#6ee7b7">Use instead:</b><br>
+          • <b>bcrypt</b> — deliberately slow, built-in salt, work factor configurable<br>
+          • <b>Argon2</b> — winner of Password Hashing Competition 2015; memory-hard, parallelism-resistant<br>
+          • <b>scrypt</b> — memory-hard, used in Litecoin<br><br>
+          Rule: <i>For password hashing, slow is good. For data integrity, fast is good.</i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(14)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q7
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s15">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q7 of 10 · ALGORITHM</div>
+      <span class="badge" style="background:rgba(139,92,246,.2);color:#c4b5fd">Hard</span>
+    </div>
+    <div class="q-title">Solve "Two Sum" using a HashMap. What is the time and space complexity?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q7h')">Show</button></div>
+      <div id="q7h" class="hidden text-sm">For each number, check if (target - number) already exists in the map.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q7a')">Reveal</button></div>
+      <div id="q7a" class="hidden">
+        <div class="codebox">// Two Sum — O(n) time, O(n) space
+int[] twoSum(int[] nums, int target) {
+  Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+  for (int i = 0; i &lt; nums.length; i++) {
+    int complement = target - nums[i];
+    if (map.containsKey(complement)) {       // O(1) lookup
+      return new int[]{map.get(complement), i};
+    }
+    map.put(nums[i], i);                     // O(1) insert
+  }
+  return new int[]{};
+}
+
+// Example: nums=[2,7,11,15], target=9
+// i=0: complement=7, not in map → put(2,0)
+// i=1: complement=2, found at 0 → return [0,1] ✓</div>
+        <div class="text-sm" style="margin-top:8px;line-height:1.7">
+          <b>Time:</b> O(n) — single pass, O(1) HashMap operations<br>
+          <b>Space:</b> O(n) — map holds at most n entries<br>
+          <b>vs Brute Force:</b> O(n²) time, O(1) space — HashMap trades space for time.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(15)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q8
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s16">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q8 of 10 · DESIGN</div>
+      <span class="badge" style="background:rgba(139,92,246,.2);color:#c4b5fd">Hard</span>
+    </div>
+    <div class="q-title">What is consistent hashing? Why is it used in distributed systems like Redis Cluster and CDNs?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q8h')">Show</button></div>
+      <div id="q8h" class="hidden text-sm">Think about what happens when you add or remove a server from a cluster using regular modulo hashing.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q8a')">Reveal</button></div>
+      <div id="q8a" class="hidden">
+        <div class="text-sm" style="line-height:1.8">
+          <b style="color:#fca5a5">Problem with regular hashing:</b> <code>server = hash(key) % n</code>. When you add/remove a server, n changes → almost every key remaps to a different server → massive cache miss storm.<br><br>
+          <b style="color:#6ee7b7">Consistent Hashing solution:</b><br>
+          1. Map servers and keys to a circular ring (0…2³²)<br>
+          2. A key is assigned to the first server clockwise on the ring<br>
+          3. Adding/removing a server only remaps ~k/n keys (k=keys, n=servers) — minimal disruption<br><br>
+          <b>Virtual nodes</b> (vnodes): each real server gets multiple positions on the ring for better load balance.<br><br>
+          <b>Used in:</b> Redis Cluster, Amazon DynamoDB, Apache Cassandra, CDN routing, Memcached.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(16)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q9
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s17">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q9 of 10 · DATA STRUCTURE</div>
+      <span class="badge" style="background:rgba(139,92,246,.2);color:#c4b5fd">Hard</span>
+    </div>
+    <div class="q-title">What is a Bloom Filter? How does it use hashing? What are false positives and false negatives?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q9h')">Show</button></div>
+      <div id="q9h" class="hidden text-sm">A Bloom filter uses a bit array and multiple hash functions. Think about what "might exist" vs "definitely not exist" means.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q9a')">Reveal</button></div>
+      <div id="q9a" class="hidden">
+        <div class="text-sm" style="line-height:1.8">
+          A <b style="color:#fdba74">Bloom Filter</b> is a probabilistic data structure using a bit array + k hash functions for space-efficient membership testing.<br><br>
+          <b>Insert(x):</b> compute h₁(x), h₂(x), h₃(x) → set those bits to 1<br>
+          <b>Contains(x):</b> if ALL k bits are 1 → "possibly yes"; if ANY bit is 0 → "definitely no"<br><br>
+          <b style="color:#fca5a5">False Positive:</b> "possibly yes" but element was never inserted (bits set by other elements). Tunable with more bits/hash functions.<br>
+          <b style="color:#6ee7b7">False Negative:</b> impossible — if element was inserted, its bits are set forever.<br><br>
+          <b>Used in:</b> Google BigTable (avoid disk reads for missing keys), Chrome malware URL filter, Cassandra, Redis, spell checkers, CDN cache miss reduction.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(17)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     Q10
+══════════════════════════════════════════════ -->
+<section class="q-card" id="s18">
+  <div class="si">
+    <div class="q-hdr">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#f97316">Q10 of 10 · ALGORITHM</div>
+      <span class="badge" style="background:rgba(139,92,246,.2);color:#c4b5fd">Hard</span>
+    </div>
+    <div class="q-title">Design an LRU Cache with O(1) get and O(1) put. Which data structures do you use and why?</div>
+    <div class="q-box">
+      <div class="hint-label">HINT <button class="reveal-btn" onclick="toggle('q10h')">Show</button></div>
+      <div id="q10h" class="hidden text-sm">You need O(1) access AND O(1) order update. Hint: one structure for lookup, another for ordering.</div>
+    </div>
+    <div class="a-box">
+      <div class="ans-label">ANSWER <button class="reveal-btn" onclick="toggle('q10a')">Reveal</button></div>
+      <div id="q10a" class="hidden">
+        <div class="text-sm" style="line-height:1.7;margin-bottom:8px">
+          Combine a <b style="color:#fdba74">HashMap</b> (O(1) key→node lookup) with a <b style="color:#93c5fd">Doubly Linked List</b> (O(1) add/remove from front/back, maintains recency order).
+        </div>
+        <div class="codebox">class LRUCache {
+  int capacity;
+  Map&lt;Integer, Node&gt; map = new HashMap&lt;&gt;();
+  DoublyLinkedList list = new DoublyLinkedList();
+
+  int get(int key) {
+    if (!map.containsKey(key)) return -1;
+    Node node = map.get(key);
+    list.moveToFront(node);   // O(1) — most recently used
+    return node.val;
+  }
+
+  void put(int key, int val) {
+    if (map.containsKey(key)) {
+      map.get(key).val = val;
+      list.moveToFront(map.get(key));
+    } else {
+      if (map.size() == capacity)
+        map.remove(list.removeTail().key); // evict LRU
+      Node node = new Node(key, val);
+      list.addToFront(node);
+      map.put(key, node);
+    }
+  }
+}</div>
+        <div class="text-sm" style="margin-top:8px">
+          <b>get:</b> O(1) HashMap lookup + O(1) list move<br>
+          <b>put:</b> O(1) insert + O(1) evict tail<br>
+          Used in: OS page replacement, browser history, CPU cache, Redis TTL eviction.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(18)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     END SLIDE
+══════════════════════════════════════════════ -->
+<section class="s-end" id="s19">
+  <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.15) 0%,transparent 70%);pointer-events:none"></div>
+  <div style="position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.12) 0%,transparent 70%);pointer-events:none"></div>
+  <div class="si" style="position:relative;z-index:1">
+    <div style="font-size:56px;margin-bottom:16px;animation:lock-bob 2.5s ease-in-out infinite">🔑</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:2.5px;color:var(--orange);margin-bottom:16px">HASHING MASTERED</div>
+    <h2 style="font-size:30px;font-weight:900;color:#f1f5f9;margin-bottom:10px">You've covered it all!</h2>
+    <p style="font-size:14px;color:#64748b;line-height:1.7;max-width:560px;margin:0 auto 24px">
+      Hash functions · Collision resolution · HashMap &amp; HashSet internals · Security (SHA, bcrypt, Argon2) · Hashing vs Encoding vs Encryption · Consistent hashing · Bloom filters · LRU Cache
+    </p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
+      <div style="text-align:center;padding:12px 20px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);border-radius:10px">
+        <div style="font-size:22px;font-weight:900;color:#fdba74">O(1)</div>
+        <div style="font-size:10px;color:#64748b">avg lookup</div>
+      </div>
+      <div style="text-align:center;padding:12px 20px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:10px">
+        <div style="font-size:22px;font-weight:900;color:#6ee7b7">8</div>
+        <div style="font-size:10px;color:#64748b">topics covered</div>
+      </div>
+      <div style="text-align:center;padding:12px 20px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:10px">
+        <div style="font-size:22px;font-weight:900;color:#c4b5fd">10</div>
+        <div style="font-size:10px;color:#64748b">interview Q&amp;A</div>
+      </div>
+    </div>
+    <a href="../index.html" style="display:inline-block;padding:12px 28px;background:linear-gradient(90deg,#f97316,#f59e0b);color:#fff;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;transition:all .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">← Back to Dev Hub</a>
+  </div>
+</section>
+
+<script>
+// ── PROGRESS BAR ──
+const slides = document.querySelectorAll('[id^="s"]');
+const total = slides.length;
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  document.getElementById('prog').style.width = pct + '%';
+});
+
+// ── SCROLL NEXT ──
+function scrollNext(idx) {
+  const next = document.getElementById('s' + (idx + 1));
+  if (next) next.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── REVEAL TOGGLE ──
+function toggle(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('hidden');
+  const btn = el.previousElementSibling?.querySelector?.('.reveal-btn') ||
+              el.closest('.q-box, .a-box')?.querySelector('.reveal-btn');
+  if (btn) btn.textContent = el.classList.contains('hidden') ? (btn.textContent.includes('Show') ? 'Show' : 'Reveal') : 'Hide';
+}
+
+/* ══════════════════════════════════════════
+   COLLISION RESOLUTION ANIMATION ENGINE
+══════════════════════════════════════════ */
+// Keys and their precomputed hash indices (mod 8)
+// "cat"→2, "dog"→5, "cow"→2(collision), "pig"→5(collision), "ant"→0
+const CR_STEPS = [
+  {
+    type: 'info',
+    msg:  'Empty hash table — 8 buckets (chaining) / 8 slots (probing). We will insert 5 keys and observe collisions.',
+    calc: 'capacity = 8',
+    chain: [[],[],[],[],[],[],[],[]],
+    probe: Array(8).fill(null),
+    collideBucket: -1, probeCollide: -1, probeLand: -1, entries: 0
+  },
+  {
+    type: 'success',
+    msg:  '✓  Insert "cat"  →  hash("cat") % 8 = 2.  Bucket [2] is empty — direct insert. No collision.',
+    calc: 'hash("cat") % 8 = 2',
+    chain: [[],[],[{k:'cat',s:'new'}],[],[],[],[],[]],
+    probe: [null,null,{k:'cat',s:'new'},null,null,null,null,null],
+    collideBucket: -1, probeCollide: -1, probeLand: 2, entries: 1
+  },
+  {
+    type: 'success',
+    msg:  '✓  Insert "dog"  →  hash("dog") % 8 = 5.  Bucket [5] is empty — direct insert. No collision.',
+    calc: 'hash("dog") % 8 = 5',
+    chain: [[],[],[{k:'cat',s:'norm'}],[],[],[{k:'dog',s:'new'}],[],[]],
+    probe: [null,null,{k:'cat',s:'norm'},null,null,{k:'dog',s:'new'},null,null],
+    collideBucket: -1, probeCollide: -1, probeLand: 5, entries: 2
+  },
+  {
+    type: 'collision',
+    msg:  '💥  COLLISION!  Insert "cow"  →  hash("cow") % 8 = 2.  Bucket [2] already has "cat"!',
+    calc: 'hash("cow") % 8 = 2  ⚡ COLLISION',
+    chain: [[],[],[{k:'cat',s:'col'},{k:'cow',s:'col-new'}],[],[],[{k:'dog',s:'norm'}],[],[]],
+    probe: [null,null,{k:'cat',s:'col'},null,null,{k:'dog',s:'norm'},null,null],
+    collideBucket: 2, probeCollide: 2, probeLand: -1, entries: 2
+  },
+  {
+    type: 'probe',
+    msg:  'Chaining: "cow" appended after "cat" in bucket [2] chain. ↔  Probing: slot [2] full → probe slot [3] → empty ✓',
+    calc: 'Chain: bucket[2].append("cow")  |  Probe: try [3] → empty',
+    chain: [[],[],[{k:'cat',s:'norm'},{k:'cow',s:'new'}],[],[],[{k:'dog',s:'norm'}],[],[]],
+    probe: [null,null,{k:'cat',s:'skip'},null,{k:'cow',s:'land'},null,{k:'dog',s:'norm'},null],
+    collideBucket: 2, probeCollide: 2, probeLand: 4, entries: 3
+  },
+  {
+    type: 'collision',
+    msg:  '💥  COLLISION!  Insert "pig"  →  hash("pig") % 8 = 5.  Bucket [5] already has "dog"!',
+    calc: 'hash("pig") % 8 = 5  ⚡ COLLISION',
+    chain: [[],[],[{k:'cat',s:'norm'},{k:'cow',s:'norm'}],[],[],[{k:'dog',s:'col'},{k:'pig',s:'col-new'}],[],[]],
+    probe: [null,null,{k:'cat',s:'norm'},null,{k:'cow',s:'norm'},{k:'dog',s:'col'},null,null],
+    collideBucket: 5, probeCollide: 5, probeLand: -1, entries: 3
+  },
+  {
+    type: 'probe',
+    msg:  'Chaining: "pig" appended after "dog" in bucket [5] chain. ↔  Probing: slot [5] full → probe slot [6] → empty ✓',
+    calc: 'Chain: bucket[5].append("pig")  |  Probe: try [6] → empty',
+    chain: [[],[],[{k:'cat',s:'norm'},{k:'cow',s:'norm'}],[],[],[{k:'dog',s:'norm'},{k:'pig',s:'new'}],[],[]],
+    probe: [null,null,{k:'cat',s:'norm'},null,{k:'cow',s:'norm'},{k:'dog',s:'skip'},{k:'pig',s:'land'},null],
+    collideBucket: 5, probeCollide: 5, probeLand: 6, entries: 4
+  },
+  {
+    type: 'success',
+    msg:  '✓  Insert "ant"  →  hash("ant") % 8 = 0.  Bucket [0] is empty — direct insert in both strategies.',
+    calc: 'hash("ant") % 8 = 0  — no collision',
+    chain: [[{k:'ant',s:'new'}],[],[{k:'cat',s:'norm'},{k:'cow',s:'norm'}],[],[],[{k:'dog',s:'norm'},{k:'pig',s:'norm'}],[],[]],
+    probe: [{k:'ant',s:'new'},null,{k:'cat',s:'norm'},null,{k:'cow',s:'norm'},{k:'dog',s:'norm'},{k:'pig',s:'norm'},null],
+    collideBucket: -1, probeCollide: -1, probeLand: 0, entries: 5
+  }
+];
+
+let crIdx = 0;
+let crTimer = null;
+
+function crRender() {
+  const s = CR_STEPS[crIdx];
+  const N = CR_STEPS.length;
+
+  // Message
+  const msg = document.getElementById('cr-msg');
+  msg.className = 'cr-msg-box ' + s.type;
+  msg.textContent = s.msg;
+
+  // Calc
+  document.getElementById('cr-calc').textContent = s.calc || '';
+
+  // Step counter
+  document.getElementById('cr-stepnum').textContent = 'Step ' + crIdx + ' / ' + (N - 1);
+
+  // Dots
+  const dotsEl = document.getElementById('cr-dots');
+  dotsEl.innerHTML = CR_STEPS.map((_, i) =>
+    `<div class="cr-dot ${i < crIdx ? 'done' : ''} ${i === crIdx ? 'active' : ''}" onclick="crGoTo(${i})"></div>`
+  ).join('');
+
+  // Load factor bar
+  const entries = s.entries;
+  const lf = (entries / 8).toFixed(2);
+  document.getElementById('cr-lf').textContent = entries;
+  document.getElementById('cr-lfval').textContent = lf;
+  document.getElementById('cr-lfbar').style.width = (entries / 8 * 100) + '%';
+
+  // ── RENDER CHAIN TABLE ──
+  const chainEl = document.getElementById('cr-chain');
+  chainEl.innerHTML = s.chain.map((nodes, bi) => {
+    const isActive  = bi === s.collideBucket;
+    const bucketCls = isActive
+      ? (s.type === 'collision' ? 'cr-bucket collide-bucket' : 'cr-bucket active')
+      : 'cr-bucket';
+
+    const nodesHtml = nodes.length === 0
+      ? `<div class="cr-node empty-node">—</div>`
+      : nodes.map((n, ni) => {
+          let cls = 'cr-node node-normal';
+          if (n.s === 'new')     cls = 'cr-node node-new';
+          if (n.s === 'col')     cls = 'cr-node node-normal';
+          if (n.s === 'col-new') cls = 'cr-node node-collide';
+          return (ni > 0 ? `<div class="cr-chain-arrow">↓</div>` : '')
+               + `<div class="${cls}">${n.k}</div>`;
+        }).join('');
+
+    return `<div class="${bucketCls}">
+      <div class="cr-bucket-idx">[${bi}]</div>
+      <div class="cr-bucket-body">${nodesHtml}</div>
+    </div>`;
+  }).join('');
+
+  // ── RENDER PROBE TABLE ──
+  const probeEl = document.getElementById('cr-probe');
+  let probeHtml = '';
+  s.probe.forEach((slot, si) => {
+    let cls = 'cr-slot empty';
+    let keyLabel = '—';
+    if (slot) {
+      keyLabel = slot.k;
+      if (slot.s === 'new')   cls = 'cr-slot new-insert';
+      if (slot.s === 'norm')  cls = 'cr-slot normal';
+      if (slot.s === 'col')   cls = 'cr-slot collide';
+      if (slot.s === 'skip')  cls = 'cr-slot probe-skip';
+      if (slot.s === 'land')  cls = 'cr-slot probe-land';
+    }
+    // Show probe arrow between collision slot and landing slot
+    const showArrow = slot && slot.s === 'skip' && s.probeLand !== -1;
+    probeHtml += `<div class="${cls}">
+      <div class="cr-slot-idx">[${si}]</div>
+      <div class="cr-slot-key">${slot ? keyLabel : ''}</div>
+    </div>`;
+    if (showArrow) probeHtml += `<div class="cr-probe-arrow">→</div>`;
+  });
+  probeEl.innerHTML = probeHtml;
+
+  // Probe legend
+  const legend = document.getElementById('cr-probe-legend');
+  if (s.type === 'collision') {
+    legend.textContent = `slot[${s.probeCollide}] full → probing next slot…`;
+  } else if (s.type === 'probe' && s.probeLand !== -1) {
+    legend.textContent = `slot[${s.probeCollide}] full → landed at slot[${s.probeLand}] ✓`;
+  } else {
+    legend.textContent = '';
+  }
+}
+
+function crStep(dir) {
+  const newIdx = crIdx + dir;
+  if (newIdx < 0 || newIdx >= CR_STEPS.length) return;
+  crIdx = newIdx;
+  crRender();
+}
+
+function crGoTo(i) {
+  crIdx = i;
+  crRender();
+}
+
+function crTogglePlay() {
+  const btn = document.getElementById('cr-play-btn');
+  if (crTimer) {
+    clearInterval(crTimer);
+    crTimer = null;
+    btn.textContent = '▶ Play';
+  } else {
+    btn.textContent = '⏸ Pause';
+    crTimer = setInterval(() => {
+      if (crIdx < CR_STEPS.length - 1) {
+        crIdx++;
+        crRender();
+      } else {
+        clearInterval(crTimer);
+        crTimer = null;
+        btn.textContent = '▶ Play';
+      }
+    }, 1800);
+  }
+}
+
+// Init on load
+crRender();
+</script>
+</body>
+</html>
