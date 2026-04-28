@@ -450,6 +450,7 @@ const DS_LIST = [
   { id: 'circqueue',label: 'Circular Queue',  color: '#ec4899', group: 'Linear' },
   { id: 'bfs',      label: 'BFS',             color: '#22d3ee', group: 'Graph' },
   { id: 'dfs',      label: 'DFS',             color: '#a78bfa', group: 'Graph' },
+  { id: 'dijkstra', label: 'Dijkstra',        color: '#f59e0b', group: 'Graph' },
   { id: 'heap',     label: 'Min-Heap',        color: '#fb923c', group: 'Tree' },
 ];
 
@@ -682,6 +683,26 @@ isEmpty():
 
 <span class="cm">// Time: O(V + E)  Space: O(V)</span>`,
   },
+  dijkstra: {
+    startDijkstra:`Dijkstra(graph, source):
+  dist = {v: ∞ <span class="kw">for</span> v <span class="kw">in</span> nodes}
+  dist[source] = 0
+  pq = MinPriorityQueue()
+  pq.enqueue((0, source))
+
+  <span class="kw">while</span> pq not empty:
+    (d, u) = pq.dequeue_min()
+    <span class="kw">if</span> d > dist[u]: <span class="kw">continue</span>  <span class="cm">// stale entry</span>
+
+    <span class="kw">for</span> (v, w) <span class="kw">in</span> graph[u].neighbors:
+      newDist = dist[u] + w
+      <span class="kw">if</span> newDist < dist[v]:
+        dist[v] = newDist
+        prev[v] = u
+        pq.enqueue((newDist, v))
+
+<span class="cm">// Time: O((V+E) log V)  Space: O(V+E)</span>`,
+  },
   heap: {
     insert:`insert(heap, value):
   <span class="cm">// O(log n)</span>
@@ -762,6 +783,11 @@ const COMPLEXITY = {
     {op:'Completeness',tc:'Yes',cc:'cx-green'},{op:'Optimal',tc:'No',cc:'cx-red'},
     {op:'Uses',tc:'Stack',cc:'cx-blue'},
   ],
+  dijkstra: [
+    {op:'Time',tc:'O((V+E) log V)',cc:'cx-blue'},{op:'Space',tc:'O(V+E)',cc:'cx-orange'},
+    {op:'Correctness',tc:'Non-neg edges only',cc:'cx-blue'},{op:'Optimal',tc:'Yes',cc:'cx-green'},
+    {op:'Data Structure',tc:'Min-Priority Queue',cc:'cx-blue'},
+  ],
   heap: [
     {op:'Insert',tc:'O(log n)',cc:'cx-blue'},{op:'Extract Min',tc:'O(log n)',cc:'cx-blue'},
     {op:'Peek Min',tc:'O(1)',cc:'cx-green'},{op:'Build Heap',tc:'O(n)',cc:'cx-orange'},
@@ -799,6 +825,16 @@ function initState(dsId) {
       const G = buildGraph();
       return { nodes:G.nodes, edges:G.edges, visited:[], stack:[], current:-1, visitOrder:[] };
     }
+    case 'dijkstra': {
+      const CG = buildCityGraph();
+      return {
+        nodes: CG.nodes, edges: CG.edges,
+        dist: CG.nodes.map((_,i) => i===0 ? 0 : -1),
+        prev: CG.nodes.map(() => -1),
+        pq: [{d:0, id:0}],
+        visited: [], current: -1, relaxed: [], path: [],
+      };
+    }
     case 'heap':
       return { items:[5,12,8,20,15,10], hl:[], swapA:-1, swapB:-1, newIdx:-1, delIdx:-1 };
     default:
@@ -807,18 +843,50 @@ function initState(dsId) {
 }
 
 function buildGraph() {
+  // 15-node unequal tree — left subtree goes 5 levels deep, right only 3
+  //
+  //           A(0)
+  //          /     \
+  //        B(1)    C(2)
+  //        / \     / \
+  //      D(3) E(4) F(5) G(6)
+  //      /\   /\    |
+  //    H(7)I(8)J(9)K(10) L(11)
+  //    /\      |
+  //  M(12)N(13) O(14)
+  //
+  // BFS : A B C D E F G H I J K L M N O
+  // DFS : A B D H M N I E J O K C F L G
   return {
     nodes: [
-      {id:0,label:'A',x:300,y:50},
-      {id:1,label:'B',x:140,y:160},
-      {id:2,label:'C',x:460,y:160},
-      {id:3,label:'D',x:60,y:290},
-      {id:4,label:'E',x:220,y:290},
-      {id:5,label:'F',x:380,y:290},
-      {id:6,label:'G',x:540,y:290},
+      {id:0, label:'A', x:310, y:38},
+      {id:1, label:'B', x:158, y:112},
+      {id:2, label:'C', x:462, y:112},
+      {id:3, label:'D', x:76,  y:188},
+      {id:4, label:'E', x:240, y:188},
+      {id:5, label:'F', x:382, y:188},
+      {id:6, label:'G', x:542, y:188},
+      {id:7, label:'H', x:34,  y:262},
+      {id:8, label:'I', x:118, y:262},
+      {id:9, label:'J', x:198, y:262},
+      {id:10,label:'K', x:282, y:262},
+      {id:11,label:'L', x:382, y:262},
+      {id:12,label:'M', x:14,  y:332},
+      {id:13,label:'N', x:54,  y:332},
+      {id:14,label:'O', x:198, y:332},
     ],
-    edges: [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6],[3,4],[5,6]],
-    adj: { 0:[1,2], 1:[0,3,4], 2:[0,5,6], 3:[1,4], 4:[1,3], 5:[2,6], 6:[2,5] }
+    edges: [
+      [0,1],[0,2],
+      [1,3],[1,4],[2,5],[2,6],
+      [3,7],[3,8],[4,9],[4,10],[5,11],
+      [7,12],[7,13],[9,14],
+    ],
+    adj: {
+      0:[1,2], 1:[3,4], 2:[5,6],
+      3:[7,8], 4:[9,10], 5:[11], 6:[],
+      7:[12,13], 8:[], 9:[14], 10:[], 11:[],
+      12:[], 13:[], 14:[],
+    }
   };
 }
 
@@ -829,7 +897,7 @@ function renderDSList() {
   const container = document.getElementById('dsList');
   let html = '';
   let lastGroup = '';
-  DS_LIST.filter(ds => ds.group === 'Linear').forEach(ds => {
+  DS_LIST.forEach(ds => {
     if (ds.group !== lastGroup) {
       html += `<div class="ds-sec-title">${ds.group}</div>`;
       lastGroup = ds.group;
@@ -913,6 +981,13 @@ function renderActions() {
       input: false,
       rows: [
         [{id:'startDFS',label:'▶ Start DFS',cls:'prim'}],
+        [{id:'reset',label:'Reset Graph',cls:''}],
+      ]
+    },
+    dijkstra: {
+      input: false,
+      rows: [
+        [{id:'startDijkstra',label:'▶ Mumbai → Vizag',cls:'prim'}],
         [{id:'reset',label:'Reset Graph',cls:''}],
       ]
     },
@@ -1046,6 +1121,7 @@ function generateFrames(dsId, action, state, val, idx) {
   if (dsId === 'circqueue') return genCircQueueFrames(action, st, val);
   if (dsId === 'bfs') return genBFSFrames(st);
   if (dsId === 'dfs') return genDFSFrames(st);
+  if (dsId === 'dijkstra') return genDijkstraFrames(st);
   if (dsId === 'heap') return genHeapFrames(action, st, val);
   return [];
 }
@@ -1297,33 +1373,51 @@ function genBFSFrames(st) {
   const F = [];
   const G = buildGraph();
   const adj = G.adj;
-  st.visited = []; st.queued = [0]; st.current = -1; st.visitOrder = [];
-  F.push(frame(st,`BFS from node A(0): enqueue A into queue`,1));
 
-  const visited = new Set();
+  // Line 2: visited = new Set()  |  Line 3: queue = new Queue()
+  st.visited = []; st.queued = []; st.current = -1; st.visitOrder = [];
+  F.push(frame(st, `Initialize: visited = {}, queue = []`, 2));
+
+  // Line 5-6: enqueue start AND mark visited (BFS marks visited at ENQUEUE time)
+  const visited = new Set([0]);
   const queue = [0];
-  visited.add(0);
-  st.visited = []; st.queued = [0]; st.current = -1;
-  F.push(frame(st,`Queue: [A]. Visited: []`,2));
+  st.visited = [0];      // ← visited updated at enqueue time
+  st.queued = [0];
+  F.push(frame(st, `Enqueue A, mark A visited. visited={A}, queue=[A]`, 5));
 
   while (queue.length) {
-    const node = queue.shift();
-    st.current = node; st.visited.push(node); st.visitOrder = [...st.visited];
-    st.queued = [...queue];
-    F.push(frame(st,`Dequeue A(${node})=${G.nodes[node].label}. Visit it. Process node ${G.nodes[node].label}.`,3));
+    // Line 8: while queue is not empty
+    F.push(frame(st, `queue=[${queue.map(n=>G.nodes[n].label).join(',')}] not empty — enter loop`, 8));
 
+    // Line 9: node = queue.dequeue()  |  Line 10: process(node)
+    const node = queue.shift();
+    st.current = node;
+    st.visitOrder.push(node);  // process order tracked separately
+    st.queued = [...queue];
+    F.push(frame(st, `Dequeue ${G.nodes[node].label}. Process it. queue=[${queue.map(n=>G.nodes[n].label).join(',')||'empty'}]`, 9));
+
+    // Line 12: for neighbor in graph[node]
     const neighbors = adj[node] || [];
+    if (neighbors.length) {
+      F.push(frame(st, `Check neighbors of ${G.nodes[node].label}: [${neighbors.map(n=>G.nodes[n].label).join(',')}]`, 12));
+    }
     for (const nb of neighbors) {
       if (!visited.has(nb)) {
+        // Line 14-15: visited.add + enqueue — mark visited NOW at enqueue time
         visited.add(nb);
         queue.push(nb);
+        st.visited.push(nb);   // ← visited updated at enqueue time
         st.queued = [...queue];
-        F.push(frame(st,`Neighbor ${G.nodes[nb].label}: not visited → enqueue. Queue: [${queue.map(n=>G.nodes[n].label).join(',')}]`,4));
+        F.push(frame(st, `${G.nodes[nb].label} not in visited → mark visited & enqueue. visited={${[...visited].map(i=>G.nodes[i].label).join(',')}}`, 14));
+      } else {
+        // Line 13: already in visited — skip
+        F.push(frame(st, `${G.nodes[nb].label} already in visited set — skip`, 13));
       }
     }
   }
+
   st.current = -1;
-  F.push(frame(st,`✓ BFS complete! Visit order: ${st.visitOrder.map(n=>G.nodes[n].label).join(' → ')}`,5));
+  F.push(frame(st, `✓ BFS done! Process order: ${st.visitOrder.map(n=>G.nodes[n].label).join(' → ')}`, -1));
   currentState = st;
   return F;
 }
@@ -1333,35 +1427,51 @@ function genDFSFrames(st) {
   const F = [];
   const G = buildGraph();
   const adj = G.adj;
-  st.visited = []; st.stack = [0]; st.current = -1; st.visitOrder = [];
-  F.push(frame(st,`DFS from node A(0): push A onto stack`,1));
-  F.push(frame(st,`Stack: [A]. Visited: []`,2));
 
+  // Line 2: visited = new Set()  |  Line 3: stack = new Stack()
+  st.visited = []; st.stack = [0]; st.current = -1; st.visitOrder = [];
+  F.push(frame(st, `Initialize: visited = {}, stack = []`, 2));
+
+  // Line 5: stack.push(start)
   const visited = new Set();
   const stack = [0];
+  st.stack = [0];
+  F.push(frame(st, `Push start A onto stack. Stack: [A]`, 5));
+
   while (stack.length) {
+    // Line 7: while stack is not empty
+    F.push(frame(st, `Stack [${[...stack].reverse().map(n=>G.nodes[n].label).join(',')}] not empty — continue`, 7));
+
+    // Line 8: node = stack.pop()
     const node = stack.pop();
+    st.stack = [...stack];
+
+    // Line 9: if node not in visited
     if (visited.has(node)) {
-      st.stack = [...stack];
-      F.push(frame(st,`Pop ${G.nodes[node].label} — already visited, skip.`,3));
+      F.push(frame(st, `Pop ${G.nodes[node].label} — already visited, skip`, 9));
       continue;
     }
+
+    // Line 10: visited.add(node)  |  Line 11: process(node)
     visited.add(node);
     st.visited.push(node); st.current = node; st.visitOrder = [...st.visited];
-    st.stack = [...stack];
-    F.push(frame(st,`Pop & Visit ${G.nodes[node].label}. Stack: [${stack.map(n=>G.nodes[n].label).join(',')||'empty'}]`,4));
+    F.push(frame(st, `Pop ${G.nodes[node].label}: mark visited, process it. Stack: [${stack.map(n=>G.nodes[n].label).join(',')||'empty'}]`, 10));
 
+    // Line 13: for neighbor  |  Line 15: stack.push(neighbor)
+    const pushed = [];
     const neighbors = (adj[node] || []).slice().reverse();
     for (const nb of neighbors) {
-      if (!visited.has(nb)) {
-        stack.push(nb);
-      }
+      if (!visited.has(nb)) { stack.push(nb); pushed.push(nb); }
     }
     st.stack = [...stack];
-    if (stack.length) F.push(frame(st,`Push neighbors of ${G.nodes[node].label}: Stack: [${stack.map(n=>G.nodes[n].label).join(',')}]`,5));
+    if (pushed.length) {
+      F.push(frame(st, `Push neighbors of ${G.nodes[node].label}: [${pushed.map(n=>G.nodes[n].label).join(',')}]. Stack: [${[...stack].reverse().map(n=>G.nodes[n].label).join(',')}]`, 15));
+    }
   }
+
+  // Done
   st.current = -1;
-  F.push(frame(st,`✓ DFS complete! Visit order: ${st.visitOrder.map(n=>G.nodes[n].label).join(' → ')}`,6));
+  F.push(frame(st, `✓ DFS complete! Visit order: ${st.visitOrder.map(n=>G.nodes[n].label).join(' → ')}`, -1));
   currentState = st;
   return F;
 }
@@ -1548,6 +1658,7 @@ function renderViz(state) {
     case 'circqueue': container.innerHTML = renderCircQueue(state); break;
     case 'bfs': container.innerHTML = renderGraph(state, 'bfs'); break;
     case 'dfs': container.innerHTML = renderGraph(state, 'dfs'); break;
+    case 'dijkstra': container.innerHTML = renderDijkstra(state); break;
     case 'heap': container.innerHTML = renderHeap(state); break;
     default: break;
   }
@@ -1792,16 +1903,27 @@ function renderCircQueue(st) {
 /* --- GRAPH render (BFS/DFS) --- */
 function renderGraph(st, type) {
   const G = buildGraph();
-  const svgW = 620, svgH = 360;
+  const svgW = 620, svgH = 380;
+  const R = 16;
   let svg = `<div class="vis-graph"><svg class="graph-svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">`;
 
+  const ds = type === 'bfs' ? (st.queued||[]) : (st.stack||[]);
   const nodeColor = (id) => {
-    if (id === st.current) return { fill:'#f59e0b', stroke:'#d97706', text:'#0f172a' };
-    if (st.visited && st.visited.includes(id)) return { fill:'#10b981', stroke:'#059669', text:'#fff' };
-    if ((type==='bfs'?st.queued:st.stack) && (type==='bfs'?st.queued:st.stack).includes(id))
-      return { fill:'rgba(59,130,246,.4)', stroke:'#3b82f6', text:'#f1f5f9' };
-    return { fill:'rgba(30,41,59,.8)', stroke:'rgba(148,163,184,.3)', text:'#94a3b8' };
+    const inVis = st.visited && st.visited.includes(id);
+    const inDs  = ds.includes(id);
+    if (id === st.current)            return { fill:'#78350f', stroke:'#f59e0b', text:'#fef3c7' }; // yellow — processing
+    if (inVis && inDs && type==='bfs') return { fill:'#0e7490', stroke:'#22d3ee', text:'#e0f2fe' }; // teal — in visited set, waiting in queue
+    if (inVis)                         return { fill:'#14532d', stroke:'#22c55e', text:'#bbf7d0' }; // green — processed
+    if (inDs)                          return { fill:'#1e3a5f', stroke:'#3b82f6', text:'#bfdbfe' }; // blue — on stack (DFS)
+    return { fill:'rgba(30,41,59,.8)', stroke:'rgba(51,65,85,.5)', text:'#475569' };                 // grey — unvisited
   };
+
+  // Level guide lines
+  const levels = [{y:38,lbl:'L0'},{y:112,lbl:'L1'},{y:188,lbl:'L2'},{y:262,lbl:'L3'},{y:332,lbl:'L4'}];
+  levels.forEach(({y,lbl}) => {
+    svg += `<line x1="0" y1="${y}" x2="${svgW}" y2="${y}" stroke="rgba(51,65,85,.18)" stroke-width="1" stroke-dasharray="4,4"/>`;
+    svg += `<text x="6" y="${y-4}" fill="rgba(100,116,139,.5)" font-size="9" font-family="monospace">${lbl}</text>`;
+  });
 
   // Edges
   G.edges.forEach(([a,b]) => {
@@ -1813,22 +1935,28 @@ function renderGraph(st, type) {
   // Nodes
   G.nodes.forEach(n => {
     const c = nodeColor(n.id);
-    svg += `<circle cx="${n.x}" cy="${n.y}" r="24" fill="${c.fill}" stroke="${c.stroke}" stroke-width="2"/>`;
-    svg += `<text x="${n.x}" y="${n.y+1}" text-anchor="middle" dominant-baseline="middle" fill="${c.text}" font-size="14" font-weight="700">${n.label}</text>`;
-    svg += `<text x="${n.x}" y="${n.y+32}" text-anchor="middle" fill="#475569" font-size="10">${n.id}</text>`;
+    svg += `<circle cx="${n.x}" cy="${n.y}" r="${R}" fill="${c.fill}" stroke="${c.stroke}" stroke-width="2"/>`;
+    svg += `<text x="${n.x}" y="${n.y+1}" text-anchor="middle" dominant-baseline="middle" fill="${c.text}" font-size="12" font-weight="700">${n.label}</text>`;
   });
 
   svg += `</svg>`;
 
   // Legend
-  svg += `<div style="display:flex;gap:12px;font-size:10px;margin-top:-8px">
-    <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>Visited</span>
-    <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Current</span>
-    <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#3b82f6;display:inline-block"></span>In ${type==='bfs'?'Queue':'Stack'}</span>
-  </div>`;
+  if (type === 'bfs') {
+    svg += `<div style="display:flex;flex-wrap:wrap;gap:10px;font-size:10px;margin-top:-4px">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#22d3ee;display:inline-block"></span>In visited set + queue</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Processing</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>Processed</span>
+    </div>`;
+  } else {
+    svg += `<div style="display:flex;flex-wrap:wrap;gap:10px;font-size:10px;margin-top:-4px">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#3b82f6;display:inline-block"></span>On Stack</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Processing</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>Visited</span>
+    </div>`;
+  }
 
   // Queue/Stack display
-  const ds = type === 'bfs' ? st.queued : st.stack;
   const dsLabel = type === 'bfs' ? 'Queue' : 'Stack';
   svg += `<div class="traversal-queue"><span class="tq-label">${dsLabel}:</span>`;
   if (ds && ds.length) {
@@ -1840,16 +1968,27 @@ function renderGraph(st, type) {
   }
   svg += `</div>`;
 
-  // Visit order
-  svg += `<div class="visited-order"><span class="vo-label">Visited:</span>`;
-  if (st.visitOrder && st.visitOrder.length) {
-    st.visitOrder.forEach(id => {
-      svg += `<span class="vo-item">${G.nodes[id].label}</span>`;
-    });
+  // Visited Set (updates at enqueue time for BFS, at pop time for DFS)
+  svg += `<div class="visited-order"><span class="vo-label">${type==='bfs'?'Visited Set:':'Visited:'}</span>`;
+  if (st.visited && st.visited.length) {
+    st.visited.forEach(id => { svg += `<span class="vo-item">${G.nodes[id].label}</span>`; });
   } else {
     svg += `<span style="color:var(--muted);font-size:11px;font-style:italic">none yet</span>`;
   }
-  svg += `</div></div>`;
+  svg += `</div>`;
+
+  // For BFS: also show processing order (nodes actually dequeued so far)
+  if (type === 'bfs') {
+    svg += `<div class="visited-order" style="margin-top:4px"><span class="vo-label" style="color:#22c55e">Process Order:</span>`;
+    if (st.visitOrder && st.visitOrder.length) {
+      st.visitOrder.forEach(id => { svg += `<span class="vo-item" style="background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:#86efac">${G.nodes[id].label}</span>`; });
+    } else {
+      svg += `<span style="color:var(--muted);font-size:11px;font-style:italic">none yet</span>`;
+    }
+    svg += `</div>`;
+  }
+
+  svg += `</div>`;
   return svg;
 }
 
@@ -1918,6 +2057,269 @@ function renderHeap(st) {
     svg += `<div style="font-size:11px;color:var(--muted)">Min = <b style="color:#fbbf24">${items[0]}</b> (root) &nbsp;|&nbsp; Size = <b style="color:var(--text)">${items.length}</b></div>`;
   }
   svg += `</div>`;
+  return svg;
+}
+
+/* --- DIJKSTRA city graph --- */
+function buildCityGraph() {
+  const nodes = [
+    {id:0,  name:'Mumbai',    short:'Mum', x:82,  y:215},
+    {id:1,  name:'Jaipur',   short:'Jai', x:192, y:68},
+    {id:2,  name:'Delhi',    short:'Del', x:285, y:40},
+    {id:3,  name:'Agra',     short:'Agr', x:302, y:102},
+    {id:4,  name:'Indore',   short:'Ind', x:180, y:172},
+    {id:5,  name:'Bhopal',   short:'Bho', x:222, y:192},
+    {id:6,  name:'Nagpur',   short:'Nag', x:278, y:216},
+    {id:7,  name:'Varanasi', short:'Var', x:378, y:118},
+    {id:8,  name:'Patna',    short:'Pat', x:434, y:80},
+    {id:9,  name:'Kolkata',  short:'Kol', x:528, y:118},
+    {id:10, name:'Pune',     short:'Pun', x:106, y:258},
+    {id:11, name:'Hyderabad',short:'Hyd', x:240, y:276},
+    {id:12, name:'Bengaluru',short:'Blr', x:166, y:316},
+    {id:13, name:'Chennai',  short:'Chn', x:330, y:308},
+    {id:14, name:'Vizag',    short:'Viz', x:412, y:244},
+  ];
+  const edges = [
+    [0,1,8],[0,4,6],[0,10,3],
+    [1,2,3],[1,3,4],
+    [2,3,2],[2,7,7],
+    [3,5,5],
+    [4,5,2],
+    [5,6,4],
+    [6,7,6],[6,11,5],
+    [7,8,3],
+    [8,9,4],
+    [9,14,8],
+    [10,11,6],
+    [11,12,6],[11,13,5],[11,14,6],
+    [12,13,3],
+    [13,14,5],
+  ];
+  const adj = {};
+  nodes.forEach(n => { adj[n.id] = []; });
+  edges.forEach(([a,b,w]) => { adj[a].push({to:b,w}); adj[b].push({to:a,w}); });
+  return { nodes, edges, adj };
+}
+
+function genDijkstraFrames(st) {
+  const F = [];
+  const CG = buildCityGraph();
+  const { nodes, edges, adj } = CG;
+  const N = nodes.length;
+  const INF = 1e9;
+
+  const dist = Array(N).fill(INF); dist[0] = 0;
+  const prev = Array(N).fill(-1);
+  const settled = [];
+  const settledSet = new Set();
+  let pq = [{d:0, id:0}];
+
+  const snap = (cur, relaxed, path, vars) => JSON.parse(JSON.stringify({
+    nodes, edges,
+    dist: dist.map(d => d >= INF ? -1 : d),
+    prev: [...prev],
+    visited: [...settled],
+    current: cur,
+    pq: [...pq],
+    relaxed: relaxed || [],
+    path: path || [],
+    vars: vars || null,
+  }));
+
+  // Line 2: dist init  |  Line 5: pq.enqueue(0, source)
+  F.push({state: snap(-1,[],[],{phase:'init'}), msg:`Init: dist[Mumbai]=0, all others=∞. Enqueue (0,Mumbai) into PQ`, hl:2});
+  F.push({state: snap(-1,[],[],{phase:'init'}), msg:`PQ = [(0,Mumbai)]. Ready to start.`, hl:5});
+
+  while (pq.length > 0) {
+    // Line 7: while pq not empty
+    F.push({state: snap(-1,[],[],{phase:'while'}), msg:`PQ not empty [${pq.map(x=>`(${x.d},${nodes[x.id].short})`).join(', ')}] — continue`, hl:7});
+
+    pq.sort((a,b) => a.d - b.d);
+    const {d, id} = pq.shift();
+
+    // Line 9: stale check
+    if (settledSet.has(id)) {
+      F.push({state: snap(-1,[],[],{phase:'stale',u:id,d}), msg:`Pop (${d},${nodes[id].name}): d=${d} > dist[u]=${dist[id]} — stale, skip`, hl:9});
+      continue;
+    }
+
+    // Line 8: (d, u) = pq.dequeue_min()
+    settledSet.add(id);
+    settled.push(id);
+    F.push({state: snap(id,[],[],{phase:'settle',u:id,d}), msg:`Dequeue min (d=${d}, u=${nodes[id].name}). Settle it.`, hl:8});
+
+    if (id === 14) break;
+
+    // Line 11: for (v, w) in neighbors
+    F.push({state: snap(id,[],[],{phase:'neighbors',u:id,d}), msg:`u=${nodes[id].name}, dist[u]=${d}. Checking ${(adj[id]||[]).filter(e=>!settledSet.has(e.to)).length} unsettled neighbors`, hl:11});
+
+    const relaxed = [];
+    for (const {to, w} of (adj[id]||[])) {
+      if (settledSet.has(to)) continue;
+      // Line 12: newDist = dist[u] + w
+      const nd = d + w;
+      const oldDist = dist[to] < INF ? dist[to] : -1;
+      F.push({state: snap(id,[],[],{phase:'compute',u:id,d,v:to,w,newDist:nd,oldDist}),
+        msg:`v=${nodes[to].name}: newDist = dist[u]+w = ${d}+${w} = ${nd}`, hl:12});
+      if (nd < dist[to]) {
+        // Line 13-16: update dist, prev, enqueue
+        dist[to] = nd;
+        prev[to] = id;
+        pq = pq.filter(x => x.id !== to);
+        pq.push({d:nd, id:to});
+        relaxed.push(to);
+        F.push({state: snap(id,[to],[],{phase:'relax',u:id,d,v:to,w,newDist:nd,oldDist}),
+          msg:`${nd} < ${oldDist===-1?'∞':oldDist} → dist[${nodes[to].name}]=${nd}, prev=${nodes[id].name}, enqueue (${nd},${nodes[to].name})`, hl:14});
+      } else {
+        F.push({state: snap(id,[],[],{phase:'noUpdate',u:id,d,v:to,w,newDist:nd,oldDist}),
+          msg:`${nd} ≥ dist[${nodes[to].name}]=${oldDist===-1?'∞':oldDist} — no update`, hl:13});
+      }
+    }
+    if (!relaxed.length) {
+      F.push({state: snap(id,[],[],{phase:'neighbors',u:id,d}), msg:`${nodes[id].name}: no relaxations this round`, hl:11});
+    }
+  }
+
+  // Trace shortest path
+  const path = [];
+  let cur = 14;
+  while (cur !== -1) { path.unshift(cur); cur = prev[cur]; }
+
+  const finalState = snap(-1, [], path, {phase:'done'});
+  F.push({state: finalState, msg:`✓ Done! Shortest: ${path.map(i=>nodes[i].name).join(' → ')} = ${dist[14]} units`, hl:-1});
+
+  currentState = F[F.length-1].state;
+  return F;
+}
+
+function renderDijkstra(st) {
+  if (!st || !st.nodes) {
+    return `<div style="color:var(--muted);padding:40px;text-align:center">Press ▶ Mumbai → Vizag to run Dijkstra on 15 Indian cities</div>`;
+  }
+  const svgW = 560, svgH = 340, R = 15;
+  const { nodes, edges } = st;
+  const pathArr = st.path || [];
+  const pathSet = new Set(pathArr);
+  const pathEdges = new Set();
+  for (let i = 0; i < pathArr.length-1; i++) {
+    pathEdges.add(`${pathArr[i]}-${pathArr[i+1]}`);
+    pathEdges.add(`${pathArr[i+1]}-${pathArr[i]}`);
+  }
+  const visitedSet = new Set(st.visited || []);
+  const pqSet = new Set((st.pq||[]).map(x=>x.id));
+  const relaxedSet = new Set(st.relaxed||[]);
+
+  const nc = id => {
+    if (pathSet.has(id)) return {f:'#164e63',s:'#06b6d4',t:'#67e8f9'};
+    if (id===st.current) return {f:'#78350f',s:'#f59e0b',t:'#fef3c7'};
+    if (relaxedSet.has(id)) return {f:'#7c2d12',s:'#f97316',t:'#fed7aa'};
+    if (visitedSet.has(id)) return {f:'#14532d',s:'#22c55e',t:'#bbf7d0'};
+    if (pqSet.has(id)) return {f:'#1e3a5f',s:'#3b82f6',t:'#bfdbfe'};
+    return {f:'rgba(15,23,42,.9)',s:'rgba(71,85,105,.5)',t:'#334155'};
+  };
+
+  let svg = `<div class="vis-graph"><svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">`;
+
+  // Edges
+  edges.forEach(([a,b,w]) => {
+    const na=nodes[a], nb=nodes[b];
+    const onPath = pathEdges.has(`${a}-${b}`);
+    const bothSettled = visitedSet.has(a)&&visitedSet.has(b);
+    const sc = onPath?'#06b6d4': bothSettled?'rgba(34,197,94,.4)':'rgba(51,65,85,.35)';
+    const sw = onPath?2.5: bothSettled?1.5:1;
+    const mx=(na.x+nb.x)/2, my=(na.y+nb.y)/2;
+    svg += `<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="${sc}" stroke-width="${sw}"/>`;
+    svg += `<text x="${mx}" y="${my-3}" text-anchor="middle" font-size="8" fill="${onPath?'#22d3ee':'#374151'}" font-family="sans-serif">${w}</text>`;
+  });
+
+  // Nodes
+  nodes.forEach(n => {
+    const c = nc(n.id);
+    const d = st.dist[n.id];
+    svg += `<circle cx="${n.x}" cy="${n.y}" r="${R}" fill="${c.f}" stroke="${c.s}" stroke-width="1.8"/>`;
+    svg += `<text x="${n.x}" y="${n.y+1}" text-anchor="middle" dominant-baseline="middle" font-size="8" font-weight="700" fill="${c.t}" font-family="sans-serif">${n.short}</text>`;
+    const dStr = d===-1?'∞':d;
+    const dClr = pathSet.has(n.id)?'#22d3ee': d===-1?'#1e293b':'#94a3b8';
+    svg += `<text x="${n.x}" y="${n.y+R+10}" text-anchor="middle" font-size="8" fill="${dClr}" font-family="sans-serif" font-weight="700">${dStr}</text>`;
+  });
+
+  svg += `</svg>`;
+
+  // ── Variables panel ─────────────────────────────────────
+  const vr = st.vars;
+  if (vr && vr.phase && vr.phase !== 'init' && vr.phase !== 'while' && vr.phase !== 'done') {
+    const chip = (lbl, val, col) =>
+      `<span style="display:inline-flex;flex-direction:column;align-items:center;background:rgba(15,23,42,.8);border:1px solid ${col}33;border-radius:5px;padding:3px 8px;min-width:44px">
+        <span style="font-size:8px;color:#64748b;font-weight:700;letter-spacing:.5px">${lbl}</span>
+        <span style="font-size:11px;font-weight:800;color:${col};font-family:monospace">${val}</span>
+      </span>`;
+    let varHtml = `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;padding:7px 10px;background:rgba(15,23,42,.5);border:1px solid rgba(51,65,85,.4);border-radius:8px;align-items:flex-end">`;
+    varHtml += `<span style="font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.8px;align-self:center;margin-right:4px">vars</span>`;
+    if (vr.u !== undefined) varHtml += chip('u', nodes[vr.u].short, '#f59e0b');
+    if (vr.d !== undefined) varHtml += chip('dist[u]', vr.d, '#10b981');
+    if (vr.v !== undefined) varHtml += chip('v', nodes[vr.v].short, '#3b82f6');
+    if (vr.w !== undefined) varHtml += chip('w (edge)', vr.w, '#8b5cf6');
+    if (vr.newDist !== undefined) {
+      const improved = vr.oldDist === -1 || vr.newDist < vr.oldDist;
+      varHtml += chip('newDist', `${vr.d}+${vr.w}=${vr.newDist}`, improved ? '#22c55e' : '#ef4444');
+      varHtml += chip('dist[v] was', vr.oldDist === -1 ? '∞' : vr.oldDist, '#64748b');
+    }
+    varHtml += `</div>`;
+    svg += varHtml;
+  }
+
+  // ── dist[] chips ─────────────────────────────────────────
+  svg += `<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;max-width:${svgW}px">`;
+  svg += `<span style="font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.8px;align-self:center;margin-right:3px">dist[]</span>`;
+  nodes.forEach(n => {
+    const d = st.dist[n.id];
+    const inP = pathSet.has(n.id), isCur = n.id===st.current;
+    const isRelaxed = (st.relaxed||[]).includes(n.id);
+    const bg = inP?'rgba(6,182,212,.2)': isCur?'rgba(245,158,11,.15)': isRelaxed?'rgba(249,115,22,.15)': d===-1?'rgba(15,23,42,.6)':'rgba(16,185,129,.07)';
+    const br = inP?'#06b6d4': isCur?'#f59e0b': isRelaxed?'#f97316':'rgba(51,65,85,.4)';
+    svg += `<div style="background:${bg};border:1px solid ${br};border-radius:4px;padding:2px 5px;text-align:center;min-width:30px">
+      <div style="font-size:7px;color:#64748b;font-weight:700">${n.short}</div>
+      <div style="font-size:9px;font-weight:700;color:${inP?'#22d3ee':d===-1?'#334155':'#cbd5e1'}">${d===-1?'∞':d}</div>
+    </div>`;
+  });
+  svg += `</div>`;
+
+  // ── prev[] display ───────────────────────────────────────
+  svg += `<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;max-width:${svgW}px">`;
+  svg += `<span style="font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.8px;align-self:center;margin-right:3px">prev[]</span>`;
+  nodes.forEach(n => {
+    const p = st.prev ? st.prev[n.id] : -1;
+    const inP = pathSet.has(n.id);
+    const br = inP ? '#06b6d4' : 'rgba(51,65,85,.4)';
+    const vc = inP ? '#22d3ee' : p === -1 ? '#334155' : '#94a3b8';
+    svg += `<div style="border:1px solid ${br};border-radius:4px;padding:2px 5px;text-align:center;min-width:30px;background:rgba(15,23,42,.5)">
+      <div style="font-size:7px;color:#64748b;font-weight:700">${n.short}</div>
+      <div style="font-size:9px;font-weight:700;color:${vc}">${p===-1?'—':nodes[p].short}</div>
+    </div>`;
+  });
+  svg += `</div>`;
+
+  // ── Priority Queue ───────────────────────────────────────
+  svg += `<div class="traversal-queue"><span class="tq-label">PQ (min-heap):</span>`;
+  if (st.pq && st.pq.length) {
+    [...st.pq].sort((a,b)=>a.d-b.d).forEach(({id,d}) => {
+      svg += `<span class="tq-item" style="background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.4);color:#fbbf24">${nodes[id].short}(${d})</span>`;
+    });
+  } else {
+    svg += `<span style="color:var(--muted);font-size:11px;font-style:italic">empty</span>`;
+  }
+  svg += `</div>`;
+
+  // ── Settled ──────────────────────────────────────────────
+  svg += `<div class="visited-order"><span class="vo-label">Settled:</span>`;
+  if (st.visited && st.visited.length) {
+    st.visited.forEach(id => {
+      svg += `<span class="vo-item" style="background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:#86efac">${nodes[id].short}</span>`;
+    });
+  } else {
+    svg += `<span style="color:var(--muted);font-size:11px;font-style:italic">none yet</span>`;
+  }
+  svg += `</div></div>`;
   return svg;
 }
 
