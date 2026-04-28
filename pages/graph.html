@@ -82,6 +82,10 @@ h2{font-size:21px;font-weight:700;color:#0f172a;margin:6px 0 4px;line-height:1.3
 .fw-toggle:hover{background:#fff}
 .fw-toggle.on{transform:rotate(180deg)}
 .fw-ans{margin-top:4px;font-size:12px;color:#374151}
+.q-card .fw-ans{color:#cbd5e1}
+.q-card .fw-ans b,.q-card .fw-ans code{color:#f1f5f9}
+.q-card .fw-ans table{color:#cbd5e1}
+.q-card .fw-ans td,.q-card .fw-ans th{color:#cbd5e1}
 
 /* ── GRAPH SPECIFIC ── */
 .graph-canvas-wrap{position:relative;margin:16px 0}
@@ -266,6 +270,31 @@ canvas{display:block;margin:0 auto;border-radius:12px}
 .apd-btn.on{background:rgba(20,184,166,.15);border-color:var(--teal);color:#2dd4bf}
 .apd-log{margin-top:7px;font-size:10px;color:#64748b;min-height:18px;line-height:1.65;border-top:1px solid rgba(148,163,184,.07);padding-top:5px}
 @media(max-width:680px){.apd-wrap{grid-template-columns:1fr}}
+
+/* ── BFS / DFS DUNGEON SECTION ── */
+.bfd-main{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;margin-top:16px;align-items:start}
+.bfd-svg-wrap{background:#06090f;border-radius:12px;border:1px solid rgba(71,85,105,.3);padding:6px}
+.bfd-svg-wrap svg{width:100%;display:block}
+.bfd-log{background:#0a0f1e;border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:9px 12px;min-height:34px;font-size:10.5px;color:#64748b;margin-top:8px;line-height:1.7;font-family:'Courier New',monospace}
+.bfd-cmp{background:rgba(0,0,0,.22);border:1px solid rgba(148,163,184,.1);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.bfd-cmp-hdr,.bfd-cmp-row{display:grid;grid-template-columns:78px 1fr 1fr;font-size:11px;padding:6px 8px;border-bottom:1px solid rgba(148,163,184,.07)}
+.bfd-cmp-hdr{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;background:rgba(255,255,255,.03)}
+.bfd-cmp-row:last-child{border-bottom:none}
+.bfd-cmp-k{font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.3px;padding-top:2px}
+.bfd-cmp-b{color:#2dd4bf;line-height:1.45}
+.bfd-cmp-d{color:#c4b5fd;line-height:1.45}
+.bfd-use-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.bfd-use-card{border-radius:8px;padding:8px 10px;border:1px solid rgba(148,163,184,.1);background:rgba(255,255,255,.03)}
+.bfu-algo{font-size:9px;font-weight:800;letter-spacing:.8px;margin-bottom:5px;text-transform:uppercase}
+.bfu-prob{font-size:10.5px;color:#94a3b8;line-height:1.75}
+@media(max-width:680px){.bfd-main{grid-template-columns:1fr}}
+.apd-ds-row{display:flex;gap:8px;margin-top:7px;flex-wrap:wrap}
+.apd-ds-col{flex:1;min-width:110px;background:rgba(15,23,42,.6);border:1px solid rgba(51,65,85,.35);border-radius:6px;padding:5px 8px}
+.apd-ds-lbl{font-size:9px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.apd-ds-items{display:flex;flex-wrap:wrap;gap:3px;min-height:18px;align-items:center}
+.apd-ds-item{background:rgba(30,58,138,.3);border:1px solid rgba(59,130,246,.35);color:#93c5fd;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;font-family:monospace}
+.apd-ds-item.vis{background:rgba(6,78,59,.3);border-color:rgba(16,185,129,.4);color:#86efac}
+.apd-ds-empty{font-size:10px;color:#334155;font-style:italic}
 </style>
 </head>
 <body>
@@ -1110,6 +1139,84 @@ adj[3] = [1, 2]
 </section>
 
 <!-- ══════════════════════════════════════════
+     SLIDE 4.5 — CYCLE QUESTION
+════════════════════════════════════════════ -->
+<section class="s-card dark2">
+  <div class="si">
+    <div class="s-num">Quick Question</div>
+    <span class="badge" style="background:var(--orange)">🤔 THINK FIRST</span>
+    <h2>Is A→B and B→A a cycle?</h2>
+    <p class="sub">The answer depends on whether the graph is <b style="color:#fbbf24">directed</b> or <b style="color:#2dd4bf">undirected</b></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+
+      <!-- Undirected -->
+      <div style="background:rgba(20,184,166,.06);border:1px solid rgba(20,184,166,.2);border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:800;color:#2dd4bf;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Undirected Graph</div>
+        <svg viewBox="0 0 200 100" style="width:100%;max-width:200px;display:block;margin:0 auto 8px">
+          <rect width="200" height="100" fill="#080f1e" rx="8"/>
+          <line x1="60" y1="50" x2="140" y2="50" stroke="#2dd4bf" stroke-width="2.5"/>
+          <!-- A node -->
+          <circle cx="50" cy="50" r="18" fill="#134e4a" stroke="#2dd4bf" stroke-width="2"/>
+          <text x="50" y="50" text-anchor="middle" dy=".35em" font-size="13" font-weight="700" fill="#2dd4bf" font-family="sans-serif">A</text>
+          <!-- B node -->
+          <circle cx="150" cy="50" r="18" fill="#134e4a" stroke="#2dd4bf" stroke-width="2"/>
+          <text x="150" y="50" text-anchor="middle" dy=".35em" font-size="13" font-weight="700" fill="#2dd4bf" font-family="sans-serif">B</text>
+          <!-- Single edge label -->
+          <text x="100" y="34" text-anchor="middle" font-size="10" fill="#2dd4bf" font-family="sans-serif" font-weight="700">1 edge</text>
+        </svg>
+        <div style="font-size:11.5px;color:#94a3b8;line-height:1.65">
+          A—B is <b style="color:#2dd4bf">one edge</b> traversed in both directions.<br>
+          Going A→B→A just backtracks on the same edge — this is <b>NOT</b> a cycle.<br>
+          A simple cycle needs at least <b style="color:#fbbf24">3 nodes</b> (e.g. A→B→C→A).
+        </div>
+        <div style="margin-top:8px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);border-radius:6px;padding:6px 10px;font-size:11px;color:#f87171;font-weight:700">
+          ❌ NOT a cycle
+        </div>
+      </div>
+
+      <!-- Directed -->
+      <div style="background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.2);border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:800;color:#fb923c;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Directed Graph</div>
+        <svg viewBox="0 0 200 100" style="width:100%;max-width:200px;display:block;margin:0 auto 8px">
+          <defs>
+            <marker id="cyc-arr" viewBox="0 0 10 10" markerWidth="6" markerHeight="6" refX="9" refY="5" orient="auto">
+              <path d="M0,1 L0,9 L9,5 Z" fill="#fb923c"/>
+            </marker>
+          </defs>
+          <rect width="200" height="100" fill="#080f1e" rx="8"/>
+          <!-- A→B arc above -->
+          <path d="M68,38 Q100,12 132,38" fill="none" stroke="#fb923c" stroke-width="2.2" marker-end="url(#cyc-arr)"/>
+          <!-- B→A arc below -->
+          <path d="M132,62 Q100,88 68,62" fill="none" stroke="#fb923c" stroke-width="2.2" marker-end="url(#cyc-arr)"/>
+          <!-- Edge labels -->
+          <text x="100" y="16" text-anchor="middle" font-size="9" fill="#fb923c" font-family="sans-serif">A → B</text>
+          <text x="100" y="94" text-anchor="middle" font-size="9" fill="#fb923c" font-family="sans-serif">B → A</text>
+          <!-- A node -->
+          <circle cx="50" cy="50" r="18" fill="#7c2d12" stroke="#fb923c" stroke-width="2"/>
+          <text x="50" y="50" text-anchor="middle" dy=".35em" font-size="13" font-weight="700" fill="#fb923c" font-family="sans-serif">A</text>
+          <!-- B node -->
+          <circle cx="150" cy="50" r="18" fill="#7c2d12" stroke="#fb923c" stroke-width="2"/>
+          <text x="150" y="50" text-anchor="middle" dy=".35em" font-size="13" font-weight="700" fill="#fb923c" font-family="sans-serif">B</text>
+        </svg>
+        <div style="font-size:11.5px;color:#94a3b8;line-height:1.65">
+          A→B and B→A are <b style="color:#fb923c">two separate directed edges</b>.<br>
+          You can travel A→B→A→B→... forever — this IS a cycle.<br>
+          Directed cycles can involve <b style="color:#fbbf24">just 2 nodes</b>.
+        </div>
+        <div style="margin-top:8px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:6px;padding:6px 10px;font-size:11px;color:#86efac;font-weight:700">
+          ✅ YES — a 2-node directed cycle
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top:12px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:8px;padding:10px 14px;font-size:11.5px;color:#c4b5fd;line-height:1.7">
+      <b style="color:#a78bfa">Key insight:</b> In a directed graph, detecting cycles matters a lot — circular dependencies in npm, deadlocks in OS, and infinite redirects in web servers are all directed cycles. Detection uses DFS + tracking nodes currently <em>on the recursion stack</em>.
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(this)">↓</div>
+</section>
+
+<!-- ══════════════════════════════════════════
      SLIDE 5 — APPLICATIONS OVERVIEW
 ════════════════════════════════════════════ -->
 <section class="s-card dark4">
@@ -1179,22 +1286,22 @@ adj[3] = [1, 2]
           <text x="156" y="18" font-size="8" fill="#64748b" font-family="sans-serif">Visited</text>
           <circle cx="210" cy="14" r="5" fill="#1e3a5f" stroke="#60a5fa" stroke-width="1.5"/>
           <text x="218" y="18" font-size="8" fill="#64748b" font-family="sans-serif">Shortest Path</text>
-          <!-- Edges -->
+          <!-- Edges: BE (dashed direct route) drawn FIRST so it renders under the B→D→E path -->
+          <line id="gps-BE" x1="138" y1="55" x2="335" y2="128" stroke="#2d3a52" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
           <line id="gps-AB" x1="52" y1="108" x2="138" y2="55" stroke="#2d3a52" stroke-width="2"/>
           <line id="gps-AC" x1="52" y1="108" x2="128" y2="165" stroke="#2d3a52" stroke-width="2"/>
-          <line id="gps-BD" x1="138" y1="55" x2="236" y2="80" stroke="#2d3a52" stroke-width="2"/>
-          <line id="gps-CD" x1="128" y1="165" x2="236" y2="80" stroke="#2d3a52" stroke-width="2"/>
-          <line id="gps-DE" x1="236" y1="80" x2="335" y2="128" stroke="#2d3a52" stroke-width="2"/>
-          <line id="gps-BE" x1="138" y1="55" x2="335" y2="128" stroke="#2d3a52" stroke-width="2" stroke-dasharray="6,3"/>
+          <line id="gps-BD" x1="138" y1="55" x2="258" y2="30" stroke="#2d3a52" stroke-width="2"/>
+          <line id="gps-CD" x1="128" y1="165" x2="258" y2="30" stroke="#2d3a52" stroke-width="2"/>
+          <line id="gps-DE" x1="258" y1="30" x2="335" y2="128" stroke="#2d3a52" stroke-width="2"/>
           <line id="gps-CF" x1="128" y1="165" x2="222" y2="188" stroke="#2d3a52" stroke-width="2"/>
           <line id="gps-FE" x1="222" y1="188" x2="335" y2="128" stroke="#2d3a52" stroke-width="2"/>
           <!-- Edge weights -->
           <text x="91" y="75" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">10</text>
           <text x="82" y="142" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">15</text>
-          <text x="192" y="60" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">12</text>
-          <text x="184" y="132" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">10</text>
-          <text x="292" y="98" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">8</text>
-          <text x="252" y="72" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">25</text>
+          <text x="194" y="34" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">12</text>
+          <text x="188" y="105" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">10</text>
+          <text x="302" y="72" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">8</text>
+          <text x="248" y="96" text-anchor="middle" font-size="9" fill="#64748b" font-family="sans-serif" font-style="italic">25</text>
           <text x="178" y="185" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">20</text>
           <text x="285" y="165" text-anchor="middle" font-size="9" fill="#4a5568" font-family="sans-serif">5</text>
           <!-- Nodes -->
@@ -1205,8 +1312,8 @@ adj[3] = [1, 2]
           <text x="138" y="55" text-anchor="middle" dy=".35em" font-size="11" font-weight="700" fill="#e2e8f0" font-family="sans-serif">B</text>
           <circle id="gps-nC" cx="128" cy="165" r="18" fill="#1e293b" stroke="#475569" stroke-width="2"/>
           <text x="128" y="165" text-anchor="middle" dy=".35em" font-size="11" font-weight="700" fill="#e2e8f0" font-family="sans-serif">C</text>
-          <circle id="gps-nD" cx="236" cy="80" r="18" fill="#1e293b" stroke="#475569" stroke-width="2"/>
-          <text x="236" y="80" text-anchor="middle" dy=".35em" font-size="11" font-weight="700" fill="#e2e8f0" font-family="sans-serif">D</text>
+          <circle id="gps-nD" cx="258" cy="30" r="18" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+          <text x="258" y="30" text-anchor="middle" dy=".35em" font-size="11" font-weight="700" fill="#e2e8f0" font-family="sans-serif">D</text>
           <circle id="gps-nE" cx="335" cy="128" r="18" fill="#1e293b" stroke="#475569" stroke-width="2"/>
           <text x="335" y="128" text-anchor="middle" dy=".35em" font-size="11" font-weight="700" fill="#e2e8f0" font-family="sans-serif">E</text>
           <text x="335" y="151" text-anchor="middle" font-size="8" fill="#60a5fa" font-family="sans-serif">End</text>
@@ -1215,9 +1322,20 @@ adj[3] = [1, 2]
         </svg>
         <div class="apd-btns">
           <button class="apd-btn" id="gps-btn" onclick="gpsRun()">▶ Run Dijkstra</button>
+          <button class="apd-btn" id="gps-pause" onclick="gpsPauseResume()" disabled>⏸ Pause</button>
           <button class="apd-btn" onclick="gpsReset()">↺ Reset</button>
         </div>
         <div class="apd-log" id="gps-log">Press ▶ to watch Dijkstra find A → E shortest path step by step</div>
+        <div class="apd-ds-row">
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">Priority Queue</div>
+            <div class="apd-ds-items" id="gps-pq"><span class="apd-ds-empty">empty</span></div>
+          </div>
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">Visited (Settled)</div>
+            <div class="apd-ds-items" id="gps-vis"><span class="apd-ds-empty">none</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1284,9 +1402,20 @@ adj[3] = [1, 2]
         </svg>
         <div class="apd-btns">
           <button class="apd-btn" id="web-btn" onclick="webRun()">▶ Start Crawl</button>
+          <button class="apd-btn" id="web-pause" onclick="webPauseResume()" disabled>⏸ Pause</button>
           <button class="apd-btn" onclick="webReset()">↺ Reset</button>
         </div>
         <div class="apd-log" id="web-log">Press ▶ to simulate how Google's crawler indexes the web using BFS</div>
+        <div class="apd-ds-row">
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">BFS Queue (URLs)</div>
+            <div class="apd-ds-items" id="web-queue"><span class="apd-ds-empty">empty</span></div>
+          </div>
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">Indexed Pages</div>
+            <div class="apd-ds-items" id="web-vis"><span class="apd-ds-empty">none</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1352,9 +1481,20 @@ adj[3] = [1, 2]
         </svg>
         <div class="apd-btns">
           <button class="apd-btn" id="soc-btn" onclick="socRun()">▶ Find Connections</button>
+          <button class="apd-btn" id="soc-pause" onclick="socPauseResume()" disabled>⏸ Pause</button>
           <button class="apd-btn" onclick="socReset()">↺ Reset</button>
         </div>
         <div class="apd-log" id="soc-log">Press ▶ to BFS from Alice and discover degrees of separation</div>
+        <div class="apd-ds-row">
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">BFS Queue</div>
+            <div class="apd-ds-items" id="soc-queue"><span class="apd-ds-empty">empty</span></div>
+          </div>
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">Discovered</div>
+            <div class="apd-ds-items" id="soc-vis"><span class="apd-ds-empty">none</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1422,9 +1562,20 @@ adj[3] = [1, 2]
         </svg>
         <div class="apd-btns">
           <button class="apd-btn" id="pkg-btn" onclick="pkgRun()">▶ npm install</button>
+          <button class="apd-btn" id="pkg-pause" onclick="pkgPauseResume()" disabled>⏸ Pause</button>
           <button class="apd-btn" onclick="pkgReset()">↺ Reset</button>
         </div>
         <div class="apd-log" id="pkg-log">Press ▶ to simulate npm's topological sort install order</div>
+        <div class="apd-ds-row">
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">Queue (in-degree=0)</div>
+            <div class="apd-ds-items" id="pkg-queue"><span class="apd-ds-empty">empty</span></div>
+          </div>
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">Installed</div>
+            <div class="apd-ds-items" id="pkg-vis"><span class="apd-ds-empty">none</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1485,9 +1636,20 @@ adj[3] = [1, 2]
         </svg>
         <div class="apd-btns">
           <button class="apd-btn" id="fs-btn" onclick="fsRun()">▶ DFS Traverse</button>
+          <button class="apd-btn" id="fs-pause" onclick="fsPauseResume()" disabled>⏸ Pause</button>
           <button class="apd-btn" onclick="fsReset()">↺ Reset</button>
         </div>
         <div class="apd-log" id="fs-log">Press ▶ to watch DFS traverse the directory tree</div>
+        <div class="apd-ds-row">
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">DFS Call Stack</div>
+            <div class="apd-ds-items" id="fs-stack"><span class="apd-ds-empty">empty</span></div>
+          </div>
+          <div class="apd-ds-col">
+            <div class="apd-ds-lbl">Traversed</div>
+            <div class="apd-ds-items" id="fs-vis"><span class="apd-ds-empty">none</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1495,28 +1657,297 @@ adj[3] = [1, 2]
 </section>
 
 <!-- ══════════════════════════════════════════
-     BFS & DFS — See Visualizer
+     BFS & DFS — Live Animation
 ════════════════════════════════════════════ -->
-<section class="s-trans">
+<section class="s-card dark4">
   <div class="si">
-    <div style="font-size:48px;margin-bottom:16px">🔍</div>
-    <h2 style="font-size:24px;margin-bottom:10px">BFS &amp; DFS Traversals</h2>
-    <p style="font-size:14px;color:#94a3b8;max-width:460px;margin:0 auto 24px;line-height:1.65">
-      BFS and DFS have moved to the interactive <b style="color:#2dd4bf">Data Structure Visualizer</b> — step through each traversal animation, view queue/stack state, and see pseudo code side by side.
-    </p>
-    <a href="visualization.html" style="display:inline-flex;align-items:center;gap:10px;padding:13px 28px;background:linear-gradient(90deg,var(--teal),var(--blue));color:#fff;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;transition:opacity .2s">
-      Open BFS &amp; DFS Visualizer →
-    </a>
-    <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-      <span class="badge" style="background:var(--teal)">BFS · Queue · O(V+E)</span>
-      <span class="badge" style="background:var(--purple)">DFS · Stack · O(V+E)</span>
-      <span class="badge" style="background:var(--blue)">Step-by-step animation</span>
-      <span class="badge" style="background:var(--green)">Pseudo code</span>
+    <div class="s-num">Traversals · Interactive</div>
+    <span class="badge" style="background:#0d9488">BFS</span>
+    <span class="badge" style="background:#7c3aed;margin-left:4px">DFS</span>
+    <h2>BFS vs DFS — Live Animation</h2>
+    <p class="sub">Same 7-node graph. Watch <b style="color:#2dd4bf">BFS use a queue</b> (level by level) and <b style="color:#a78bfa">DFS use a stack</b> (deep first). The visit order is completely different.</p>
+
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-top:14px;align-items:start">
+      <!-- Left: graph + controls -->
+      <div>
+        <div class="bfd-svg-wrap">
+          <svg id="bfd-svg" viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg">
+            <!-- Level labels -->
+            <text x="8" y="34"  fill="rgba(148,163,184,.3)" font-size="8" font-family="monospace" font-weight="700">L0</text>
+            <text x="8" y="122" fill="rgba(148,163,184,.25)" font-size="8" font-family="monospace" font-weight="700">L1</text>
+            <text x="8" y="203" fill="rgba(148,163,184,.2)" font-size="8" font-family="monospace" font-weight="700">L2</text>
+            <!-- Edges -->
+            <line id="bfd-e0-1" x1="210" y1="32"  x2="100" y2="118" stroke="rgba(51,65,85,.5)" stroke-width="2"/>
+            <line id="bfd-e0-2" x1="210" y1="32"  x2="320" y2="118" stroke="rgba(51,65,85,.5)" stroke-width="2"/>
+            <line id="bfd-e1-3" x1="100" y1="118" x2="38"  y2="200" stroke="rgba(51,65,85,.5)" stroke-width="2"/>
+            <line id="bfd-e1-4" x1="100" y1="118" x2="162" y2="200" stroke="rgba(51,65,85,.5)" stroke-width="2"/>
+            <line id="bfd-e2-5" x1="320" y1="118" x2="258" y2="200" stroke="rgba(51,65,85,.5)" stroke-width="2"/>
+            <line id="bfd-e2-6" x1="320" y1="118" x2="382" y2="200" stroke="rgba(51,65,85,.5)" stroke-width="2"/>
+            <!-- Nodes -->
+            <circle id="bfd-n0" cx="210" cy="32"  r="22" fill="#1e293b" stroke="#334155" stroke-width="2.5"/>
+            <circle id="bfd-n1" cx="100" cy="118" r="22" fill="#1e293b" stroke="#334155" stroke-width="2.5"/>
+            <circle id="bfd-n2" cx="320" cy="118" r="22" fill="#1e293b" stroke="#334155" stroke-width="2.5"/>
+            <circle id="bfd-n3" cx="38"  cy="200" r="22" fill="#1e293b" stroke="#334155" stroke-width="2.5"/>
+            <circle id="bfd-n4" cx="162" cy="200" r="22" fill="#1e293b" stroke="#334155" stroke-width="2.5"/>
+            <circle id="bfd-n5" cx="258" cy="200" r="22" fill="#1e293b" stroke="#334155" stroke-width="2.5"/>
+            <circle id="bfd-n6" cx="382" cy="200" r="22" fill="#1e293b" stroke="#334155" stroke-width="2.5"/>
+            <!-- Node labels -->
+            <text x="210" y="32"  text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#94a3b8" font-family="system-ui" style="pointer-events:none">A</text>
+            <text x="100" y="118" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#94a3b8" font-family="system-ui" style="pointer-events:none">B</text>
+            <text x="320" y="118" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#94a3b8" font-family="system-ui" style="pointer-events:none">C</text>
+            <text x="38"  y="200" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#94a3b8" font-family="system-ui" style="pointer-events:none">D</text>
+            <text x="162" y="200" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#94a3b8" font-family="system-ui" style="pointer-events:none">E</text>
+            <text x="258" y="200" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#94a3b8" font-family="system-ui" style="pointer-events:none">F</text>
+            <text x="382" y="200" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#94a3b8" font-family="system-ui" style="pointer-events:none">G</text>
+          </svg>
+        </div>
+        <div class="trav-controls" style="margin-top:10px">
+          <button class="trav-btn btn-bfs" onclick="bfdRun('bfs')">▶ Run BFS</button>
+          <button class="trav-btn btn-dfs" onclick="bfdRun('dfs')">▶ Run DFS</button>
+          <button class="trav-btn btn-reset" onclick="bfdReset()">↺ Reset</button>
+          <div class="trav-speed">Speed: <input type="range" min="1" max="5" value="3" id="bfd-speed" style="width:70px"></div>
+        </div>
+        <div style="margin-top:9px">
+          <div style="font-size:9px;font-weight:800;color:#475569;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px" id="bfd-ds-lbl">Queue / Stack</div>
+          <div class="ds-display" id="bfd-ds-items"><span style="font-size:10px;color:#334155;font-style:italic">empty</span></div>
+        </div>
+        <div class="bfd-log" id="bfd-log">Press ▶ Run BFS or ▶ Run DFS to see the traversal</div>
+      </div>
+
+      <!-- Right: pseudocode + legend -->
+      <div>
+        <div style="padding:10px 12px;background:rgba(20,184,166,.06);border:1.5px solid rgba(20,184,166,.25);border-radius:10px;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:800;color:#2dd4bf;margin-bottom:4px">BFS — Queue (FIFO)</div>
+          <div style="font-size:10.5px;color:#94a3b8;margin-bottom:7px;line-height:1.55">Visits level 0, then level 1, then level 2. <b style="color:#f1f5f9">Guarantees shortest path.</b></div>
+          <div class="pseudo-code" style="font-size:10px;line-height:1.8;background:#0a0f1e;border-radius:7px;padding:8px 10px"><span class="kw">queue</span> = [A]
+visited.add(A)
+<span class="kw">while</span> queue not empty:
+  node = queue.<span class="kw">dequeue()</span>  <span class="cm">← front</span>
+  process(node)
+  <span class="kw">for</span> n <span class="kw">in</span> adj[node]:
+    <span class="kw">if</span> n not visited:
+      visited.add(n)
+      queue.<span class="kw">enqueue(n)</span>  <span class="cm">← back</span></div>
+        </div>
+        <div style="padding:10px 12px;background:rgba(139,92,246,.06);border:1.5px solid rgba(139,92,246,.25);border-radius:10px;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:800;color:#a78bfa;margin-bottom:4px">DFS — Stack (LIFO)</div>
+          <div style="font-size:10.5px;color:#94a3b8;margin-bottom:7px;line-height:1.55">Dives as deep as possible before backtracking. <b style="color:#f1f5f9">No shortest path guarantee.</b></div>
+          <div class="pseudo-code" style="font-size:10px;line-height:1.8;background:#0a0f1e;border-radius:7px;padding:8px 10px"><span class="kw-dfs">stack</span> = [A]
+<span class="kw-dfs">while</span> stack not empty:
+  node = stack.<span class="kw-dfs">pop()</span>  <span class="cm">← top</span>
+  <span class="kw-dfs">if</span> visited: <span class="kw-dfs">skip</span>
+  visited.add(node)
+  process(node)
+  <span class="kw-dfs">for</span> n <span class="kw-dfs">in</span> adj[node]:
+    <span class="kw-dfs">if</span> n not visited:
+      stack.<span class="kw-dfs">push(n)</span></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:10px">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#334155;display:inline-block"></span>Unvisited</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#3b82f6;display:inline-block"></span>Queued/Stacked</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#fbbf24;display:inline-block"></span>Processing</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block"></span>BFS visited</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;display:inline-block"></span>DFS visited</span>
+        </div>
+      </div>
     </div>
   </div>
   <div class="dn" onclick="scrollNext(this)">↓</div>
 </section>
 
+<!-- ══════════════════════════════════════════
+     BFS vs DFS — The Difference
+════════════════════════════════════════════ -->
+<section class="s-card dark" style="padding:48px 24px 60px">
+  <div class="si">
+    <div class="s-num">Traversals · Comparison</div>
+    <h2>BFS vs DFS — Understanding the Difference</h2>
+    <p class="sub">Same graph, same start. BFS fans outward in waves · DFS dives deep first. The exploration ORDER is completely different.</p>
+
+    <!-- Side-by-side static diagrams — same A-G tree, different visit orders -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+
+      <!-- BFS diagram -->
+      <div style="background:rgba(20,184,166,.06);border:1.5px solid rgba(20,184,166,.25);border-radius:12px;padding:12px">
+        <div style="font-size:12px;font-weight:800;color:#2dd4bf;margin-bottom:2px;text-align:center">BFS — Breadth First (Queue)</div>
+        <div style="font-size:10px;color:#64748b;text-align:center;margin-bottom:8px">Spreads level by level · numbers = visit order</div>
+        <svg viewBox="0 0 280 190" style="width:100%;display:block;background:#06090f;border-radius:10px">
+          <!-- Level guide lines -->
+          <line x1="0" y1="28" x2="280" y2="28" stroke="rgba(20,184,166,.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="95" x2="280" y2="95" stroke="rgba(20,184,166,.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="162" x2="280" y2="162" stroke="rgba(20,184,166,.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <text x="4" y="24" fill="rgba(20,184,166,.35)" font-size="8" font-family="monospace">L0</text>
+          <text x="4" y="91" fill="rgba(20,184,166,.3)" font-size="8" font-family="monospace">L1</text>
+          <text x="4" y="158" fill="rgba(20,184,166,.25)" font-size="8" font-family="monospace">L2</text>
+          <!-- Edges — all lit (BFS visits all) -->
+          <line x1="140" y1="28" x2="72" y2="95" stroke="#22c55e" stroke-width="2"/>
+          <line x1="140" y1="28" x2="208" y2="95" stroke="#22c55e" stroke-width="2"/>
+          <line x1="72"  y1="95" x2="36"  y2="162" stroke="#22c55e" stroke-width="2"/>
+          <line x1="72"  y1="95" x2="108" y2="162" stroke="#22c55e" stroke-width="2"/>
+          <line x1="208" y1="95" x2="172" y2="162" stroke="#22c55e" stroke-width="2"/>
+          <line x1="208" y1="95" x2="244" y2="162" stroke="#22c55e" stroke-width="2"/>
+          <!-- Nodes — teal fills, numbered ①–⑦ in visit order -->
+          <!-- A: ① -->
+          <circle cx="140" cy="28" r="18" fill="#134e4a" stroke="#14b8a6" stroke-width="2.5"/>
+          <text x="140" y="29" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#2dd4bf">A</text>
+          <text x="127" y="14" fill="#fbbf24" font-size="9" font-weight="800" font-family="monospace">①</text>
+          <!-- B: ② -->
+          <circle cx="72" cy="95" r="18" fill="#0e7490" stroke="#22d3ee" stroke-width="2"/>
+          <text x="72" y="96" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#e0f2fe">B</text>
+          <text x="58" y="80" fill="#fbbf24" font-size="9" font-weight="800" font-family="monospace">②</text>
+          <!-- C: ③ -->
+          <circle cx="208" cy="95" r="18" fill="#0e7490" stroke="#22d3ee" stroke-width="2"/>
+          <text x="208" y="96" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#e0f2fe">C</text>
+          <text x="194" y="80" fill="#fbbf24" font-size="9" font-weight="800" font-family="monospace">③</text>
+          <!-- D: ④ -->
+          <circle cx="36" cy="162" r="16" fill="#164e63" stroke="#2dd4bf" stroke-width="1.5"/>
+          <text x="36" y="163" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#a5f3fc">D</text>
+          <text x="22" y="148" fill="#fbbf24" font-size="8" font-weight="800" font-family="monospace">④</text>
+          <!-- E: ⑤ -->
+          <circle cx="108" cy="162" r="16" fill="#164e63" stroke="#2dd4bf" stroke-width="1.5"/>
+          <text x="108" y="163" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#a5f3fc">E</text>
+          <text x="94" y="148" fill="#fbbf24" font-size="8" font-weight="800" font-family="monospace">⑤</text>
+          <!-- F: ⑥ -->
+          <circle cx="172" cy="162" r="16" fill="#164e63" stroke="#2dd4bf" stroke-width="1.5"/>
+          <text x="172" y="163" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#a5f3fc">F</text>
+          <text x="158" y="148" fill="#fbbf24" font-size="8" font-weight="800" font-family="monospace">⑥</text>
+          <!-- G: ⑦ -->
+          <circle cx="244" cy="162" r="16" fill="#164e63" stroke="#2dd4bf" stroke-width="1.5"/>
+          <text x="244" y="163" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#a5f3fc">G</text>
+          <text x="230" y="148" fill="#fbbf24" font-size="8" font-weight="800" font-family="monospace">⑦</text>
+        </svg>
+        <div style="margin-top:8px;font-size:10px;color:#94a3b8;line-height:1.6">
+          <b style="color:#2dd4bf">Visit order:</b> A → B → C → D → E → F → G<br>
+          Visits all of level 1 before going to level 2. Each level is complete before the next starts.
+        </div>
+      </div>
+
+      <!-- DFS diagram -->
+      <div style="background:rgba(139,92,246,.06);border:1.5px solid rgba(139,92,246,.25);border-radius:12px;padding:12px">
+        <div style="font-size:12px;font-weight:800;color:#c4b5fd;margin-bottom:2px;text-align:center">DFS — Depth First (Stack)</div>
+        <div style="font-size:10px;color:#64748b;text-align:center;margin-bottom:8px">Dives deep left branch first · numbers = visit order</div>
+        <svg viewBox="0 0 280 190" style="width:100%;display:block;background:#06090f;border-radius:10px">
+          <!-- Level guide lines -->
+          <line x1="0" y1="28" x2="280" y2="28" stroke="rgba(139,92,246,.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="95" x2="280" y2="95" stroke="rgba(139,92,246,.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="0" y1="162" x2="280" y2="162" stroke="rgba(139,92,246,.08)" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- Edges — left branch lit, right branch dimmer -->
+          <line x1="140" y1="28" x2="72"  y2="95" stroke="#8b5cf6" stroke-width="2.5"/>
+          <line x1="140" y1="28" x2="208" y2="95" stroke="#6d28d9" stroke-width="2"/>
+          <line x1="72"  y1="95" x2="36"  y2="162" stroke="#8b5cf6" stroke-width="2.5"/>
+          <line x1="72"  y1="95" x2="108" y2="162" stroke="#8b5cf6" stroke-width="2"/>
+          <line x1="208" y1="95" x2="172" y2="162" stroke="#6d28d9" stroke-width="2"/>
+          <line x1="208" y1="95" x2="244" y2="162" stroke="#6d28d9" stroke-width="2"/>
+          <!-- Backtrack arrow on B→C -->
+          <text x="160" y="68" fill="#ef4444" font-size="14" font-family="monospace">↩</text>
+          <text x="162" y="80" fill="#ef4444" font-size="7" font-family="monospace">back</text>
+          <!-- Nodes — purple fills, numbered ①–⑦ in DFS order -->
+          <!-- A: ① -->
+          <circle cx="140" cy="28" r="18" fill="#2e1065" stroke="#8b5cf6" stroke-width="2.5"/>
+          <text x="140" y="29" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#c4b5fd">A</text>
+          <text x="127" y="14" fill="#fbbf24" font-size="9" font-weight="800" font-family="monospace">①</text>
+          <!-- B: ② -->
+          <circle cx="72" cy="95" r="18" fill="#2e1065" stroke="#8b5cf6" stroke-width="2"/>
+          <text x="72" y="96" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#c4b5fd">B</text>
+          <text x="58" y="80" fill="#fbbf24" font-size="9" font-weight="800" font-family="monospace">②</text>
+          <!-- C: ⑤ — visited after all of left subtree -->
+          <circle cx="208" cy="95" r="18" fill="#1a0050" stroke="#7c3aed" stroke-width="2"/>
+          <text x="208" y="96" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#a78bfa">C</text>
+          <text x="194" y="80" fill="#fbbf24" font-size="9" font-weight="800" font-family="monospace">⑤</text>
+          <!-- D: ③ -->
+          <circle cx="36" cy="162" r="16" fill="#2e1065" stroke="#8b5cf6" stroke-width="1.5"/>
+          <text x="36" y="163" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#c4b5fd">D</text>
+          <text x="22" y="148" fill="#fbbf24" font-size="8" font-weight="800" font-family="monospace">③</text>
+          <!-- E: ④ -->
+          <circle cx="108" cy="162" r="16" fill="#2e1065" stroke="#8b5cf6" stroke-width="1.5"/>
+          <text x="108" y="163" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#c4b5fd">E</text>
+          <text x="94" y="148" fill="#fbbf24" font-size="8" font-weight="800" font-family="monospace">④</text>
+          <!-- F: ⑥ -->
+          <circle cx="172" cy="162" r="16" fill="#1a0050" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="172" y="163" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#a78bfa">F</text>
+          <text x="158" y="148" fill="#fbbf24" font-size="8" font-weight="800" font-family="monospace">⑥</text>
+          <!-- G: ⑦ -->
+          <circle cx="244" cy="162" r="16" fill="#1a0050" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="244" y="163" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#a78bfa">G</text>
+          <text x="230" y="148" fill="#fbbf24" font-size="8" font-weight="800" font-family="monospace">⑦</text>
+        </svg>
+        <div style="margin-top:8px;font-size:10px;color:#94a3b8;line-height:1.6">
+          <b style="color:#c4b5fd">Visit order:</b> A → B → D → E → C → F → G<br>
+          Goes all the way down the left branch (A→B→D, then E), then <span style="color:#ef4444">backtracks</span> to visit C and its children.
+        </div>
+      </div>
+    </div>
+
+    <!-- Key insight callout -->
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:rgba(15,23,42,.6);border:1px solid rgba(51,65,85,.4);border-radius:10px;font-size:11px;color:#94a3b8;line-height:1.6">
+      <span style="font-size:16px;flex-shrink:0">💡</span>
+      <span>Same tree, same start node (A). Notice <b style="color:#fbbf24">C is ③ in BFS but ⑤ in DFS</b>. BFS reaches the right subtree before finishing the left. DFS exhausts the entire left branch first, then backtracks to the right.</span>
+    </div>
+
+    <!-- Full comparison table -->
+    <div style="margin-top:18px">
+      <div style="font-size:10px;font-weight:800;color:#475569;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px">Full Comparison</div>
+      <div class="bfd-cmp">
+        <div class="bfd-cmp-hdr">
+          <span style="color:#475569">Feature</span>
+          <span style="color:#2dd4bf">BFS</span>
+          <span style="color:#c4b5fd">DFS</span>
+        </div>
+        <div class="bfd-cmp-row"><span class="bfd-cmp-k">Data structure</span><span class="bfd-cmp-b">Queue (FIFO)</span><span class="bfd-cmp-d">Stack (LIFO) or recursion</span></div>
+        <div class="bfd-cmp-row"><span class="bfd-cmp-k">Explores</span><span class="bfd-cmp-b">Level by level (breadth)</span><span class="bfd-cmp-d">One path deep first</span></div>
+        <div class="bfd-cmp-row"><span class="bfd-cmp-k">Shortest path</span><span class="bfd-cmp-b">✅ Always (unweighted)</span><span class="bfd-cmp-d">❌ Not guaranteed</span></div>
+        <div class="bfd-cmp-row"><span class="bfd-cmp-k">Space (worst)</span><span class="bfd-cmp-b">O(V) — wide frontier</span><span class="bfd-cmp-d">O(V) — deep call stack</span></div>
+        <div class="bfd-cmp-row"><span class="bfd-cmp-k">Better when</span><span class="bfd-cmp-b">Target is shallow / nearby</span><span class="bfd-cmp-d">Target is deep / graph huge</span></div>
+        <div class="bfd-cmp-row"><span class="bfd-cmp-k">Time</span><span class="bfd-cmp-b">O(V + E)</span><span class="bfd-cmp-d">O(V + E)</span></div>
+      </div>
+    </div>
+
+    <!-- Problem use cases -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+      <div style="background:rgba(20,184,166,.05);border:1px solid rgba(20,184,166,.2);border-radius:10px;padding:12px">
+        <div style="font-size:11px;font-weight:800;color:#2dd4bf;margin-bottom:8px">Use BFS for...</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11px;color:#94a3b8;padding:4px 8px;background:rgba(20,184,166,.08);border-radius:6px;border-left:2px solid #2dd4bf">
+            <b style="color:#f1f5f9">Shortest Path</b> — Maze, Word Ladder, Bipartite check
+          </div>
+          <div style="font-size:11px;color:#94a3b8;padding:4px 8px;background:rgba(20,184,166,.08);border-radius:6px;border-left:2px solid #2dd4bf">
+            <b style="color:#f1f5f9">Level Order</b> — Tree level traversal, Zigzag
+          </div>
+          <div style="font-size:11px;color:#94a3b8;padding:4px 8px;background:rgba(20,184,166,.08);border-radius:6px;border-left:2px solid #2dd4bf">
+            <b style="color:#f1f5f9">Connected Regions</b> — Islands, Rotten Oranges, Flood Fill
+          </div>
+          <div style="font-size:11px;color:#94a3b8;padding:4px 8px;background:rgba(20,184,166,.08);border-radius:6px;border-left:2px solid #2dd4bf">
+            <b style="color:#f1f5f9">Multi-source BFS</b> — 0/1 Matrix, Pacific Atlantic
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:12px">
+        <div style="font-size:11px;font-weight:800;color:#c4b5fd;margin-bottom:8px">Use DFS for...</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11px;color:#94a3b8;padding:4px 8px;background:rgba(139,92,246,.08);border-radius:6px;border-left:2px solid #8b5cf6">
+            <b style="color:#f1f5f9">Cycle Detection</b> — Detect cycle in directed / undirected
+          </div>
+          <div style="font-size:11px;color:#94a3b8;padding:4px 8px;background:rgba(139,92,246,.08);border-radius:6px;border-left:2px solid #8b5cf6">
+            <b style="color:#f1f5f9">Topological Sort</b> — Course Schedule, Task ordering
+          </div>
+          <div style="font-size:11px;color:#94a3b8;padding:4px 8px;background:rgba(139,92,246,.08);border-radius:6px;border-left:2px solid #8b5cf6">
+            <b style="color:#f1f5f9">Backtracking</b> — N-Queens, Sudoku, Permutations
+          </div>
+          <div style="font-size:11px;color:#94a3b8;padding:4px 8px;background:rgba(139,92,246,.08);border-radius:6px;border-left:2px solid #8b5cf6">
+            <b style="color:#f1f5f9">Path Existence</b> — All paths, Is reachable, SCC
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;padding:9px 14px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:8px;font-size:11px;color:#94a3b8;line-height:1.7">
+      <b style="color:#fbbf24">Rule of thumb:</b> If the problem asks for <em style="color:#2dd4bf">shortest path or minimum steps</em> → BFS.
+      If it asks for <em style="color:#c4b5fd">all paths, cycles, ordering, or backtracking</em> → DFS.
+      When in doubt, both are O(V+E) — pick based on what the problem needs.
+    </div>
+  </div>
+  <div class="dn" onclick="scrollNext(this)">↓</div>
+</section>
 
 <!-- ══════════════════════════════════════════
      INTERVIEW Q1
@@ -1889,200 +2320,220 @@ function apSetEdge(id, stroke, markerSuffix) {
   }
 }
 
+// ── SHARED TICKER UTILITY ────────────────────────────
+function makeDS(qId, vId) {
+  const DS = (items, cls) => items.length
+    ? items.map(x => `<span class="apd-ds-item${cls?' '+cls:''}">${x}</span>`).join('')
+    : '<span class="apd-ds-empty">—</span>';
+  return {
+    set(q, v) {
+      const qEl = document.getElementById(qId); if (qEl) qEl.innerHTML = DS(q,'');
+      const vEl = document.getElementById(vId); if (vEl) vEl.innerHTML = DS(v,'vis');
+    },
+    clear() { this.set([],[]); }
+  };
+}
+
 // ── GPS / NAVIGATION (Dijkstra) ──────────────────────
-let gpsTimers = [], gpsRunning = false;
+let gpsTimer=null, gpsCurStep=0, gpsSteps=[], gpsRunning=false, gpsPaused=false;
+const gpsDS = makeDS('gps-pq','gps-vis');
 function gpsReset() {
-  gpsTimers.forEach(clearTimeout); gpsTimers = []; gpsRunning = false;
-  ['A','B','C','D','E','F'].forEach(n => apSetNode('gps-n' + n, '#1e293b', '#475569'));
-  ['AB','AC','BD','CD','DE','BE','CF','FE'].forEach(e => { const el = document.getElementById('gps-' + e); if (el) el.setAttribute('stroke','#2d3a52'); });
-  const b = document.getElementById('gps-btn'); if (b) { b.textContent = '▶ Run Dijkstra'; b.classList.remove('on'); }
-  document.getElementById('gps-log').textContent = 'Press ▶ to watch Dijkstra find A → E shortest path step by step';
+  clearTimeout(gpsTimer); gpsRunning=false; gpsPaused=false; gpsCurStep=0;
+  ['A','B','C','D','E','F'].forEach(n => apSetNode('gps-n'+n,'#1e293b','#475569'));
+  ['AB','AC','BD','CD','DE','BE','CF','FE'].forEach(e => { const el=document.getElementById('gps-'+e); if(el)el.setAttribute('stroke','#2d3a52'); });
+  const b=document.getElementById('gps-btn'); if(b){b.textContent='▶ Run Dijkstra';b.classList.remove('on');}
+  const p=document.getElementById('gps-pause'); if(p){p.textContent='⏸ Pause';p.disabled=true;}
+  document.getElementById('gps-log').textContent='Press ▶ to watch Dijkstra find A → E shortest path step by step';
+  gpsDS.clear();
+}
+function gpsTick() {
+  if(gpsCurStep>=gpsSteps.length){gpsRunning=false;return;}
+  gpsSteps[gpsCurStep](); gpsCurStep++;
+  if(!gpsPaused&&gpsCurStep<gpsSteps.length) gpsTimer=setTimeout(gpsTick,750);
+}
+function gpsPauseResume() {
+  if(!gpsRunning)return;
+  if(gpsPaused){gpsPaused=false;const p=document.getElementById('gps-pause');if(p)p.textContent='⏸ Pause';gpsTimer=setTimeout(gpsTick,750);}
+  else{gpsPaused=true;clearTimeout(gpsTimer);const p=document.getElementById('gps-pause');if(p)p.textContent='▶ Resume';}
 }
 function gpsRun() {
-  if (gpsRunning) { gpsReset(); return; }
-  gpsReset(); gpsRunning = true;
-  const b = document.getElementById('gps-btn'); if (b) { b.textContent = '⏹ Stop'; b.classList.add('on'); }
-  const L = document.getElementById('gps-log');
-  const setN = (n, f, s) => apSetNode('gps-n' + n, f, s);
-  const setE = (e, s) => { const el = document.getElementById('gps-' + e); if (el) el.setAttribute('stroke', s); };
-  const steps = [
-    () => { setN('A','#166534','#22c55e'); L.textContent = 'Init: dist[A]=0, dist[B..F]=∞ — start at A'; },
-    () => { setE('AB','#fbbf24'); setN('B','#78350f','#fbbf24'); L.textContent = 'Relax A→B: dist[B] = 10'; },
-    () => { setE('AC','#fbbf24'); setN('C','#78350f','#fbbf24'); L.textContent = 'Relax A→C: dist[C] = 15'; },
-    () => { setN('B','#134e4a','#2dd4bf'); L.textContent = 'Pop nearest unvisited: B (dist=10)'; },
-    () => { setE('BD','#fbbf24'); setN('D','#78350f','#fbbf24'); L.textContent = 'Relax B→D: dist[D] = 10+12 = 22'; },
-    () => { L.textContent = 'Relax B→E: dist[E] = 10+25 = 35 (tentative, dashed road)'; },
-    () => { setN('C','#134e4a','#2dd4bf'); L.textContent = 'Pop nearest unvisited: C (dist=15)'; },
-    () => { setE('CF','#fbbf24'); setN('F','#78350f','#fbbf24'); L.textContent = 'Relax C→F: dist[F] = 15+20 = 35 · C→D = 25 > 22, skip'; },
-    () => { setN('D','#134e4a','#2dd4bf'); L.textContent = 'Pop nearest unvisited: D (dist=22)'; },
-    () => { setE('DE','#22c55e'); setN('E','#78350f','#fbbf24'); L.textContent = 'Relax D→E: dist[E] = 22+8 = 30 ← BETTER than 35!'; },
-    () => { setN('F','#134e4a','#2dd4bf'); L.textContent = 'Pop F (dist=35) · F→E = 40 > 30, skip'; },
-    () => {
-      setE('AB','#60a5fa'); setE('BD','#60a5fa'); setE('DE','#60a5fa');
-      ['A','B','D','E'].forEach(n => setN(n, '#1e3a5f', '#60a5fa'));
-      setN('A','#166534','#22c55e');
-      L.textContent = '✓ Shortest path: A → B → D → E  (total cost = 30, saves 5 vs direct route)';
-      gpsRunning = false; if (b) { b.textContent = '↺ Replay'; b.classList.remove('on'); }
-    }
+  if(gpsRunning&&!gpsPaused){gpsReset();return;}
+  if(gpsPaused){gpsPauseResume();return;}
+  gpsReset(); gpsRunning=true;
+  const b=document.getElementById('gps-btn');if(b){b.textContent='⏹ Stop';b.classList.add('on');}
+  const p=document.getElementById('gps-pause');if(p){p.disabled=false;p.textContent='⏸ Pause';}
+  const L=document.getElementById('gps-log');
+  const sN=(n,f,s)=>apSetNode('gps-n'+n,f,s);
+  const sE=(e,s)=>{const el=document.getElementById('gps-'+e);if(el)el.setAttribute('stroke',s);};
+  gpsSteps=[
+    ()=>{sN('A','#166534','#22c55e');L.textContent='Init: dist[A]=0, dist[B..F]=∞';gpsDS.set(['A(0)','B(∞)','C(∞)','D(∞)','E(∞)','F(∞)'],[]);},
+    ()=>{sE('AB','#fbbf24');sN('B','#78350f','#fbbf24');L.textContent='Settle A(0) → Relax A→B: dist[B]=10';gpsDS.set(['B(10)','C(∞)','D(∞)','E(∞)','F(∞)'],['A']);},
+    ()=>{sE('AC','#fbbf24');sN('C','#78350f','#fbbf24');L.textContent='Relax A→C: dist[C]=15';gpsDS.set(['B(10)','C(15)','D(∞)','E(∞)','F(∞)'],['A']);},
+    ()=>{sN('B','#134e4a','#2dd4bf');L.textContent='Pop min: B(10) — settle B';gpsDS.set(['C(15)','D(∞)','E(35)','F(∞)'],['A','B']);},
+    ()=>{sE('BD','#fbbf24');sN('D','#78350f','#fbbf24');L.textContent='Relax B→D: dist[D]=10+12=22';gpsDS.set(['C(15)','D(22)','E(35)','F(∞)'],['A','B']);},
+    ()=>{L.textContent='Relax B→E via dashed road: dist[E]=10+25=35 (tentative)';gpsDS.set(['C(15)','D(22)','E(35)','F(∞)'],['A','B']);},
+    ()=>{sN('C','#134e4a','#2dd4bf');L.textContent='Pop min: C(15) — settle C';gpsDS.set(['D(22)','E(35)','F(∞)'],['A','B','C']);},
+    ()=>{sE('CF','#fbbf24');sN('F','#78350f','#fbbf24');L.textContent='Relax C→F: dist[F]=35 · C→D=15+10=25>22, skip';gpsDS.set(['D(22)','E(35)','F(35)'],['A','B','C']);},
+    ()=>{sN('D','#134e4a','#2dd4bf');L.textContent='Pop min: D(22) — settle D';gpsDS.set(['E(35)','F(35)'],['A','B','C','D']);},
+    ()=>{sE('DE','#22c55e');sN('E','#78350f','#fbbf24');L.textContent='Relax D→E: dist[E]=22+8=30 ← BETTER than 35!';gpsDS.set(['E(30)','F(35)'],['A','B','C','D']);},
+    ()=>{sN('F','#134e4a','#2dd4bf');L.textContent='Pop F(35) — F→E=40>30, skip';gpsDS.set(['E(30)'],['A','B','C','D','F']);},
+    ()=>{
+      sE('AB','#60a5fa');sE('BD','#60a5fa');sE('DE','#60a5fa');
+      ['A','B','D','E'].forEach(n=>sN(n,'#1e3a5f','#60a5fa'));sN('A','#166534','#22c55e');
+      L.textContent='✓ Shortest: A→B→D→E = cost 30 (saves 5 vs direct dashed route)';
+      gpsDS.set([],['A','B','C','D','E','F']);
+      gpsRunning=false;if(b){b.textContent='↺ Replay';b.classList.remove('on');}
+      if(p)p.disabled=true;
+    },
   ];
-  steps.forEach((fn, i) => { gpsTimers.push(setTimeout(fn, i * 750 + 200)); });
+  gpsTick();
 }
 
 // ── WEB CRAWLER (BFS) ────────────────────────────────
-let webTimers = [], webRunning = false;
+let webTimer=null, webCurStep=0, webSteps=[], webRunning=false, webPaused=false;
+const webDS = makeDS('web-queue','web-vis');
 function webReset() {
-  webTimers.forEach(clearTimeout); webTimers = []; webRunning = false;
-  ['H','Bl','St','Ab','P1','P2','I1','I2'].forEach(n => apSetNode('web-n' + n, '#1e293b', '#475569'));
-  ['HBl','HSt','HAb','BlP1','BlP2','StI1','StI2'].forEach(e => apSetEdge('web-' + e, '#334155', 'g'));
-  const b = document.getElementById('web-btn'); if (b) { b.textContent = '▶ Start Crawl'; b.classList.remove('on'); }
-  document.getElementById('web-log').textContent = "Press ▶ to simulate how Google's crawler indexes the web using BFS";
+  clearTimeout(webTimer); webRunning=false; webPaused=false; webCurStep=0;
+  ['H','Bl','St','Ab','P1','P2','I1','I2'].forEach(n=>apSetNode('web-n'+n,'#1e293b','#475569'));
+  ['HBl','HSt','HAb','BlP1','BlP2','StI1','StI2'].forEach(e=>apSetEdge('web-'+e,'#334155','g'));
+  const b=document.getElementById('web-btn');if(b){b.textContent='▶ Start Crawl';b.classList.remove('on');}
+  const p=document.getElementById('web-pause');if(p){p.textContent='⏸ Pause';p.disabled=true;}
+  document.getElementById('web-log').textContent="Press ▶ to simulate how Google's crawler indexes the web using BFS";
+  webDS.clear();
 }
+function webTick(){if(webCurStep>=webSteps.length){webRunning=false;return;}webSteps[webCurStep]();webCurStep++;if(!webPaused&&webCurStep<webSteps.length)webTimer=setTimeout(webTick,800);}
+function webPauseResume(){if(!webRunning)return;if(webPaused){webPaused=false;const p=document.getElementById('web-pause');if(p)p.textContent='⏸ Pause';webTimer=setTimeout(webTick,800);}else{webPaused=true;clearTimeout(webTimer);const p=document.getElementById('web-pause');if(p)p.textContent='▶ Resume';}}
 function webRun() {
-  if (webRunning) { webReset(); return; }
-  webReset(); webRunning = true;
-  const b = document.getElementById('web-btn'); if (b) { b.textContent = '⏹ Stop'; b.classList.add('on'); }
-  const L = document.getElementById('web-log');
-  const CR = ['#134e4a','#2dd4bf'], QU = ['#0c2a3f','#0891b2'];
-  const steps = [
-    () => { apSetNode('web-nH', CR[0], CR[1]); L.textContent = 'Crawl seed URL: home.dev — parse HTML, extract links'; },
-    () => {
-      ['HBl','HSt','HAb'].forEach(e => apSetEdge('web-' + e, '#2dd4bf', 't'));
-      ['Bl','St','Ab'].forEach(n => apSetNode('web-n' + n, QU[0], QU[1]));
-      L.textContent = 'Queue (BFS level 1): Blog, Store, About — discovered from Home';
-    },
-    () => {
-      apSetNode('web-nBl', CR[0], CR[1]);
-      ['BlP1','BlP2'].forEach(e => apSetEdge('web-' + e, '#2dd4bf', 't'));
-      ['P1','P2'].forEach(n => apSetNode('web-n' + n, QU[0], QU[1]));
-      L.textContent = 'Crawl blog.dev → new links: Post1, Post2 added to queue';
-    },
-    () => {
-      apSetNode('web-nSt', CR[0], CR[1]);
-      ['StI1','StI2'].forEach(e => apSetEdge('web-' + e, '#2dd4bf', 't'));
-      ['I1','I2'].forEach(n => apSetNode('web-n' + n, QU[0], QU[1]));
-      L.textContent = 'Crawl store.dev → new links: Item1, Item2 added to queue';
-    },
-    () => { apSetNode('web-nAb', CR[0], CR[1]); L.textContent = 'Crawl about.dev → no new links found'; },
-    () => {
-      ['P1','P2','I1','I2'].forEach(n => apSetNode('web-n' + n, CR[0], CR[1]));
-      L.textContent = '✓ BFS complete! 8 pages indexed. PageRank analysis begins next...';
-      webRunning = false; if (b) { b.textContent = '↺ Replay'; b.classList.remove('on'); }
-    }
+  if(webRunning&&!webPaused){webReset();return;}
+  if(webPaused){webPauseResume();return;}
+  webReset(); webRunning=true;
+  const b=document.getElementById('web-btn');if(b){b.textContent='⏹ Stop';b.classList.add('on');}
+  const p=document.getElementById('web-pause');if(p){p.disabled=false;p.textContent='⏸ Pause';}
+  const L=document.getElementById('web-log');
+  const CR=['#134e4a','#2dd4bf'], QU=['#0c2a3f','#0891b2'];
+  webSteps=[
+    ()=>{apSetNode('web-nH',CR[0],CR[1]);L.textContent='Crawl seed: home.dev — parse HTML, extract links';webDS.set(['Blog','Store','About'],[]);},
+    ()=>{['HBl','HSt','HAb'].forEach(e=>apSetEdge('web-'+e,'#2dd4bf','t'));['Bl','St','Ab'].forEach(n=>apSetNode('web-n'+n,QU[0],QU[1]));L.textContent='Queue (level 1): Blog, Store, About discovered from Home';webDS.set(['Blog','Store','About'],['Home']);},
+    ()=>{apSetNode('web-nBl',CR[0],CR[1]);['BlP1','BlP2'].forEach(e=>apSetEdge('web-'+e,'#2dd4bf','t'));['P1','P2'].forEach(n=>apSetNode('web-n'+n,QU[0],QU[1]));L.textContent='Crawl blog.dev → Post1, Post2 added to queue';webDS.set(['Store','About','Post1','Post2'],['Home','Blog']);},
+    ()=>{apSetNode('web-nSt',CR[0],CR[1]);['StI1','StI2'].forEach(e=>apSetEdge('web-'+e,'#2dd4bf','t'));['I1','I2'].forEach(n=>apSetNode('web-n'+n,QU[0],QU[1]));L.textContent='Crawl store.dev → Item1, Item2 added to queue';webDS.set(['About','Post1','Post2','Item1','Item2'],['Home','Blog','Store']);},
+    ()=>{apSetNode('web-nAb',CR[0],CR[1]);L.textContent='Crawl about.dev → no new links found';webDS.set(['Post1','Post2','Item1','Item2'],['Home','Blog','Store','About']);},
+    ()=>{['P1','P2','I1','I2'].forEach(n=>apSetNode('web-n'+n,CR[0],CR[1]));L.textContent='✓ BFS done! 8 pages indexed. PageRank analysis next...';webDS.set([],['Home','Blog','Store','About','Post1','Post2','Item1','Item2']);webRunning=false;if(b){b.textContent='↺ Replay';b.classList.remove('on');}if(p)p.disabled=true;},
   ];
-  steps.forEach((fn, i) => { webTimers.push(setTimeout(fn, i * 800 + 200)); });
+  webTick();
 }
 
 // ── SOCIAL NETWORK (BFS Degrees) ─────────────────────
-let socTimers = [], socRunning = false;
+let socTimer=null, socCurStep=0, socSteps=[], socRunning=false, socPaused=false;
+const socDS = makeDS('soc-queue','soc-vis');
 function socReset() {
-  socTimers.forEach(clearTimeout); socTimers = []; socRunning = false;
-  ['Al','Bo','Ch','Di','Ev','Fr','Ge','Ha'].forEach(n => apSetNode('soc-n' + n, '#1e293b', '#475569'));
-  ['AlBo','AlCh','AlDi','AlEv','BoFr','BoGe','ChFr','ChHa','DiGe'].forEach(e => { const el = document.getElementById('soc-' + e); if (el) el.setAttribute('stroke','#2d3a52'); });
-  const b = document.getElementById('soc-btn'); if (b) { b.textContent = '▶ Find Connections'; b.classList.remove('on'); }
-  document.getElementById('soc-log').textContent = 'Press ▶ to BFS from Alice and discover degrees of separation';
+  clearTimeout(socTimer); socRunning=false; socPaused=false; socCurStep=0;
+  ['Al','Bo','Ch','Di','Ev','Fr','Ge','Ha'].forEach(n=>apSetNode('soc-n'+n,'#1e293b','#475569'));
+  ['AlBo','AlCh','AlDi','AlEv','BoFr','BoGe','ChFr','ChHa','DiGe'].forEach(e=>{const el=document.getElementById('soc-'+e);if(el)el.setAttribute('stroke','#2d3a52');});
+  const b=document.getElementById('soc-btn');if(b){b.textContent='▶ Find Connections';b.classList.remove('on');}
+  const p=document.getElementById('soc-pause');if(p){p.textContent='⏸ Pause';p.disabled=true;}
+  document.getElementById('soc-log').textContent='Press ▶ to BFS from Alice and discover degrees of separation';
+  socDS.clear();
 }
+function socTick(){if(socCurStep>=socSteps.length){socRunning=false;return;}socSteps[socCurStep]();socCurStep++;if(!socPaused&&socCurStep<socSteps.length)socTimer=setTimeout(socTick,900);}
+function socPauseResume(){if(!socRunning)return;if(socPaused){socPaused=false;const p=document.getElementById('soc-pause');if(p)p.textContent='⏸ Pause';socTimer=setTimeout(socTick,900);}else{socPaused=true;clearTimeout(socTimer);const p=document.getElementById('soc-pause');if(p)p.textContent='▶ Resume';}}
 function socRun() {
-  if (socRunning) { socReset(); return; }
-  socReset(); socRunning = true;
-  const b = document.getElementById('soc-btn'); if (b) { b.textContent = '⏹ Stop'; b.classList.add('on'); }
-  const L = document.getElementById('soc-log');
-  const setE = (e, s) => { const el = document.getElementById('soc-' + e); if (el) el.setAttribute('stroke', s); };
-  const steps = [
-    () => { apSetNode('soc-nAl','#166534','#22c55e'); L.textContent = 'BFS from Alice — initialise queue with Alice'; },
-    () => {
-      ['AlBo','AlCh','AlDi','AlEv'].forEach(e => setE(e,'#fb923c'));
-      ['Bo','Ch','Di','Ev'].forEach(n => apSetNode('soc-n'+n,'#7c2d12','#fb923c'));
-      L.textContent = '1st degree (direct friends): Bob, Charlie, Diana, Eve';
-    },
-    () => {
-      ['BoFr','BoGe','ChFr','ChHa','DiGe'].forEach(e => setE(e,'#a78bfa'));
-      ['Fr','Ge','Ha'].forEach(n => apSetNode('soc-n'+n,'#3b0764','#a78bfa'));
-      L.textContent = '2nd degree (friends of friends): Frank, George, Hannah';
-    },
-    () => {
-      L.textContent = '✓ All 7 people reachable in ≤ 2 hops · LinkedIn shows "2nd" badge for these connections';
-      socRunning = false; if (b) { b.textContent = '↺ Replay'; b.classList.remove('on'); }
-    }
+  if(socRunning&&!socPaused){socReset();return;}
+  if(socPaused){socPauseResume();return;}
+  socReset(); socRunning=true;
+  const b=document.getElementById('soc-btn');if(b){b.textContent='⏹ Stop';b.classList.add('on');}
+  const p=document.getElementById('soc-pause');if(p){p.disabled=false;p.textContent='⏸ Pause';}
+  const L=document.getElementById('soc-log');
+  const sE=(e,s)=>{const el=document.getElementById('soc-'+e);if(el)el.setAttribute('stroke',s);};
+  socSteps=[
+    ()=>{apSetNode('soc-nAl','#166534','#22c55e');L.textContent='BFS from Alice — init queue: [Alice]';socDS.set(['Alice'],[]);},
+    ()=>{['AlBo','AlCh','AlDi','AlEv'].forEach(e=>sE(e,'#fb923c'));['Bo','Ch','Di','Ev'].forEach(n=>apSetNode('soc-n'+n,'#7c2d12','#fb923c'));L.textContent='Level 1 — 1st degree friends: Bob, Charlie, Diana, Eve';socDS.set(['Bob','Charlie','Diana','Eve'],['Alice']);},
+    ()=>{['BoFr','BoGe','ChFr','ChHa','DiGe'].forEach(e=>sE(e,'#a78bfa'));['Fr','Ge','Ha'].forEach(n=>apSetNode('soc-n'+n,'#3b0764','#a78bfa'));L.textContent='Level 2 — 2nd degree: Frank, George, Hannah';socDS.set([],['Alice','Bob','Charlie','Diana','Eve','Frank','George','Hannah']);},
+    ()=>{L.textContent='✓ All 7 reachable in ≤ 2 hops · LinkedIn shows "2nd" badge for these';socRunning=false;if(b){b.textContent='↺ Replay';b.classList.remove('on');}if(p)p.disabled=true;},
   ];
-  steps.forEach((fn, i) => { socTimers.push(setTimeout(fn, i * 900 + 200)); });
+  socTick();
 }
 
 // ── PACKAGE DEPENDENCIES (Topological Sort) ──────────
-let pkgTimers = [], pkgRunning = false;
+let pkgTimer=null, pkgCurStep=0, pkgSteps=[], pkgRunning=false, pkgPaused=false;
+const pkgDS = makeDS('pkg-queue','pkg-vis');
 function pkgReset() {
-  pkgTimers.forEach(clearTimeout); pkgTimers = []; pkgRunning = false;
-  ['app','rct','wp','dom','sch','acn','ldsh','cjs'].forEach(n => apSetNode('pkg-n' + n, '#1e293b', '#475569'));
-  ['app-rct','app-wp','rct-dom','rct-sch','wp-acn','dom-ldsh','acn-cjs'].forEach(e => apSetEdge('pkg-' + e, '#334155', 'g'));
-  const b = document.getElementById('pkg-btn'); if (b) { b.textContent = '▶ npm install'; b.classList.remove('on'); }
-  document.getElementById('pkg-log').textContent = "Press ▶ to simulate npm's topological sort install order";
+  clearTimeout(pkgTimer); pkgRunning=false; pkgPaused=false; pkgCurStep=0;
+  ['app','rct','wp','dom','sch','acn','ldsh','cjs'].forEach(n=>apSetNode('pkg-n'+n,'#1e293b','#475569'));
+  ['app-rct','app-wp','rct-dom','rct-sch','wp-acn','dom-ldsh','acn-cjs'].forEach(e=>apSetEdge('pkg-'+e,'#334155','g'));
+  const b=document.getElementById('pkg-btn');if(b){b.textContent='▶ npm install';b.classList.remove('on');}
+  const p=document.getElementById('pkg-pause');if(p){p.textContent='⏸ Pause';p.disabled=true;}
+  document.getElementById('pkg-log').textContent="Press ▶ to simulate npm's topological sort install order";
+  pkgDS.clear();
 }
+function pkgTick(){if(pkgCurStep>=pkgSteps.length){pkgRunning=false;return;}pkgSteps[pkgCurStep]();pkgCurStep++;if(!pkgPaused&&pkgCurStep<pkgSteps.length)pkgTimer=setTimeout(pkgTick,700);}
+function pkgPauseResume(){if(!pkgRunning)return;if(pkgPaused){pkgPaused=false;const p=document.getElementById('pkg-pause');if(p)p.textContent='⏸ Pause';pkgTimer=setTimeout(pkgTick,700);}else{pkgPaused=true;clearTimeout(pkgTimer);const p=document.getElementById('pkg-pause');if(p)p.textContent='▶ Resume';}}
 function pkgRun() {
-  if (pkgRunning) { pkgReset(); return; }
-  pkgReset(); pkgRunning = true;
-  const b = document.getElementById('pkg-btn'); if (b) { b.textContent = '⏹ Stop'; b.classList.add('on'); }
-  const L = document.getElementById('pkg-log');
-  const INST = ['#14532d','#22c55e'], INSTL = ['#78350f','#fbbf24'];
-  // Topo install order: leaves first, then up the DAG
-  const order = [
-    { n:'ldsh', e:null,           msg:'📦 lodash (no deps) — installing...' },
-    { n:'sch',  e:null,           msg:'📦 scheduler (no deps) — installing...' },
-    { n:'cjs',  e:null,           msg:'📦 core-js (no deps) — installing...' },
-    { n:'dom',  e:'dom-ldsh',     msg:'📦 react-dom — lodash ✓ — installing...' },
-    { n:'acn',  e:'acn-cjs',      msg:'📦 acorn — core-js ✓ — installing...' },
-    { n:'rct',  e:'rct-dom',      msg:'📦 react — react-dom ✓, scheduler ✓ — installing...' },
-    { n:'wp',   e:'wp-acn',       msg:'📦 webpack — acorn ✓ — installing...' },
-    { n:'app',  e:'app-rct',      msg:'✓ app — react ✓, webpack ✓ — all dependencies resolved!' },
+  if(pkgRunning&&!pkgPaused){pkgReset();return;}
+  if(pkgPaused){pkgPauseResume();return;}
+  pkgReset(); pkgRunning=true;
+  const b=document.getElementById('pkg-btn');if(b){b.textContent='⏹ Stop';b.classList.add('on');}
+  const p=document.getElementById('pkg-pause');if(p){p.disabled=false;p.textContent='⏸ Pause';}
+  const L=document.getElementById('pkg-log');
+  const INST=['#14532d','#22c55e'], PND=['#78350f','#fbbf24'];
+  const installed=[];
+  pkgSteps=[
+    ()=>{apSetNode('pkg-nldsh',PND[0],PND[1]);L.textContent='📦 lodash — in-degree=0, ready to install';pkgDS.set(['lodash','scheduler','core-js'],[]);},
+    ()=>{apSetNode('pkg-nldsh',INST[0],INST[1]);installed.push('lodash');L.textContent='✓ lodash installed';pkgDS.set(['scheduler','core-js'],[...installed]);},
+    ()=>{apSetNode('pkg-nsch',PND[0],PND[1]);L.textContent='📦 scheduler — in-degree=0, ready to install';pkgDS.set(['scheduler','core-js'],[...installed]);},
+    ()=>{apSetNode('pkg-nsch',INST[0],INST[1]);installed.push('scheduler');L.textContent='✓ scheduler installed';pkgDS.set(['core-js'],[...installed]);},
+    ()=>{apSetNode('pkg-ncjs',PND[0],PND[1]);L.textContent='📦 core-js — in-degree=0, ready to install';pkgDS.set(['core-js'],[...installed]);},
+    ()=>{apSetNode('pkg-ncjs',INST[0],INST[1]);installed.push('core-js');L.textContent='✓ core-js installed';pkgDS.set(['react-dom','acorn'],[...installed]);},
+    ()=>{apSetNode('pkg-ndom',PND[0],PND[1]);apSetEdge('pkg-dom-ldsh','#22c55e','t');L.textContent='📦 react-dom — lodash ✓, deps met';pkgDS.set(['react-dom','acorn'],[...installed]);},
+    ()=>{apSetNode('pkg-ndom',INST[0],INST[1]);installed.push('react-dom');L.textContent='✓ react-dom installed';pkgDS.set(['acorn'],[...installed]);},
+    ()=>{apSetNode('pkg-nacn',PND[0],PND[1]);apSetEdge('pkg-acn-cjs','#22c55e','t');L.textContent='📦 acorn — core-js ✓, deps met';pkgDS.set(['acorn'],[...installed]);},
+    ()=>{apSetNode('pkg-nacn',INST[0],INST[1]);installed.push('acorn');L.textContent='✓ acorn installed';pkgDS.set(['react','webpack'],[...installed]);},
+    ()=>{apSetNode('pkg-nrct',PND[0],PND[1]);apSetEdge('pkg-rct-dom','#22c55e','t');apSetEdge('pkg-rct-sch','#22c55e','t');L.textContent='📦 react — react-dom ✓, scheduler ✓';pkgDS.set(['react','webpack'],[...installed]);},
+    ()=>{apSetNode('pkg-nrct',INST[0],INST[1]);installed.push('react');L.textContent='✓ react installed';pkgDS.set(['webpack'],[...installed]);},
+    ()=>{apSetNode('pkg-nwp',PND[0],PND[1]);apSetEdge('pkg-wp-acn','#22c55e','t');L.textContent='📦 webpack — acorn ✓, deps met';pkgDS.set(['webpack'],[...installed]);},
+    ()=>{apSetNode('pkg-nwp',INST[0],INST[1]);installed.push('webpack');L.textContent='✓ webpack installed';pkgDS.set(['app'],[...installed]);},
+    ()=>{apSetNode('pkg-napp',PND[0],PND[1]);apSetEdge('pkg-app-rct','#22c55e','t');apSetEdge('pkg-app-wp','#22c55e','t');L.textContent='📦 app — react ✓, webpack ✓ — all deps ready!';pkgDS.set(['app'],[...installed]);},
+    ()=>{apSetNode('pkg-napp',INST[0],INST[1]);installed.push('app');L.textContent='✓ All dependencies installed! Topological order complete.';pkgDS.set([],[...installed]);pkgRunning=false;if(b){b.textContent='↺ Replay';b.classList.remove('on');}if(p)p.disabled=true;},
   ];
-  order.forEach(({ n, e, msg }, i) => {
-    pkgTimers.push(setTimeout(() => { apSetNode('pkg-n'+n, INSTL[0], INSTL[1]); }, i * 700));
-    pkgTimers.push(setTimeout(() => {
-      apSetNode('pkg-n'+n, INST[0], INST[1]);
-      if (e) apSetEdge('pkg-'+e, '#22c55e', 't');
-      if (n === 'rct') apSetEdge('pkg-rct-sch', '#22c55e', 't');
-      if (n === 'app') apSetEdge('pkg-app-wp', '#22c55e', 't');
-      L.textContent = msg;
-      if (i === order.length - 1) { pkgRunning = false; if (b) { b.textContent = '↺ Replay'; b.classList.remove('on'); } }
-    }, i * 700 + 380));
-  });
+  pkgTick();
 }
 
 // ── FILE SYSTEM (DFS Traversal) ──────────────────────
-let fsTimers = [], fsRunning = false;
+let fsTimer=null, fsCurStep=0, fsSteps=[], fsRunning=false, fsPaused=false;
+const fsDS = makeDS('fs-stack','fs-vis');
 function fsReset() {
-  fsTimers.forEach(clearTimeout); fsTimers = []; fsRunning = false;
-  ['root','home','etc','usr','user','guest','config','bin','code','git'].forEach(n => apSetNode('fs-n'+n,'#1e293b','#475569'));
-  ['rh','re','ru','hu','hg','ec','ub','uc','bg'].forEach(e => { const el = document.getElementById('fs-'+e); if (el) el.setAttribute('stroke','#2d3a52'); });
-  const b = document.getElementById('fs-btn'); if (b) { b.textContent = '▶ DFS Traverse'; b.classList.remove('on'); }
-  document.getElementById('fs-log').textContent = 'Press ▶ to watch DFS traverse the directory tree';
+  clearTimeout(fsTimer); fsRunning=false; fsPaused=false; fsCurStep=0;
+  ['root','home','etc','usr','user','guest','config','bin','code','git'].forEach(n=>apSetNode('fs-n'+n,'#1e293b','#475569'));
+  ['rh','re','ru','hu','hg','ec','ub','uc','bg'].forEach(e=>{const el=document.getElementById('fs-'+e);if(el)el.setAttribute('stroke','#2d3a52');});
+  const b=document.getElementById('fs-btn');if(b){b.textContent='▶ DFS Traverse';b.classList.remove('on');}
+  const p=document.getElementById('fs-pause');if(p){p.textContent='⏸ Pause';p.disabled=true;}
+  document.getElementById('fs-log').textContent='Press ▶ to watch DFS traverse the directory tree';
+  fsDS.clear();
 }
+function fsTick(){if(fsCurStep>=fsSteps.length){fsRunning=false;return;}fsSteps[fsCurStep]();fsCurStep++;if(!fsPaused&&fsCurStep<fsSteps.length)fsTimer=setTimeout(fsTick,750);}
+function fsPauseResume(){if(!fsRunning)return;if(fsPaused){fsPaused=false;const p=document.getElementById('fs-pause');if(p)p.textContent='⏸ Pause';fsTimer=setTimeout(fsTick,750);}else{fsPaused=true;clearTimeout(fsTimer);const p=document.getElementById('fs-pause');if(p)p.textContent='▶ Resume';}}
 function fsRun() {
-  if (fsRunning) { fsReset(); return; }
-  fsReset(); fsRunning = true;
-  const b = document.getElementById('fs-btn'); if (b) { b.textContent = '⏹ Stop'; b.classList.add('on'); }
-  const L = document.getElementById('fs-log');
-  const V = ['#134e4a','#2dd4bf'];
-  const setE = (e, s) => { const el = document.getElementById('fs-'+e); if (el) el.setAttribute('stroke', s); };
-  // DFS pre-order: / → home → user → code → guest → etc → config → usr → bin → git
-  const steps = [
-    { n:'root',   e:null, msg:'DFS visit: / (root) — recurse into first child' },
-    { n:'home',   e:'rh', msg:'DFS visit: /home — recurse deeper into user/' },
-    { n:'user',   e:'hu', msg:'DFS visit: /home/user — recurse into code/' },
-    { n:'code',   e:'uc', msg:'DFS visit: /home/user/code (leaf) — backtrack ↑' },
-    { n:'guest',  e:'hg', msg:'DFS visit: /home/guest (leaf) — backtrack to /home, then /' },
-    { n:'etc',    e:'re', msg:'DFS visit: /etc — recurse into nginx.conf' },
-    { n:'config', e:'ec', msg:'DFS visit: /etc/nginx.conf (leaf) — backtrack to /' },
-    { n:'usr',    e:'ru', msg:'DFS visit: /usr — recurse into bin/' },
-    { n:'bin',    e:'ub', msg:'DFS visit: /usr/bin — recurse into git' },
-    { n:'git',    e:'bg', msg:'✓ DFS visit: /usr/bin/git (leaf) — DFS complete! 10 nodes visited' },
+  if(fsRunning&&!fsPaused){fsReset();return;}
+  if(fsPaused){fsPauseResume();return;}
+  fsReset(); fsRunning=true;
+  const b=document.getElementById('fs-btn');if(b){b.textContent='⏹ Stop';b.classList.add('on');}
+  const p=document.getElementById('fs-pause');if(p){p.disabled=false;p.textContent='⏸ Pause';}
+  const L=document.getElementById('fs-log');
+  const V=['#134e4a','#2dd4bf'];
+  const sE=(e,s)=>{const el=document.getElementById('fs-'+e);if(el)el.setAttribute('stroke',s);};
+  const visited=[];
+  fsSteps=[
+    ()=>{apSetNode('fs-nroot',V[0],V[1]);visited.push('/');L.textContent='DFS push /, visit / — recurse into home/';fsDS.set(['/','home','etc','usr'],[...visited]);},
+    ()=>{sE('rh','#2dd4bf');apSetNode('fs-nhome',V[0],V[1]);visited.push('home');L.textContent='DFS push home, visit /home — recurse into user/';fsDS.set(['home/user','home/guest'],[...visited]);},
+    ()=>{sE('hu','#2dd4bf');apSetNode('fs-nuser',V[0],V[1]);visited.push('user');L.textContent='DFS push user, visit /home/user — recurse into code/';fsDS.set(['user/code'],[...visited]);},
+    ()=>{sE('uc','#2dd4bf');apSetNode('fs-ncode',V[0],V[1]);visited.push('code');L.textContent='DFS visit /home/user/code (leaf) — backtrack ↑';fsDS.set(['home/guest'],[...visited]);},
+    ()=>{sE('hg','#2dd4bf');apSetNode('fs-nguest',V[0],V[1]);visited.push('guest');L.textContent='DFS visit /home/guest (leaf) — backtrack to /';fsDS.set(['etc','usr'],[...visited]);},
+    ()=>{sE('re','#2dd4bf');apSetNode('fs-netc',V[0],V[1]);visited.push('etc');L.textContent='DFS push etc, visit /etc — recurse into nginx.conf';fsDS.set(['etc/nginx.conf'],[...visited]);},
+    ()=>{sE('ec','#2dd4bf');apSetNode('fs-nconfig',V[0],V[1]);visited.push('nginx.conf');L.textContent='DFS visit /etc/nginx.conf (leaf) — backtrack to /';fsDS.set(['usr'],[...visited]);},
+    ()=>{sE('ru','#2dd4bf');apSetNode('fs-nusr',V[0],V[1]);visited.push('usr');L.textContent='DFS push usr, visit /usr — recurse into bin/';fsDS.set(['usr/bin'],[...visited]);},
+    ()=>{sE('ub','#2dd4bf');apSetNode('fs-nbin',V[0],V[1]);visited.push('bin');L.textContent='DFS push bin, visit /usr/bin — recurse into git';fsDS.set(['bin/git'],[...visited]);},
+    ()=>{sE('bg','#2dd4bf');apSetNode('fs-ngit',V[0],V[1]);visited.push('git');L.textContent='✓ DFS done! 10 nodes visited in depth-first order';fsDS.set([],[...visited]);fsRunning=false;if(b){b.textContent='↺ Replay';b.classList.remove('on');}if(p)p.disabled=true;},
   ];
-  steps.forEach(({ n, e, msg }, i) => {
-    fsTimers.push(setTimeout(() => {
-      apSetNode('fs-n'+n, V[0], V[1]);
-      if (e) setE(e, '#2dd4bf');
-      L.textContent = msg;
-      if (i === steps.length - 1) { fsRunning = false; if (b) { b.textContent = '↺ Replay'; b.classList.remove('on'); } }
-    }, i * 750 + 200));
-  });
+  fsTick();
 }
 
 // ── TOGGLE ANSWERS ────────────────────────────────────
@@ -3249,6 +3700,108 @@ function toggleAutoPlay() {
 showTerm(0, null);
 
 
+// ── BFS / DFS ANIMATION ────────────────────────────────
+const BFD = {
+  adj: [[1,2],[3,4],[5,6],[],[],[],[]],
+  labels: ['A','B','C','D','E','F','G'],
+};
+let bfdTimer = null, bfdRunning = false, bfdMode = '';
+
+function bfdN(id) { return document.getElementById('bfd-n'+id); }
+function bfdEdge(a, b) { return document.getElementById('bfd-e'+a+'-'+b); }
+
+function bfdSetNode(id, fill, stroke, glow) {
+  const el = bfdN(id); if (!el) return;
+  el.setAttribute('fill', fill); el.setAttribute('stroke', stroke); el.style.filter = glow || 'none';
+}
+function bfdSetEdge(a, b, stroke, width) {
+  const el = bfdEdge(a, b); if (!el) return;
+  el.setAttribute('stroke', stroke); el.setAttribute('stroke-width', width || '2');
+}
+
+function bfdReset() {
+  clearTimeout(bfdTimer); bfdRunning = false;
+  for (let i = 0; i < 7; i++) bfdSetNode(i, '#1e293b', '#334155', 'none');
+  [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]].forEach(([a,b]) => bfdSetEdge(a, b, 'rgba(51,65,85,.5)', 2));
+  document.getElementById('bfd-ds-lbl').textContent = 'Queue / Stack';
+  document.getElementById('bfd-ds-items').innerHTML = '<span style="font-size:10px;color:#334155;font-style:italic">empty</span>';
+  document.getElementById('bfd-log').innerHTML = 'Press <b style="color:#2dd4bf">Run BFS</b> or <b style="color:#c4b5fd">Run DFS</b> to see the traversal';
+}
+
+function bfdComputeSteps(mode) {
+  const isBFS = mode === 'bfs';
+  const steps = [], visited = new Set(), ds = [];
+  const snap = (cur, msg) => ({ visited: new Set(visited), ds: [...ds], current: cur, msg });
+  if (isBFS) {
+    visited.add(0); ds.push(0);
+    steps.push(snap(-1, 'Enqueue A. Queue: [A]'));
+    while (ds.length) {
+      const v = ds.shift();
+      steps.push(snap(v, `Dequeue ${BFD.labels[v]}, visit it. Queue: [${ds.map(i=>BFD.labels[i]).join(', ')||'empty'}]`));
+      const enq = [];
+      for (const u of BFD.adj[v]) {
+        if (!visited.has(u)) { visited.add(u); ds.push(u); enq.push(u); }
+      }
+      if (enq.length) steps.push(snap(v, `Enqueue ${enq.map(i=>BFD.labels[i]).join(', ')}. Queue: [${ds.map(i=>BFD.labels[i]).join(', ')}]`));
+    }
+    steps.push(snap(-1, 'BFS done! Visit order: A → B → C → D → E → F → G'));
+  } else {
+    ds.push(0);
+    steps.push(snap(-1, 'Push A onto stack. Stack: [A]'));
+    while (ds.length) {
+      const v = ds.pop();
+      if (visited.has(v)) continue;
+      visited.add(v);
+      steps.push(snap(v, `Pop ${BFD.labels[v]}, visit. Stack: [${[...ds].reverse().map(i=>BFD.labels[i]).join(', ')||'empty'}]`));
+      const pushed = [];
+      for (const u of [...BFD.adj[v]].reverse()) {
+        if (!visited.has(u)) { ds.push(u); pushed.push(u); }
+      }
+      if (pushed.length) steps.push(snap(v, `Push ${pushed.map(i=>BFD.labels[i]).join(', ')}. Stack: [${[...ds].reverse().map(i=>BFD.labels[i]).join(', ')}]`));
+    }
+    steps.push(snap(-1, 'DFS done! Visit order: A → B → D → E → C → F → G'));
+  }
+  return steps;
+}
+
+function bfdApplyStep(s, mode) {
+  const isBFS = mode === 'bfs';
+  const visFill = isBFS ? '#134e4a' : '#2e1065';
+  const visStroke = isBFS ? '#22c55e' : '#8b5cf6';
+  const dsCss = isBFS ? 'bfs-item' : 'dfs-item';
+  for (let i = 0; i < 7; i++) {
+    if (i === s.current)        bfdSetNode(i, '#78350f', '#fbbf24', 'drop-shadow(0 0 10px #fbbf24)');
+    else if (s.visited.has(i))  bfdSetNode(i, visFill, visStroke, `drop-shadow(0 0 4px ${visStroke})`);
+    else if (s.ds.includes(i))  bfdSetNode(i, '#1e3a5f', '#3b82f6', 'drop-shadow(0 0 6px #3b82f6)');
+    else                        bfdSetNode(i, '#1e293b', '#334155', 'none');
+  }
+  [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]].forEach(([a,b]) => {
+    const lit = s.visited.has(a) && s.visited.has(b);
+    bfdSetEdge(a, b, lit ? visStroke : 'rgba(51,65,85,.5)', lit ? 2.5 : 2);
+  });
+  document.getElementById('bfd-ds-lbl').textContent = isBFS ? 'Queue (FIFO):' : 'Stack (LIFO):';
+  document.getElementById('bfd-ds-items').innerHTML = s.ds.length
+    ? s.ds.map(id => `<span class="ds-item ${dsCss}">${BFD.labels[id]}</span>`).join('')
+    : '<span style="font-size:10px;color:#334155;font-style:italic">empty</span>';
+  const color = isBFS ? '#2dd4bf' : '#a78bfa';
+  document.getElementById('bfd-log').innerHTML = `<span style="color:${color}">${s.msg}</span>`;
+}
+
+function bfdRun(mode) {
+  bfdReset(); bfdMode = mode; bfdRunning = true;
+  const steps = bfdComputeSteps(mode);
+  let idx = 0;
+  const speed = parseInt(document.getElementById('bfd-speed')?.value || 3);
+  const delay = [1000, 700, 450, 300, 150][speed - 1];
+  function tick() {
+    if (idx >= steps.length) { bfdRunning = false; return; }
+    bfdApplyStep(steps[idx], mode); idx++;
+    if (idx < steps.length) bfdTimer = setTimeout(tick, delay);
+    else bfdRunning = false;
+  }
+  tick();
+}
+
 // ── REPR TABS ─────────────────────────────────────────
 function showRepr(id, btn) {
   document.querySelectorAll('.repr-panel').forEach(p => p.classList.remove('active'));
@@ -3256,6 +3809,7 @@ function showRepr(id, btn) {
   document.getElementById('repr-' + id).classList.add('active');
   btn.classList.add('active');
 }
+
 
 </script>
 </body>
